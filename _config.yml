@@ -1,7 +1,5 @@
 name: Matt Petersen
 markdown: kramdown
-kramdown:
-  math_engine: mathjax
 permalink: /:title
 gems:
   - jekyll-sitemap
