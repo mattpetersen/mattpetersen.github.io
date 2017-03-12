@@ -1,5 +1,8 @@
-
-# Backprop with Binary Cross-Entropy
+---
+layout: post
+title: "Backprop with Binary Cross-Entropy"
+date: 2017-03-12
+---
 
 Consider a network with three layers.
 
@@ -61,5 +64,7 @@ __Note:__ We don't actually know what these five hidden features represent. _The
 
 
 ```python
-
+my_variable = 5
+def my_function(inpt):
+return 2 * inpt
 ```
