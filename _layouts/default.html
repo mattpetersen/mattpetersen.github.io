@@ -1,34 +1,45 @@
 <!DOCTYPE html>
 <html>
 
+<!-- This will be imported to every page -->
+
 
 <head>
 
+<!-- Set page title -->
 <title>{{ page.title }}</title>
+
+<!-- Set page meta info -->
+<meta name=”description” content=”A blog about deep learning” />
+<meta name=”robots” content=”noodp” />
+
+<!-- Set CSS -->
 <link rel="stylesheet" type="text/css" href="/css/main.css">
+
+<!-- Print header -->
+{% if page.header %}
+<div class="header">
+    {% include header.html %}
+</div>
+{% endif %}
 
 </head>
 
 
 <body>
 
-<nav>
-	<ul>
-		<li><a href="/">Home</a></li>
-    	<li><a href="/about">About</a></li>
-	</ul>
-</nav>
-
+<!-- Frame page content -->
 <div class="container">{{ content }}</div>
 
-<footer>
-	<ul>
-		<li><a href="mailto:peterm0273@gmail.com">email</a></li>
-		<li><a href="https://github.com/mattpetersen">github</a></li>
-	</ul>
-</footer>
+<!-- Print footer -->
+{% if page.footer %}
+<div class="footer">
+    {% include footer.html %}
+</div>
+{% endif %}
 
 </body>
 
 
 </html>
+

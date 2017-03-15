@@ -1,6 +1,6 @@
 body {
-    background-color: #fefefa;
-    margin: 60px auto;
+    background-color: #ffffff;
+    margin: 30px auto;
     width: 70%;
 }
 nav ul, footer ul {
@@ -14,29 +14,38 @@ nav ul li, footer ul li {
     margin-right: 20px;
 }
 a {
+    font-size: 1.2em;
     text-decoration: none;
-    color: #999;
+    color: #2a7ae2;
 }
 a:hover {
     text-decoration: underline;
 }
 h1 {
-    font-size: 3em;
+    font-size: 2em;
     font-family:'Helvetica', 'Arial', 'Sans-Serif';
+    color: #333333;
 }
 p {
-    font-size: 1.5em;
-    line-height: 1.4em;
-    color: #333;
+    font-size: 1.2em;
+    line-height: 1.5em;
+    color: #333333;
 }
 footer {
     border-top: 1px solid #d5d5d5;
     font-size: .8em;
 }
+
+
 ul.posts { 
     margin: 20px auto 40px; 
-    font-size: 1.5em;
+    font-size: 1.2em;
 }
 ul.posts li {
     list-style: none;
+}
+
+.subtitle {
+    font-size: 1.0em;
+    margin-left: 40px;
 }

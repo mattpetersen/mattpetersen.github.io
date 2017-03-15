@@ -1,9 +1,38 @@
 ---
 layout: default
 ---
-<h1>{{ page.title }}</h1>
-<p class="meta">{{ page.date | date_to_string }}</p>
+<!-- Modifies default.html into a blog post -->
 
-<div class="post">
-  {{ content }}
+<!-- Print post title -->
+<h1>{{ page.title }}</h1>
+
+<!-- Print post date -->
+<p class="subtitle">Posted on {{ page.date | date: "%B %-d, %Y" }}</p>
+
+<!-- Print post tags -->
+<div class="tags">
+	<p class="subtitle">
+		<i>
+		{% for tag in page.tags %}
+		{{ tag }}
+		{% endfor %}</i>
+	</p>
 </div>
+
+<!-- Print horizontal spanning line -->
+<hr style="width: 100%"/>
+
+<!-- Print content -->
+<div class="post">
+    {{ content }}
+</div>
+
+<!-- Print disqus thread -->
+{% if page.comments %}
+<div class="pagecomments">
+    {% include disqus.html %}
+</div>
+{% endif %}
+
+
+

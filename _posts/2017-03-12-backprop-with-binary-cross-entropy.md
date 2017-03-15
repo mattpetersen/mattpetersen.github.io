@@ -2,15 +2,15 @@
 layout: post
 title: "Backprop with Binary Cross-Entropy"
 date: 2017-03-12
+comments: true
+header: true
+footer: false
+tags: neural networks, deep learning, cross-entropy, backpropogation
 ---
 
 Consider a network with three layers.
 
----
-
 ![Neural Network](http://www.texample.net/media/tikz/examples/PNG/neural-network.png)
-
----
 
 This network will predict rain. The red node will output $0$ for sunny, and $1$ for rainy. Each green node represents one input feature. Since there are four green nodes, we'll have four input features. The four input features we use are
 
@@ -24,9 +24,7 @@ These input features are defined by our dataset. Typically our data are stored i
 - Each row is an observation
 - Each column is a feature
 
-### Feedforward
-
----
+# Feedforward
 
 __Input layer:__
 
@@ -68,3 +66,4 @@ my_variable = 5
 def my_function(inpt):
 return 2 * inpt
 ```
+

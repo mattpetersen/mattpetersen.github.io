@@ -1,14 +1,17 @@
 ---
 layout: default
-title: Home - mattpetersen's blog
+title: Matt Petersen's Blog
+header: true
+comments: false
+footer: true
 ---
-<div class="blurb">
-	<h1>Matt's Blog</h1>h1>
-	
-    <p>I'm making an education blog about linear algebra and neural networks.</p>
 
-    <ul>
-    <li><a href="_posts/2017-03-12-backprop-with-binary-cross-entropy.md">Binary Cross Entropy Derivation and Backpropogation</a>
-    <li><a href="_posts/2017-02-16-first-post.md">First post</a>
-    </ul>
-</div><!-- /.blurb -->
+<h1>{{ page.title }}</h1>
+
+<!-- List of blog posts from _posts/*.md -->
+<ul>
+    {% for post in site.posts %}
+        <li>{{ post.date | date: "%b %-d, %Y" }} »
+        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
+    {% endfor %}
+</ul>
