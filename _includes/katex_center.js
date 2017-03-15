@@ -1,9 +1,3 @@
-/*
-
-<dtex>E = mc^2</dtex>
-
-*/
-
 <script>
     txlist = document.getElementsByTagName("dtex");
     for (var i = 0; i < txlist.length; i++) {

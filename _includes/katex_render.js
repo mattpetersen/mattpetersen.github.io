@@ -1,17 +1,3 @@
-/*
-
-<script type="math/tex"> tex code </script>
-
-OR
-
-<script type="math/tex; mode=display"> tex code </script>
-
-OR
-
-$$ tex code $$
-
-*/
-
 <script>
 $("script[type='math/tex']").replaceWith(
   function(){
