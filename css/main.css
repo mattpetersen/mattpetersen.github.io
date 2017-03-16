@@ -48,7 +48,10 @@ div.equation {
 
 /* Horizontal rule */
 hr {
-    border-top: 1px dotted;
+    border: 0;
+    height: 1px;
+    background: #444;
+    background-image: linear-gradient(to right, #ccc, #444, #ccc);
 }
 
 /* Navbar lists (Posts, About), (email, github, twitter) */
@@ -85,6 +88,19 @@ ul.posts li {
     margin-left: 40px;
 }
 
-@-ms-viewport{ /* for internet explorer 10 */
-  width: device-width;
+/* These are for different screen sizes */
+
+/* for internet explorer 10 */
+@-ms-viewport{ 
+    width: device-width;
 }
+
+/* Individual custom settings
+@media screen and (max-width: 768px) {
+    width: 80%;
+}
+
+@media screen and (max-width: 320px) {
+    widgth: 80%;
+}
+*/
