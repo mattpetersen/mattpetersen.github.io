@@ -5,22 +5,18 @@ html {
 
 /* Center and scale our page for different screens */
 body {
-    margin: 0 auto;  /* center page content */
-    margin-left: 12.5% auto;
-    margin-right: 12.5% auto;
+    margin: 2em auto;  /* center page content */
     max-width: 700px;  /* constrain content to slim column */
 }
 
 /* Tablet screen (pixels != pixels) */
 @media screen and (max-width: 768px) {
-    margin-left: 2em auto;
-    margin-right: 2em auto;
+    margin: 2em auto;
 }
 
 /* Phone screen (pixels != pixels) */
-@media screen and (max-width: 320px) {
-    margin-left: 2em auto;
-    margin-right: 2em auto;
+@media screen and (max-width: 360px) {
+    margin: 2em auto;
 }
 
 header {
