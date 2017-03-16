@@ -5,19 +5,22 @@ html {
 
 /* Center and scale our page for different screens */
 body {
-    margin: 2em auto;  /* center page content */
-    max-width: 700px;  /* constrain content to slim column */
+    margin: 5em auto;
+    margin-top: 0;
+    max-width: 700px;
 }
 
-/* Tablet screen (pixels != pixels) */
+
+/* Tablet screen
 @media screen and (max-width: 768px) {
     margin: 2em auto;
 }
 
-/* Phone screen (pixels != pixels) */
+/* Phone screen
 @media screen and (max-width: 360px) {
     margin: 2em auto;
 }
+*/
 
 header {
     font-size: 1.25em;
