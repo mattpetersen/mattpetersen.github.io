@@ -2,13 +2,13 @@
 layout: post
 title: "Feedforward example for predicting rain"
 date: 2017-03-12
-comments: true
 header: true
 footer: false
+comments: true
 tags: neural networks, deep learning, mlp, feedforward
 ---
 
-In this post we'll feed a dataset forward through a neural network to get an output. For an output, let's predict whether or not it's going to rain on a given day. What factors could predict rain? Some good guess would be temperature, humidity, cloud cover, and wind speed. Let's gather some data about these factors over a few days. 
+In this post we'll feed a dataset forward through a neural network to get an output. For an output, let's predict whether or not it's going to rain on a given day. What factors could predict rain? Some good guesses would be temperature, humidity, cloud cover, and wind speed. Let's gather some data about these factors over a few days. 
 
 ![Data raw](images/rain/data_raw_350_325.png)
 

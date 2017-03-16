@@ -2,16 +2,24 @@
 layout: default
 title: Matt Petersen's Blog
 header: true
-comments: false
 footer: true
+comments: false
 ---
+<html> <!-- Home page -->
 
-<h1>{{ page.title }}</h1>
+    <head>
+    </head>
 
-<!-- List of blog posts from _posts/*.md -->
-<ul>
-    {% for post in site.posts %}
-        <li>{{ post.date | date: "%b %-d, %Y" }} »
-        <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></li>
-    {% endfor %}
-</ul>
+    <body>
+        <h1>{{ page.title }}</h1>
+
+        <ul> <!-- List of blog posts fetched from '_posts/*.md' -->
+            {% for post in site.posts %}
+                <li>{{ post.date | date: "%b %-d, %Y" }} »
+                <a href="{{ post.url }}" 
+                   title="{{ post.title }}">{{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </body>
+
+</html>

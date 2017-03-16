@@ -1,45 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html>  <!-- Format of every page -->
 
-<!-- This will be imported to every page -->
+    <head>
+        <meta charset="utf-8"> <!-- set character encoding for the document -->
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        
+        <!-- Make the site nice on different screens -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <!-- For web crawlers -->
+        <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+        <meta name="rating" content="General">  <!-- check my site age -->
+        <meta name="subject" content="Deep learning and neural networks">
+        <meta name=”description” content=”A blog about deep learning and neural networks”>
+        
+        <!-- Page title auto-filled as blog post title -->
+        <title>{{ page.title }}</title> 
+
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="/css/main.css">
+
+        <!-- File of site authors -->
+        <link rel="author" href="humans.txt">
+
+        <!-- Author details -->
+        <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+        <link rel="me" href="mailto:peterm0273@gmail.com">
 
 
-<head>
+    </head>
 
-<!-- Set page title -->
-<title>{{ page.title }}</title>
+    <body>
+        <!-- Header -->
+        {% if page.header %}
+            <div class="header">
+                {% include header.html %}
+            </div>
+        {% endif %}
 
-<!-- Set page meta info -->
-<meta name=”description” content=”A blog about deep learning” />
-<meta name=”robots” content=”noodp” />
+        <!-- Content -->
+        <div class="content">
+            {{ content }}
+        </div>
 
-<!-- Set CSS -->
-<link rel="stylesheet" type="text/css" href="/css/main.css">
-
-<!-- Print header -->
-{% if page.header %}
-<div class="header">
-    {% include header.html %}
-</div>
-{% endif %}
-
-</head>
-
-
-<body>
-
-<!-- Frame page content -->
-<div class="container">{{ content }}</div>
-
-<!-- Print footer -->
-{% if page.footer %}
-<div class="footer">
-    {% include footer.html %}
-</div>
-{% endif %}
-
-</body>
-
+        <!-- Footer -->
+        {% if page.footer %}
+            <div class="footer">
+                {% include footer.html %}
+            </div>
+        {% endif %}
+    </body>
 
 </html>
-

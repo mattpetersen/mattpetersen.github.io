@@ -1,61 +1,51 @@
 ---
 layout: default
 ---
-<html>
+<!DOCTYPE html>
+<html> <!-- Additional formatting for blog post page -->
 
-<!-- Modifies default.html into a blog post -->
+    <head>
+        <!-- jQuery (local) -->
+        <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
 
+        <!-- KaTeX (local) -->
+        <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+        <script type="text/javascript" src="katex/katex.min.js"></script>
+    </head>
 
-<head>
+    <body>
+        <!-- Title -->
+        <h1>{{ page.title }}</h1>
 
-<!-- Load jQuery -->
-<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <!-- Date -->
+        <p class="postdate">
+            Posted on {{ page.date | date: "%B %-d, %Y" }}
+        </p>
 
-<!-- Load KaTeX -->
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.1.1/katex.min.js"></script>
+        <!-- Tags -->
+        <p class="posttags">
+            {% for tag in page.tags %}
+                {{ tag }}
+            {% endfor %}
+        </p>
 
-</head>
+        <!-- Horizontal rule -->
+        <hr>
 
+        <!-- Content -->
+        <div class="postcontent">
+            {{ content }}
+        </div>
 
-</body>
-
-<!-- Print post title -->
-<h1>{{ page.title }}</h1>
-
-<!-- Print post date -->
-<p class="subtitle">Posted on {{ page.date | date: "%B %-d, %Y" }}</p>
-
-<!-- Print post tags -->
-<div class="tags">
-	<p class="subtitle">
-		<i>
-		{% for tag in page.tags %}
-		{{ tag }}
-		{% endfor %}</i>
-	</p>
-</div>
-
-<!-- Print horizontal spanning line -->
-<hr style="width: 100%"/>
-
-<!-- Print content -->
-<div class="post">
-    {{ content }}
-</div>
-
-<!-- Print disqus thread -->
-{% if page.comments %}
-<div class="pagecomments">
-    {% include disqus.html %}
-</div>
-{% endif %}
-
-</body>
-
+        <!-- Disqus -->
+        {% if page.comments %}
+        <div class="disqus">
+            {% include disqus.html %}
+        </div>
+        {% endif %}
+    </body>
 
 </html>
 
 {% include katex_render.js %}
 {% include katex_center.js %}
-
