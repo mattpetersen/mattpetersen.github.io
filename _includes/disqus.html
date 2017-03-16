@@ -1,26 +1,22 @@
+<!-- disqus.html -->
 <div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = {{ page.title | jsonify }};
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
 
-<!-- JavaScript -->
-<script>
-
-/* Change these variables */
-var disqus_config = function () {
-    this.page.url = 'https://mattpetersen.github.io/';
-    this.page.identifier = {{ page.title | jsonify }};
-};
-
-/* Don't edit below this line */
-(function() {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-})();
-
-</script>
-
-
-<!-- If no JavaScript -->
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
-
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
 </div>
+<!-- end disqus.html -->

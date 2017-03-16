@@ -1,51 +1,26 @@
 ---
 layout: default
 ---
-<!DOCTYPE html>
-<html> <!-- Additional formatting for blog post page -->
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
 
-    <head>
-        <!-- jQuery (local) -->
-        <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Post header -->
+    <p class="postname">{{ page.title }}</p>
+    <p class="postdate">Posted on {{ page.date | date: "%B %-d, %Y" }}</p>
+    <p class="posttags">{% for tag in page.tags %}{{ tag }} {% endfor %}</p>
+    <hr>
 
-        <!-- KaTeX (local) -->
-        <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
-        <script type="text/javascript" src="katex/katex.min.js"></script>
-    </head>
+<!-- Post content -->
+{{ content }}
 
-    <body>
-        <!-- Title -->
-        <h1>{{ page.title }}</h1>
-
-        <!-- Date -->
-        <p class="postdate">
-            Posted on {{ page.date | date: "%B %-d, %Y" }}
-        </p>
-
-        <!-- Tags -->
-        <p class="posttags">
-            {% for tag in page.tags %}
-                {{ tag }}
-            {% endfor %}
-        </p>
-
-        <!-- Horizontal rule -->
-        <hr>
-
-        <!-- Content -->
-        <div class="postcontent">
-            {{ content }}
-        </div>
-
-        <!-- Disqus -->
-        {% if page.comments %}
-        <div class="disqus">
-            {% include disqus.html %}
-        </div>
-        {% endif %}
-    </body>
-
-</html>
+{% if page.comments %}
+{% include disqus.html %}
+{% endif %}
 
 {% include katex_render.js %}
 {% include katex_center.js %}
+<!-- /post.html -->

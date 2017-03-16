@@ -1,63 +1,25 @@
 <!DOCTYPE html>
-<html>  <!-- Format of every page -->
+<html>
 
-    <head>
-        <meta charset="utf-8"> <!-- set character encoding for the document -->
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        
-        <!-- Make the site nicely on different screens -->
-        <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
-        
-        <!-- For web crawlers -->
-        <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
-        <meta name="rating" content="General">  <!-- check my site age -->
-        <meta name="subject" content="Deep learning and neural networks">
-        <meta name=”description” content=”A blog about deep learning and neural networks”>
-        
-        <!-- Page title auto-filled as blog post title -->
-        <title>{{ page.title }}</title> 
+<head>
 
-        <!-- CSS -->
-        <link rel="stylesheet" type="text/css" href="/css/main.css">
+{% include meta.html %}
 
-        <!-- File of site authors -->
-        <link rel="author" href="humans.txt">
+{% include analytics.html %}
 
-        <!-- Author details -->
-        <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
-        <link rel="me" href="mailto:peterm0273@gmail.com">
+{% include favicons.html %}
 
-        <!-- Icon for our site -->
+{% include author.html %}
+</head>
 
-        <!-- For IE 10 and below -->  
-        <!--  No link, just place a file called favicon.ico in the root directory -->
+<body>
+{% if page.header %}
+{% include header.html %}
+{% endif %}
 
-        <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
-        <link rel="icon" href="path/to/favicon-16.png" sizes="16x16" type="image/png">  
-        <link rel="icon" href="path/to/favicon-32.png" sizes="32x32" type="image/png">  
-        <link rel="icon" href="path/to/favicon-48.png" sizes="48x48" type="image/png">  
-        <link rel="icon" href="path/to/favicon-62.png" sizes="62x62" type="image/png"> 
-    </head>
+{{ content }}
 
-    <body>
-        <!-- Header -->
-        {% if page.header %}
-            <div class="header">
-                {% include header.html %}
-            </div>
-        {% endif %}
-
-        <!-- Content -->
-        <div class="content">
-            {{ content }}
-        </div>
-
-        <!-- Footer -->
-        {% if page.footer %}
-            <div class="footer">
-                {% include footer.html %}
-            </div>
-        {% endif %}
-    </body>
-
+{% if page.footer %}
+{% include footer.html %}
+{% endif %}
 </html>
