@@ -6,21 +6,8 @@ html {
 /* Center and scale our page for different screens */
 body {
     margin: 5em auto;
-    margin-top: 0;
+    margin-top: 2em;
     max-width: 700px;
-}
-
-
-/* Tablet screen */
-@media screen and (max-width: 768px) {
-    margin-left: 5em;
-    margin-right: 5em;
-}
-
-/* Phone screen */
-@media screen and (max-width: 360px) {
-    margin-left: 5em;
-    margin-right: 5em;
 }
 
 header {
