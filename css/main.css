@@ -5,7 +5,7 @@ html {
 
 body {
     margin: 0 auto;  /* center page content */
-    max-width: 80%;  /* constrain content to slim column */
+    max-width: 60%;  /* constrain content to slim column */
 }
 
 header {
