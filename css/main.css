@@ -5,7 +5,8 @@ html {
 
 body {
     margin: 0 auto;  /* center page content */
-    width: 75%;
+    margin-left: 12.5% auto;
+    margin-right: 12.5% auto;
     max-width: 700px;  /* constrain content to slim column */
 }
 
