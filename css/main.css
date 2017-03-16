@@ -11,11 +11,11 @@ body {
     max-width: 700px;  /* constrain content to slim column */
 }
 
-/* Tablet screen (pixels != pixels) 
+/* Tablet screen (pixels != pixels) */
 @media screen and (max-width: 768px) {
     margin-left: 2em auto;
     margin-right: 2em auto;
-} */
+}
 
 /* Phone screen (pixels != pixels) */
 @media screen and (max-width: 320px) {
