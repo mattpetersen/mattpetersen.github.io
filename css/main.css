@@ -3,11 +3,24 @@ html {
     background-color: #fafafa;  /* off-white */
 }
 
+/* Center and scale our page for different screens */
 body {
     margin: 0 auto;  /* center page content */
     margin-left: 12.5% auto;
     margin-right: 12.5% auto;
     max-width: 700px;  /* constrain content to slim column */
+}
+
+/* Tablet screen (pixels != pixels) 
+@media screen and (max-width: 768px) {
+    margin-left: 2em auto;
+    margin-right: 2em auto;
+} */
+
+/* Phone screen (pixels != pixels) */
+@media screen and (max-width: 320px) {
+    margin-left: 2em auto;
+    margin-right: 2em auto;
 }
 
 header {
@@ -97,12 +110,6 @@ ul.posts li {
     width: device-width;
 }
 
-/* Individual custom settings
-@media screen and (max-width: 768px) {
-    width: 80%;
-}
 
-@media screen and (max-width: 320px) {
-    widgth: 80%;
-}
-*/
+
+
