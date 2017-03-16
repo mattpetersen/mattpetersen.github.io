@@ -22,7 +22,8 @@ p {
     color: #444;
 }
 
-div.postcontent { /* equations, hash-headings, citation numbers */
+/* equations, hash-headings, citation numbers */
+div.postcontent {
 }
 
 p.postdate {
@@ -35,6 +36,7 @@ p.posttags {
     font-style: italic;
 }
 
+/* format of centered equations rendered by 'katex_center.js' */
 div.equation {
     text-align: center;
     font-size: 1.2em;
@@ -81,4 +83,8 @@ ul.posts li {
 .subtitle {
     font-size: 1.0em;
     margin-left: 40px;
+}
+
+@-ms-viewport{ /* for internet explorer 10 */
+  width: device-width;
 }
