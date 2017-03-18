@@ -9,7 +9,7 @@ layout: default
     <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
 
     <!-- Post header -->
-    <p class="postname">{{ page.title }}</p>
+    <h1>{{ page.title }}</h1>
     <p class="postdate">Posted on {{ page.date | date: "%B %-d, %Y" }}</p>
     <p class="posttags">{% for tag in page.tags %}{{ tag }} {% endfor %}</p>
     <hr>

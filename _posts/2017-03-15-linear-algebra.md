@@ -3,12 +3,12 @@ layout: post
 title: "Linear algebra"
 date: 2017-03-15
 header: true
-footer: false
+footer: true
 comments: true
 tags: linear algebra, vectors, dot product, matrix multiplication
 ---
 
-This post explains the basics of linear algebra, just enough to get going with neural networks. If you'd like a more thorough introduction, check out Goodfellow, Bengio, and Courville's [chapter](http://www.deeplearningbook.org/contents/linear_algebra.html) on the topic[^fn1].
+This post explains the basics of linear algebra, just enough to get going with neural networks. If you'd like a more thorough introduction, check out Goodfellow, Bengio, and Courville's [chapter](http://www.deeplearningbook.org/contents/linear_algebra.html) on the topic[^fn1], or Terence Tao's [course](http://www.math.ucla.edu/~tao/resource/general/115a.3.02f/). 
 
 We start by introducing a _scalar_. We say that a variable $$a$$ is a scalar if its value is some fixed real number. Most likely, all of the math you've encountered in your life so far has used scalars: from arithmatic, to algebra, and even most of calculus.
 

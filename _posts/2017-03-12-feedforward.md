@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Feedforward example for predicting rain"
+title: "Feedforward"
 date: 2017-03-12
 header: true
-footer: false
+footer: true
 comments: true
 tags: neural networks, deep learning, mlp, feedforward
 ---

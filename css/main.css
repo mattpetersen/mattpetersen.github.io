@@ -11,6 +11,24 @@ header {
 footer {
     font-size: 0.85em;
 }
+h1 {
+    color: #444;
+}
+h2 {
+    color: #444;
+}
+h3 {
+    color: #444;
+}
+h4 {
+    color: #444;
+}
+h5 {
+    color: #444;
+}
+h6 {
+    color: #444;
+}
 p {
     font-size: 1.1em;
     line-height: 1.6em;
@@ -18,15 +36,17 @@ p {
 }
 p.postdate {
     font-size: 1.0em;
+    line-height: 1.6em;
     font-style: italic;
 }
 p.posttags {
     font-size: 1.0em;
+    line-height: 1.6em;
     font-style: italic;
 }
 .equation { /* 'katex_center.js' renders of <dtex>e=mc^2</dtex> */
     text-align: center;
-    font-size: 1.2em;
+    font-size: 1.1em;
     color: #444;
 }
 hr { /* horizontal rule */
@@ -34,6 +54,11 @@ hr { /* horizontal rule */
     height: 1px;
     background: #444;
     background-image: linear-gradient(to right, #ccc, #444, #ccc);
+}
+ul {
+    font-size: 1.1em;
+    line-height: 1.6em;
+    color: #444;
 }
 nav ul, footer ul { /* navbar lists */
     padding: 0px;
@@ -50,15 +75,6 @@ a { /* hyperlinks */
 }
 a:hover {
     text-decoration: underline;
-}
-
-/* ?????? */
-ul.posts { 
-    margin: 20px auto 40px; 
-    font-size: 1.2em;
-}
-ul.posts li {
-    list-style: none;
 }
 @-ms-viewport{ /* IE 10 */
     width: device-width;
