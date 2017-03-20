@@ -7,13 +7,13 @@ footer: true
 comments: true
 tags: linux, ubuntu, unity, customization, move launcher to bottom
 ---
-When I started deep learning last year, I installed Ubuntu with the default Unity desktop environment. Apparently, Unity gets a lot of flak from users of almost every other Linux distribution. I'm writing to address some of that flak.
+When I started deep learning last year, I installed Ubuntu with the default Unity desktop environment. Unity gets a lot of flak from users of other Linux distributions. I'm writing to dispel some of that flak.
 
-First off, Linux desktop environments are massively better than they were even five years ago. If you think Linux is still terminals and outdated design elements, you're sorely mistaken.
+First off, all Linux desktop environments are massively better than they were even five years ago. If you think Linux is still terminals and outdated design, you're sorely mistaken.
 
 <img src='/images/my-desktop.jpg' style='width: 100%; object-fit: contain'/>
 
-Why Linux? If you're going to be doing deep learning, you're probably going to be using either Linux or Mac. That's because software developers prefer Unix-based operating systems. Since Mac is hard to equip with a decent GPU, you're pretty much stuck with Linux. Sure, Windows [recently got TensorFlow support](https://www.tensorflow.org/install/install_windows), but you'll find that updates and support for Windows are always a bit behind. Furthermore, if you have an issue, it can end up being needlessly hard to fix. In Linux, a lot of fixes are a few lines in terminal. That said, if you're still attached to Windows, you can always just [dual boot](http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html) like I do. If you're attached to Mac, you can [make Ubuntu 16.04 look just like Mac OSX](https://www.youtube.com/watch?v=eVzYtlR_OH0).
+Why Linux? If you're going to be doing deep learning, you're probably going to be using either Linux or Mac. That's because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you're pretty much stuck with Linux. Sure, Windows [recently got TensorFlow support](https://www.tensorflow.org/install/install_windows), but you'll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you're still attached to Windows, you can always just [dual boot](http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html) like I do. If you're attached to Mac, you can [make Ubuntu 16.04 look just like Mac OSX](https://www.youtube.com/watch?v=eVzYtlR_OH0).
 
 # Stock Unity is ugly
 
@@ -21,7 +21,7 @@ At first encounter, Unity is pretty jarring.
 
 <img src='http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png' style='width: 100%; object-fit: contain'/>
 
-The icons are humongous, the launcher and docker both use a rounded 3-d theme that echoes back to 2010, and every single window has a real-estate wasting window header, even windows like Spotify and Discord _which are supposed to have their own built-in headers_. Luckily, you can fix all of this distasteful stuff in about 10 or 20 minutes.
+The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly window header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_, use the hideous Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
 
 # Move the launcher
 
