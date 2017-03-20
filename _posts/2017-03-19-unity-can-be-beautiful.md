@@ -21,7 +21,7 @@ At first encounter, Unity is pretty jarring.
 
 <img src='http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png' style='width: 100%; object-fit: contain'/>
 
-The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly window header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_, use the hideous Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
+The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_ use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
 
 # Move the launcher
 
