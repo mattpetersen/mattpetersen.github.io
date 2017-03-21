@@ -11,7 +11,7 @@ When I started deep learning last year, I installed Ubuntu with the default Unit
 
 First off, all Linux desktop environments are massively better than they were even five years ago. If you think Linux is still terminals and outdated design, you're sorely mistaken.
 
-<img src='/images/my-desktop.jpg' style='width: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/my-desktop.jpg' style='width: 100%; object-fit: contain'/>
 
 Why Linux? If you're going to be doing deep learning, you're probably going to be using either Linux or Mac. That's because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you're pretty much stuck with Linux. Sure, Windows [recently got TensorFlow support](https://www.tensorflow.org/install/install_windows), but you'll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you're still attached to Windows, you can always just [dual boot](http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html) like I do. If you're attached to Mac, you can [make Ubuntu 16.04 look just like Mac OSX](https://www.youtube.com/watch?v=eVzYtlR_OH0).
 
@@ -27,7 +27,7 @@ The icons are humongous, the launcher and docker both use a rounded 3-d theme th
 
 You can shrink the launcher from the system menu.
 
-<img src='/images/unity-launcher-size.png' style='width: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/unity-launcher-size.png' style='width: 100%; object-fit: contain'/>
 
 You can move the launcher to the bottom by using the _unity tweak tool_. To install, type
 
@@ -35,11 +35,11 @@ You can move the launcher to the bottom by using the _unity tweak tool_. To inst
 
 Then find it in your applications and launch it. The tool should look like this
 
-<img src='/images/tweak-tool.png' style='width: 70%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/tweak-tool.png' style='width: 70%; object-fit: contain'/>
 
 Click __launcher__ in the upper left and you'll see this
 
-<img src='/images/tweak-tool-launcher.png' style='width: 70%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/tweak-tool-launcher.png' style='width: 70%; object-fit: contain'/>
 
 I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity featuers with this tool, but not every feature. To remove window headers, you'll need one more tool.
 
@@ -51,7 +51,7 @@ A perk of having no windows headers is the extra screen real estate you get. I l
 
 So, to remove window headers, create a file named `gtk.css` in the directory `home/.config/gtk-3.0`, or `home/.config/gtk-2.0` if that's the only directory listed. I think Ubuntu 12.04 was the first to introduce gtk-3.0, but correct me if I'm wrong. Also, `.config` is a hidden directory, so you might need to press `ctrl + h` to see it if you're using a visual file browser. Here's what my `gtk.css` file looks like.
 
-<img src='/images/gtk-css.png' style='height: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/gtk-css.png' style='height: 100%; object-fit: contain'/>
 
 It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don't like it, simply delete the `gtk.css` file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.
 
@@ -66,15 +66,15 @@ Compizconfig has a lot of overlap with unity tweak tool, but allows you to do ev
 
 If you open compizconfig, it should look like this.
 
-<img src='/images/compiz.png' style='width: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/compiz.png' style='width: 100%; object-fit: contain'/>
 
 If you click __Ubuntu Unity Plugin__, you'll see a menu like this
 
-<img src='/images/compiz-unity.png' style='width: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/compiz-unity.png' style='width: 100%; object-fit: contain'/>
 
 Click the __decorations__ tab to see this.
 
-<img src='/images/compiz-unity-decorations.png' style='width: 100%; object-fit: contain'/>
+<img src='/images/unity-can-be-beautiful/compiz-unity-decorations.png' style='width: 100%; object-fit: contain'/>
 
 This tab lets us adjust window shadows, but not below the size of one pixel (annoying). To completely erase window shadows, make sure __Override Theme Settings__ is not checked, so that our `gtk.css` file dictates the shadow settings, which we had specified as being zero pixels in size.
 
