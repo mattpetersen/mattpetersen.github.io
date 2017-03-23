@@ -80,6 +80,10 @@ a:hover {
     width: device-width;
 }
 
+pre.prettyprint { /* Remove border from pretty code blocks */
+    font-size: 1.1em;
+    border: 0px solid transparent !important;
+}
 
 
 

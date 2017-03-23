@@ -51,7 +51,63 @@ A perk of having no windows headers is the extra screen real estate you get. I l
 
 So, to remove window headers, create a file named `gtk.css` in the directory `home/.config/gtk-3.0`, or `home/.config/gtk-2.0` if that's the only directory listed. I think Ubuntu 12.04 was the first to introduce gtk-3.0, but correct me if I'm wrong. Also, `.config` is a hidden directory, so you might need to press `ctrl + h` to see it if you're using a visual file browser. Here's what my `gtk.css` file looks like.
 
-<a href="/code/gtk.css"><img src='/images/unity-can-be-beautiful/gtk-css.png' style='height: 100%; object-fit: contain'/></a>
+<pre class="prettyprint">
+UnityDecoration {
+/* One pixel border */
+-UnityDecoration-extents: 1px 1px 1px 1px;
+
+/* No shadows */
+-UnityDecoration-shadow-offset-x: 0px;
+-UnityDecoration-shadow-offset-y: 0px;
+-UnityDecoration-active-shadow-radius: 0px;
+}
+
+
+/* Light blue around active window */
+UnityDecoration.top {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.left {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.right {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.bottom {
+background-image: none;
+background-color: #90D0FF;
+}
+
+
+/* Black around inactive window */
+UnityDecoration.top:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.left:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.right:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.bottom:backdrop {
+background-image: none;
+background-color: #000000;
+}
+</pre>
+
+<!-- <a href="/code/gtk.css"><img src='/images/unity-can-be-beautiful/gtk-css.png' style='height: 100%; object-fit: contain'/></a> -->
 
 It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don't like it, simply delete the `gtk.css` file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.
 
