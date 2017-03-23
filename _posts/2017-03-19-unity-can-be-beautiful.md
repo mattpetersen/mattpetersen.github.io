@@ -107,8 +107,6 @@ background-color: #000000;
 }
 </pre>
 
-<!-- <a href="/code/gtk.css"><img src='/images/unity-can-be-beautiful/gtk-css.png' style='height: 100%; object-fit: contain'/></a> -->
-
 It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don't like it, simply delete the `gtk.css` file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.
 
 # Get rid of window shadows (optional)
