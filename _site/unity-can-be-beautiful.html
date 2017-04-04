@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- meta.html -->
+    <!-- Set character encoding for the document -->
+    <meta charset="utf-8">
+    <!-- Something about IE -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Make the site fit to different screens -->
+    <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- For web crawlers -->
+    <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+    <meta name="rating" content="General">  <!-- check my site age -->
+    <meta name="subject" content="Deep learning and neural networks">
+    <meta name=”description” content=”A blog about deep learning and neural networks”>
+    <title>Unity can be beautiful</title> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!-- end meta.html -->
+
+
+    <!-- analytics.html -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-38506466-1', 'jmcglone.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- end analytics.html -->
+
+
+    <!-- favicons.html -->
+    <!-- For old, favicon.ico in root (16x16, 32x32, 48x48) -->
+    <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
+    <link rel="icon" href="/images/favicons/favicon-16.png" sizes="16x16" type="image/png">  
+    <link rel="icon" href="/images/favicons/favicon-32.png" sizes="32x32" type="image/png">
+    <!-- For phone home screen shortcuts -->
+    <link rel="icon" href="/images/favicons/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-57.png" sizes="57x57" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-62.png" sizes="62x62" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-76.png" sizes="76x76" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-120.png" sizes="120x120" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-128.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-144.png" sizes="144x144" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-152.png" sizes="152x152" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-180.png" sizes="180x180" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-195.png" sizes="195x195" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-196.png" sizes="196x196" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-228.png" sizes="228x228" type="image/png">
+    <!-- For windows live tiles -->
+    <link rel="icon" href="/images/favicons/smalltile.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/mediumtile.png" sizes="270x270" type="image/png">
+    <link rel="icon" href="/images/favicons/widetile.png" sizes="558x270" type="image/png">
+    <link rel="icon" href="/images/favicons/largetile.png" sizes="558x558" type="image/png">
+    <!--  end favicons.html -->
+
+
+    <!-- author.html -->
+    <link rel="author" href="humans.txt">
+    <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+    <link rel="me" href="mailto:peterm0273@gmail.com">
+    <!-- end author.html -->
+
+</head>
+
+<body>
+
+    <!-- header.html -->
+    <div class="header">
+        <header>
+            <nav>
+                <ul>
+            	   <li><a href="/">Home</a></li>
+            	   <li><a href="/about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <!-- end header.html -->
+
+
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <!-- Post header -->
+    <h1>Unity can be beautiful</h1>
+    <p class="postdate">Posted on March 19, 2017</p>
+    <p class="posttags">linux, ubuntu, unity, customization, move launcher to bottom </p>
+    <hr>
+
+<!-- Post content -->
+<p>When I started deep learning last year, I installed Ubuntu with the default Unity desktop environment. Unity gets a lot of flak from users of other Linux distributions. I’m writing to dispel some of that flak.</p>
+
+<p>First off, all Linux desktop environments are massively better than they were even five years ago. If you think Linux is still terminals and outdated design, you’re sorely mistaken.</p>
+
+<p><img src="/images/unity-can-be-beautiful/my-desktop.jpg" style="width: 100%; object-fit: contain" /></p>
+
+<p>Why Linux? If you’re going to be doing deep learning, you’re probably going to be using either Linux or Mac. That’s because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you’re pretty much stuck with Linux. Sure, Windows <a href="https://www.tensorflow.org/install/install_windows">recently got TensorFlow support</a>, but you’ll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you’re still attached to Windows, you can always just <a href="http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html">dual boot</a> like I do. If you’re attached to Mac, you can <a href="https://www.youtube.com/watch?v=eVzYtlR_OH0">make Ubuntu 16.04 look just like Mac OSX</a>.</p>
+
+<h1 id="stock-unity-is-ugly">Stock Unity is ugly</h1>
+
+<p>At first encounter, Unity is pretty jarring.</p>
+
+<p><img src="http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord <em>which are supposed to have their own built-in headers</em> use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.</p>
+
+<h1 id="move-the-launcher">Move the launcher</h1>
+
+<p>You can shrink the launcher from the system menu.</p>
+
+<p><img src="/images/unity-can-be-beautiful/unity-launcher-size.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>You can move the launcher to the bottom by using the <em>unity tweak tool</em>. To install, type</p>
+
+<p><code class="highlighter-rouge">sudo apt-get install unity-tweak-tool gnome-tweak-tool</code></p>
+
+<p>Then find it in your applications and launch it. The tool should look like this</p>
+
+<p><img src="/images/unity-can-be-beautiful/tweak-tool.png" style="width: 70%; object-fit: contain" /></p>
+
+<p>Click <strong>launcher</strong> in the upper left and you’ll see this</p>
+
+<p><img src="/images/unity-can-be-beautiful/tweak-tool-launcher.png" style="width: 70%; object-fit: contain" /></p>
+
+<p>I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity featuers with this tool, but not every feature. To remove window headers, you’ll need one more tool.</p>
+
+<h1 id="remove-window-headers">Remove window headers</h1>
+
+<p>Removing window headers comes with a few caveats, all of which are worthwhile and more efficient once you get used to them. Firstly, you’ll have to <code class="highlighter-rouge">alt + left click</code> to drag windows, although snap-resizing still works. Secondly, you’ll have to use <code class="highlighter-rouge">alt + f4</code> to close windows, and <code class="highlighter-rouge">alt + space</code> followed by <code class="highlighter-rouge">n</code> to minimize windows. In fact, <code class="highlighter-rouge">alt + space</code> brings up a small menu with every window adjustment feature that is normally included on window headers. Lastly, in Unity, the title of the window is always displayed in the top bar, so you’re really losing nothing by getting rid of window headers.</p>
+
+<p>A perk of having no windows headers is the extra screen real estate you get. I like to snap windows to the four corners of my screen by using <code class="highlighter-rouge">ctrl + alt + 1</code>, <code class="highlighter-rouge">ctrl + alt + 7</code>, <code class="highlighter-rouge">ctrl + alt + 9</code>, and <code class="highlighter-rouge">ctrl + alt + 3</code>, and with each of the four windows having a window header, it looked super cluttered.</p>
+
+<p>So, to remove window headers, create a file named <code class="highlighter-rouge">gtk.css</code> in the directory <code class="highlighter-rouge">home/.config/gtk-3.0</code>, or <code class="highlighter-rouge">home/.config/gtk-2.0</code> if that’s the only directory listed. I think Ubuntu 12.04 was the first to introduce gtk-3.0, but correct me if I’m wrong. Also, <code class="highlighter-rouge">.config</code> is a hidden directory, so you might need to press <code class="highlighter-rouge">ctrl + h</code> to see it if you’re using a visual file browser. Here’s what my <code class="highlighter-rouge">gtk.css</code> file looks like.</p>
+
+<pre class="prettyprint">
+UnityDecoration {
+/* One pixel border */
+-UnityDecoration-extents: 1px 1px 1px 1px;
+
+/* No shadows */
+-UnityDecoration-shadow-offset-x: 0px;
+-UnityDecoration-shadow-offset-y: 0px;
+-UnityDecoration-active-shadow-radius: 0px;
+}
+
+
+/* Light blue around active window */
+UnityDecoration.top {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.left {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.right {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.bottom {
+background-image: none;
+background-color: #90D0FF;
+}
+
+
+/* Black around inactive window */
+UnityDecoration.top:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.left:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.right:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.bottom:backdrop {
+background-image: none;
+background-color: #000000;
+}
+</pre>
+
+<p>It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don’t like it, simply delete the <code class="highlighter-rouge">gtk.css</code> file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.</p>
+
+<h1 id="get-rid-of-window-shadows-optional">Get rid of window shadows (optional)</h1>
+
+<p>If the above step failed to remove shadows, then we need to tell Unity to have <code class="highlighter-rouge">gtk.css</code> override your theme’s shadow settings. The tool we need here is <em>compizconfig</em>. To install, type</p>
+
+<p><code class="highlighter-rouge">sudo apt-get update</code> <br />
+<code class="highlighter-rouge">sudo apt-get install compizconfig-settings-manager</code></p>
+
+<p>Compizconfig has a lot of overlap with unity tweak tool, but allows you to do even more. This power comes with some drawbacks - you can completely ruin your visual environment, and then you’ll have to use terminal to restore the default settings (not the end of the world, but quite scary).</p>
+
+<p>If you open compizconfig, it should look like this.</p>
+
+<p><img src="/images/unity-can-be-beautiful/compiz.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>If you click <strong>Ubuntu Unity Plugin</strong>, you’ll see a menu like this</p>
+
+<p><img src="/images/unity-can-be-beautiful/compiz-unity.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>Click the <strong>decorations</strong> tab to see this.</p>
+
+<p><img src="/images/unity-can-be-beautiful/compiz-unity-decorations.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>This tab lets us adjust window shadows, but not below the size of one pixel (annoying). To completely erase window shadows, make sure <strong>Override Theme Settings</strong> is not checked, so that our <code class="highlighter-rouge">gtk.css</code> file dictates the shadow settings, which we had specified as being zero pixels in size.</p>
+
+<h1 id="wrapping-up">Wrapping up</h1>
+
+<p>I hope you liked this walk-through that lets your Unity environment mimick the minimalism of Arch. Feel free to change the color of the active window border in <code class="highlighter-rouge">gtk.css</code>, or make any other modifications. Do be careful messing around with compizconfig.</p>
+
+<p>One more quick Unity beautification you can do is better font rendering. Just install infinality, choose the setting called <em>infinality</em>, and then edit one line inside of a CSS file to also reflect <em>infinality</em>. The tutorial I followed for all that is <a href="http://www.webupd8.org/2013/06/better-font-rendering-in-linux-with.html">here</a>. That’s it - cheers, and welcome to the most beautiful operating system of your life :)</p>
+
+
+
+
+<!-- disqus.html -->
+<div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = "Unity can be beautiful";
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
+</div>
+<!-- end disqus.html -->
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
+
+
+
+    <!-- footer.html -->
+    <div class="footer">
+        <footer>
+          <hr> <!-- Horizontal rule -->
+          <ul> <!-- Links to my other sites -->
+      	      <li><a href="mailto:peterm0273@gmail.com"
+                     title="peterm0273@gmail.com">email</a></li>
+      	      <li><a href="https://github.com/mattpetersen"
+                     title="github.com/mattpetersen">github</a></li>
+      	      <li><a href="https://twitter.com/mattpetersen_ai"
+                     title="twitter.com/mattpetersen_ai">twitter</a></li>
+          </ul>
+        </footer>
+    </div>
+    <!-- end footer.html -->
+
+
+</html>

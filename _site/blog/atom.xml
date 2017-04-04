@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+	<title>Matt Petersen's Blog</title>
+	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
+	<link href="http://mattpetersen.github.io/blog"/>
+	<updated>2017-04-02T18:02:01-04:00</updated>
+	<id>http://mattpetersen.github.io/blog</id>
+	<author>
+		<name>Matt Petersen</name>
+		<email>peterm0273@gmail.com</email>
+	</author>
+
+	
+		<entry>
+			<title>Unity can be beautiful</title>
+			<link href="http://mattpetersen.github.io/unity-can-be-beautiful"/>
+			<updated>2017-03-19T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/unity-can-be-beautiful</id>
+			<content type="html">&lt;p&gt;When I started deep learning last year, I installed Ubuntu with the default Unity desktop environment. Unity gets a lot of flak from users of other Linux distributions. I’m writing to dispel some of that flak.&lt;/p&gt;
+
+&lt;p&gt;First off, all Linux desktop environments are massively better than they were even five years ago. If you think Linux is still terminals and outdated design, you’re sorely mistaken.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/my-desktop.jpg&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Why Linux? If you’re going to be doing deep learning, you’re probably going to be using either Linux or Mac. That’s because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you’re pretty much stuck with Linux. Sure, Windows &lt;a href=&quot;https://www.tensorflow.org/install/install_windows&quot;&gt;recently got TensorFlow support&lt;/a&gt;, but you’ll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you’re still attached to Windows, you can always just &lt;a href=&quot;http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html&quot;&gt;dual boot&lt;/a&gt; like I do. If you’re attached to Mac, you can &lt;a href=&quot;https://www.youtube.com/watch?v=eVzYtlR_OH0&quot;&gt;make Ubuntu 16.04 look just like Mac OSX&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h1 id=&quot;stock-unity-is-ugly&quot;&gt;Stock Unity is ugly&lt;/h1&gt;
+
+&lt;p&gt;At first encounter, Unity is pretty jarring.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord &lt;em&gt;which are supposed to have their own built-in headers&lt;/em&gt; use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.&lt;/p&gt;
+
+&lt;h1 id=&quot;move-the-launcher&quot;&gt;Move the launcher&lt;/h1&gt;
+
+&lt;p&gt;You can shrink the launcher from the system menu.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/unity-launcher-size.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can move the launcher to the bottom by using the &lt;em&gt;unity tweak tool&lt;/em&gt;. To install, type&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo apt-get install unity-tweak-tool gnome-tweak-tool&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Then find it in your applications and launch it. The tool should look like this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/tweak-tool.png&quot; style=&quot;width: 70%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click &lt;strong&gt;launcher&lt;/strong&gt; in the upper left and you’ll see this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/tweak-tool-launcher.png&quot; style=&quot;width: 70%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity featuers with this tool, but not every feature. To remove window headers, you’ll need one more tool.&lt;/p&gt;
+
+&lt;h1 id=&quot;remove-window-headers&quot;&gt;Remove window headers&lt;/h1&gt;
+
+&lt;p&gt;Removing window headers comes with a few caveats, all of which are worthwhile and more efficient once you get used to them. Firstly, you’ll have to &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + left click&lt;/code&gt; to drag windows, although snap-resizing still works. Secondly, you’ll have to use &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + f4&lt;/code&gt; to close windows, and &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + space&lt;/code&gt; followed by &lt;code class=&quot;highlighter-rouge&quot;&gt;n&lt;/code&gt; to minimize windows. In fact, &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + space&lt;/code&gt; brings up a small menu with every window adjustment feature that is normally included on window headers. Lastly, in Unity, the title of the window is always displayed in the top bar, so you’re really losing nothing by getting rid of window headers.&lt;/p&gt;
+
+&lt;p&gt;A perk of having no windows headers is the extra screen real estate you get. I like to snap windows to the four corners of my screen by using &lt;code class=&quot;highlighter-rouge&quot;&gt;ctrl + alt + 1&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;ctrl + alt + 7&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;ctrl + alt + 9&lt;/code&gt;, and &lt;code class=&quot;highlighter-rouge&quot;&gt;ctrl + alt + 3&lt;/code&gt;, and with each of the four windows having a window header, it looked super cluttered.&lt;/p&gt;
+
+&lt;p&gt;So, to remove window headers, create a file named &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; in the directory &lt;code class=&quot;highlighter-rouge&quot;&gt;home/.config/gtk-3.0&lt;/code&gt;, or &lt;code class=&quot;highlighter-rouge&quot;&gt;home/.config/gtk-2.0&lt;/code&gt; if that’s the only directory listed. I think Ubuntu 12.04 was the first to introduce gtk-3.0, but correct me if I’m wrong. Also, &lt;code class=&quot;highlighter-rouge&quot;&gt;.config&lt;/code&gt; is a hidden directory, so you might need to press &lt;code class=&quot;highlighter-rouge&quot;&gt;ctrl + h&lt;/code&gt; to see it if you’re using a visual file browser. Here’s what my &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; file looks like.&lt;/p&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+UnityDecoration {
+/* One pixel border */
+-UnityDecoration-extents: 1px 1px 1px 1px;
+
+/* No shadows */
+-UnityDecoration-shadow-offset-x: 0px;
+-UnityDecoration-shadow-offset-y: 0px;
+-UnityDecoration-active-shadow-radius: 0px;
+}
+
+
+/* Light blue around active window */
+UnityDecoration.top {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.left {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.right {
+background-image: none;
+background-color: #90D0FF;
+}
+
+UnityDecoration.bottom {
+background-image: none;
+background-color: #90D0FF;
+}
+
+
+/* Black around inactive window */
+UnityDecoration.top:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.left:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.right:backdrop {
+background-image: none;
+background-color: #000000;
+}
+
+UnityDecoration.bottom:backdrop {
+background-image: none;
+background-color: #000000;
+}
+&lt;/pre&gt;
+
+&lt;p&gt;It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don’t like it, simply delete the &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.&lt;/p&gt;
+
+&lt;h1 id=&quot;get-rid-of-window-shadows-optional&quot;&gt;Get rid of window shadows (optional)&lt;/h1&gt;
+
+&lt;p&gt;If the above step failed to remove shadows, then we need to tell Unity to have &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; override your theme’s shadow settings. The tool we need here is &lt;em&gt;compizconfig&lt;/em&gt;. To install, type&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo apt-get update&lt;/code&gt; &lt;br /&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo apt-get install compizconfig-settings-manager&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Compizconfig has a lot of overlap with unity tweak tool, but allows you to do even more. This power comes with some drawbacks - you can completely ruin your visual environment, and then you’ll have to use terminal to restore the default settings (not the end of the world, but quite scary).&lt;/p&gt;
+
+&lt;p&gt;If you open compizconfig, it should look like this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/compiz.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If you click &lt;strong&gt;Ubuntu Unity Plugin&lt;/strong&gt;, you’ll see a menu like this&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/compiz-unity.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Click the &lt;strong&gt;decorations&lt;/strong&gt; tab to see this.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/compiz-unity-decorations.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This tab lets us adjust window shadows, but not below the size of one pixel (annoying). To completely erase window shadows, make sure &lt;strong&gt;Override Theme Settings&lt;/strong&gt; is not checked, so that our &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; file dictates the shadow settings, which we had specified as being zero pixels in size.&lt;/p&gt;
+
+&lt;h1 id=&quot;wrapping-up&quot;&gt;Wrapping up&lt;/h1&gt;
+
+&lt;p&gt;I hope you liked this walk-through that lets your Unity environment mimick the minimalism of Arch. Feel free to change the color of the active window border in &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt;, or make any other modifications. Do be careful messing around with compizconfig.&lt;/p&gt;
+
+&lt;p&gt;One more quick Unity beautification you can do is better font rendering. Just install infinality, choose the setting called &lt;em&gt;infinality&lt;/em&gt;, and then edit one line inside of a CSS file to also reflect &lt;em&gt;infinality&lt;/em&gt;. The tutorial I followed for all that is &lt;a href=&quot;http://www.webupd8.org/2013/06/better-font-rendering-in-linux-with.html&quot;&gt;here&lt;/a&gt;. That’s it - cheers, and welcome to the most beautiful operating system of your life :)&lt;/p&gt;
+
+</content>
+		</entry>
+	
+
+</feed>
