@@ -21,7 +21,7 @@ At first encounter, Unity is pretty jarring.
 
 <img src='http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png' style='width: 100%; object-fit: contain'/>
 
-The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_ use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
+The icons are humongous, the launcher and docker both use a rounded 3-d theme that hearkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_ use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
 
 # Move the launcher
 
@@ -41,7 +41,7 @@ Click __launcher__ in the upper left and you'll see this
 
 <img src='/images/unity-can-be-beautiful/tweak-tool-launcher.png' style='width: 70%; object-fit: contain'/>
 
-I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity featuers with this tool, but not every feature. To remove window headers, you'll need one more tool.
+I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity features with this tool, but not every feature. To remove window headers, you'll need one more tool.
 
 # Remove window headers
 
@@ -134,7 +134,7 @@ This tab lets us adjust window shadows, but not below the size of one pixel (ann
 
 # Wrapping up
 
-I hope you liked this walk-through that lets your Unity environment mimick the minimalism of Arch. Feel free to change the color of the active window border in `gtk.css`, or make any other modifications. Do be careful messing around with compizconfig.
+I hope you liked this walk-through to get your Unity desktop uncluttered. Feel free to change the color of the active window border in `gtk.css`, or make any other modifications. Do be careful messing around with compizconfig.
 
 One more quick Unity beautification you can do is better font rendering. Just install infinality, choose the setting called _infinality_, and then edit one line inside of a CSS file to also reflect _infinality_. The tutorial I followed for all that is [here](http://www.webupd8.org/2013/06/better-font-rendering-in-linux-with.html). That's it - cheers, and welcome to the most beautiful operating system of your life :)
 
