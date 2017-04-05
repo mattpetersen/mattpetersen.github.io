@@ -4,13 +4,73 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-04-02T18:02:01-04:00</updated>
+	<updated>2017-04-05T17:41:45-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
 		<email>peterm0273@gmail.com</email>
 	</author>
 
+	
+		<entry>
+			<title>Why PhD's work for free</title>
+			<link href="http://mattpetersen.github.io/why-phds-work-for-free"/>
+			<updated>2017-04-05T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/why-phds-work-for-free</id>
+			<content type="html">&lt;p&gt;This is an informal post, so feel free to chime in with comments and corrections. I was talking with a friend last night about the shocking fact that welders and truckers often out-earn PhD holders. It was then that I realized something profound, which I think a lot of people overlook - &lt;em&gt;wages depend on scarcity, not skill&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;This goes against our intuition, and for good reason. Throughout history, skilled labor was in short supply. Employers bargained against each other for those prestigious few who held advanced degrees, and this bargaining led to higher wages.&lt;/p&gt;
+
+&lt;p&gt;In modern times the story is completely changing. With the entrance of China and India to the global stage, we’ve seen a glut of skilled labor worldwide. This glut has been expanded by the American mantra that children go to university, a decision that, historically, had always led to scarcer skills and higher wages. I’ll argue that this is no longer the case for a growing range of fields.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-first-signs-of-an-education-epidemic&quot;&gt;The first signs of an education epidemic&lt;/h2&gt;
+
+&lt;p&gt;The glut of skilled labor first showed itself in the burgeoning unemployment of non-technical university graduates, those in arts and humanities. The problem has two sources. Firstly, universities have increased in number, and in enrollment. This is normal and follows market forces. Demand for university was high because graduates held scarce skills. Ballooning enrollment is simply the market acting to cure that scarcity.&lt;/p&gt;
+
+&lt;p&gt;The second reason behind the unemployment of arts and humanities graduates is that learning and employing artistic skill is intrinsically rewarding, so these graduates are more susceptible to working for free. This blow is on top of already graduating from a field with higher natural enrollment due to its allure.&lt;/p&gt;
+
+&lt;p&gt;The lesson is this. Having numerous intrinsically motivated peers is a recipe for low wages, and this effect is now happening in STEM.&lt;/p&gt;
+
+&lt;h2 id=&quot;the-latest-victim&quot;&gt;The latest victim&lt;/h2&gt;
+
+&lt;p&gt;My first encounter with the idea that STEM skills are entering a glut was at a regional data science competition in 2014. A professor told me about a colleague with a PhD in mathematical biology who was driving a semi truck. The pay was higher than jobs that employed his skill, and the solitude suited his personality.&lt;/p&gt;
+
+&lt;p&gt;My second encounter was at a Goldman Sachs presentation at Columbia in 2015. The presenter said something quite harsh along the lines of&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;You think your quantitative skills make you special? I can snap my fingers and have 10 pure math PhD’s from MIT lined up for unpaid internships with us. You have to be special beyond your technical skills.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Survivorship bias has convinced many people that this glut doesn’t exist. When I met the data science team at eBay New York, it consisted of two PhD’s in physics who studied quantum properties of graphene, a PhD in number theory who studied spectral properties of matrices, and a PhD in computer science who studied machine learning. Needless to say I didn’t get the position, although their interviewing me means they’re at least open to the prospect of hiring masters graduates.&lt;/p&gt;
+
+&lt;p&gt;Aside from eBay, every data science team in New York that I’ve been blessed to meet has consisted entirely of fantastic PhD’s, and from top schools at that. This sounds like great news for the PhD job market. Unfortunately we’re only seeing the successful tip of the PhD iceberg. Statistics speak to &lt;a href=&quot;http://www.sciencemag.org/careers/2016/06/fool-s-gold-phd-employment-data&quot;&gt;a broader unemployment and underemployment of PhD’s at large&lt;/a&gt;, although it’s hard to quantify the exact job market outcome of each of field of study.&lt;/p&gt;
+
+&lt;h2 id=&quot;historical-precedent&quot;&gt;Historical precedent&lt;/h2&gt;
+
+&lt;p&gt;This is not the first time that a glut of skilled labor has depressed wages. Over the past few decades, the music industry, at least among small musicians, has moved almost entirely to donations. Venues have closed, sales have slowed, and streaming has taken over. This unfortunate trend shares much in common with our glut in education.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Creating music is intrinsically rewarding.&lt;/li&gt;
+  &lt;li&gt;Modern wealth affords unprecedented numbers of people to pursue it.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;These two forces have driven wages for musicians to virtual nonexistence, where small artists now survive mostly on &lt;a href=&quot;https://www.patreon.com/&quot;&gt;Patreon&lt;/a&gt; donations.&lt;/p&gt;
+
+&lt;p&gt;A second industry experiencing a glut of skilled workers is online content creation and curation. Blogs, &lt;a href=&quot;https://medium.com/&quot;&gt;Medium&lt;/a&gt; articles, and YouTube personalities are doing for free what news anchors and writers used to make a salary doing. We can again identify our two core reagents driving wages to nonexistence among online content creators.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Creating and curating online content is intrinsically rewarding.&lt;/li&gt;
+  &lt;li&gt;Unprecedented numbers of people own the computers and time to do this.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A case example is the increasing number of free online textbooks (see &lt;a href=&quot;http://www.deeplearningbook.org/&quot;&gt;Goodfellow 206&lt;/a&gt; and &lt;a href=&quot;https://sites.ualberta.ca/~szepesva/RLBook.html&quot;&gt;Szepesvari 2013&lt;/a&gt;) and &lt;a href=&quot;http://distill.pub/&quot;&gt;incredibly fantastic educational blogs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The last historical precedent that I can point to is more recent - the plethora of online open-source code. GitHub is the finest example of the willingness of human beings to do labor for nothing more than intrinsic reward. If companies are able to profitably use open-source code, they have less reason to employ full time programmers.&lt;/p&gt;
+
+&lt;h2 id=&quot;in-summary&quot;&gt;In summary&lt;/h2&gt;
+
+&lt;p&gt;Will programmers and mathematicians be the starving artists of tomorrow? Will every form of enjoyable human labor be eventually ground by economic forces toward subsistence wages? This seems to be the case, but perhaps I’m over-fitting to sparse examples. Most of my argument does rely on personal anecdotes after all. Let me know what you think, and if you’ve seen anything similar :)&lt;/p&gt;
+
+</content>
+		</entry>
 	
 		<entry>
 			<title>Unity can be beautiful</title>
@@ -25,15 +85,15 @@
 
 &lt;p&gt;Why Linux? If you’re going to be doing deep learning, you’re probably going to be using either Linux or Mac. That’s because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you’re pretty much stuck with Linux. Sure, Windows &lt;a href=&quot;https://www.tensorflow.org/install/install_windows&quot;&gt;recently got TensorFlow support&lt;/a&gt;, but you’ll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you’re still attached to Windows, you can always just &lt;a href=&quot;http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html&quot;&gt;dual boot&lt;/a&gt; like I do. If you’re attached to Mac, you can &lt;a href=&quot;https://www.youtube.com/watch?v=eVzYtlR_OH0&quot;&gt;make Ubuntu 16.04 look just like Mac OSX&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h1 id=&quot;stock-unity-is-ugly&quot;&gt;Stock Unity is ugly&lt;/h1&gt;
+&lt;h2 id=&quot;stock-unity-is-ugly&quot;&gt;Stock Unity is ugly&lt;/h2&gt;
 
 &lt;p&gt;At first encounter, Unity is pretty jarring.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;http://core0.staticworld.net/images/article/2015/12/dash-search-option-100633613-orig.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;The icons are humongous, the launcher and docker both use a rounded 3-d theme that harkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord &lt;em&gt;which are supposed to have their own built-in headers&lt;/em&gt; use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.&lt;/p&gt;
+&lt;p&gt;The icons are humongous, the launcher and docker both use a rounded 3-d theme that hearkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord &lt;em&gt;which are supposed to have their own built-in headers&lt;/em&gt; use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.&lt;/p&gt;
 
-&lt;h1 id=&quot;move-the-launcher&quot;&gt;Move the launcher&lt;/h1&gt;
+&lt;h2 id=&quot;move-the-launcher&quot;&gt;Move the launcher&lt;/h2&gt;
 
 &lt;p&gt;You can shrink the launcher from the system menu.&lt;/p&gt;
 
@@ -51,9 +111,9 @@
 
 &lt;p&gt;&lt;img src=&quot;/images/unity-can-be-beautiful/tweak-tool-launcher.png&quot; style=&quot;width: 70%; object-fit: contain&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity featuers with this tool, but not every feature. To remove window headers, you’ll need one more tool.&lt;/p&gt;
+&lt;p&gt;I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity features with this tool, but not every feature. To remove window headers, you’ll need one more tool.&lt;/p&gt;
 
-&lt;h1 id=&quot;remove-window-headers&quot;&gt;Remove window headers&lt;/h1&gt;
+&lt;h2 id=&quot;remove-window-headers&quot;&gt;Remove window headers&lt;/h2&gt;
 
 &lt;p&gt;Removing window headers comes with a few caveats, all of which are worthwhile and more efficient once you get used to them. Firstly, you’ll have to &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + left click&lt;/code&gt; to drag windows, although snap-resizing still works. Secondly, you’ll have to use &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + f4&lt;/code&gt; to close windows, and &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + space&lt;/code&gt; followed by &lt;code class=&quot;highlighter-rouge&quot;&gt;n&lt;/code&gt; to minimize windows. In fact, &lt;code class=&quot;highlighter-rouge&quot;&gt;alt + space&lt;/code&gt; brings up a small menu with every window adjustment feature that is normally included on window headers. Lastly, in Unity, the title of the window is always displayed in the top bar, so you’re really losing nothing by getting rid of window headers.&lt;/p&gt;
 
@@ -119,7 +179,7 @@ background-color: #000000;
 
 &lt;p&gt;It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don’t like it, simply delete the &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.&lt;/p&gt;
 
-&lt;h1 id=&quot;get-rid-of-window-shadows-optional&quot;&gt;Get rid of window shadows (optional)&lt;/h1&gt;
+&lt;h2 id=&quot;get-rid-of-window-shadows-optional&quot;&gt;Get rid of window shadows (optional)&lt;/h2&gt;
 
 &lt;p&gt;If the above step failed to remove shadows, then we need to tell Unity to have &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; override your theme’s shadow settings. The tool we need here is &lt;em&gt;compizconfig&lt;/em&gt;. To install, type&lt;/p&gt;
 
@@ -142,9 +202,9 @@ background-color: #000000;
 
 &lt;p&gt;This tab lets us adjust window shadows, but not below the size of one pixel (annoying). To completely erase window shadows, make sure &lt;strong&gt;Override Theme Settings&lt;/strong&gt; is not checked, so that our &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt; file dictates the shadow settings, which we had specified as being zero pixels in size.&lt;/p&gt;
 
-&lt;h1 id=&quot;wrapping-up&quot;&gt;Wrapping up&lt;/h1&gt;
+&lt;h2 id=&quot;wrapping-up&quot;&gt;Wrapping up&lt;/h2&gt;
 
-&lt;p&gt;I hope you liked this walk-through that lets your Unity environment mimick the minimalism of Arch. Feel free to change the color of the active window border in &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt;, or make any other modifications. Do be careful messing around with compizconfig.&lt;/p&gt;
+&lt;p&gt;I hope you liked this walk-through to get your Unity desktop uncluttered. Feel free to change the color of the active window border in &lt;code class=&quot;highlighter-rouge&quot;&gt;gtk.css&lt;/code&gt;, or make any other modifications. Do be careful messing around with compizconfig.&lt;/p&gt;
 
 &lt;p&gt;One more quick Unity beautification you can do is better font rendering. Just install infinality, choose the setting called &lt;em&gt;infinality&lt;/em&gt;, and then edit one line inside of a CSS file to also reflect &lt;em&gt;infinality&lt;/em&gt;. The tutorial I followed for all that is &lt;a href=&quot;http://www.webupd8.org/2013/06/better-font-rendering-in-linux-with.html&quot;&gt;here&lt;/a&gt;. That’s it - cheers, and welcome to the most beautiful operating system of your life :)&lt;/p&gt;
 

@@ -1,0 +1,35 @@
+<p>This post explains the basics of linear algebra, just enough to get going with neural networks. If you’d like a more thorough cover, Goodfellow, Bengio, and Courville’s <a href="http://www.deeplearningbook.org/contents/linear_algebra.html">chapter</a><sup id="fnref:fn1"><a href="#fn:fn1" class="footnote">1</a></sup> on the topic can be read in two or three hours, and Terence Tao’s <a href="http://www.math.ucla.edu/~tao/resource/general/115a.3.02f/">course</a> can be finished in a few weeks.</p>
+
+<h2 id="scalars-vectors-and-matrices">Scalars, vectors, and matrices</h2>
+
+<p>We say that a variable <script type="math/tex">a</script> is a <em>scalar</em> if it takes on a single value. Most likely, all of the math you’ve encountered in your life so far has used scalars: from arithmatic, to algebra, and even most of calculus. The number $3$ is a scalar, as is the variable $x$ (whose value we simply don’t know).</p>
+
+<p>However, in linear algebra and neural networks, we usually work with <em>vectors</em>. A vector is just a list of scalars. We use bold font for vectors, to distinguish them. We can write a vector of length three as</p>
+
+<script type="math/tex; mode=display">\mathbf v = \left[\begin{matrix} a, \ b, \ c \end{matrix}\right]</script>
+
+<p>where <script type="math/tex">a</script>, <script type="math/tex">b</script>, and <script type="math/tex">c</script> are scalars. We can reference each entry of <script type="math/tex">\mathbf{v}</script> by using a subscript,</p>
+
+<script type="math/tex; mode=display">v_1 = a, \quad v_2 = b, \quad v_3 = c.</script>
+
+<p>This subscript notation lets us rewrite <script type="math/tex">\mathbf v</script> as</p>
+
+<script type="math/tex; mode=display">\mathbf v = \left[\begin{matrix} v_1, \ v_2, \ v_3 \end{matrix}\right].</script>
+
+<p>Notice how we don’t use bold font for each element, because the elements alone are scalars.</p>
+
+<p>Now that we’ve defined scalars and vectors, we can define matrices. A matrix is just a list of vectors. We use capital letters for matrices. We can write a matrix as</p>
+
+<script type="math/tex; mode=display">W = \left[\begin{matrix} a, \  b, \  c \\ d, \ e, \ f \end{matrix}\right]</script>
+
+<h2 id="now-you-might-wonder-whether-w">Now, you might wonder whether <script type="math/tex">W</script></h2>
+
+<h3 id="citations">Citations</h3>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:fn1">
+      <p>Goodfellow, Ian; Bengio, Yoshua; and Courville, Aaron; <em>Deep Learning</em>, MIT Press, 2017, <a href="http://www.deeplearningbook.org">deeplearningbook.org</a>&nbsp;<a href="#fnref:fn1" class="reversefootnote">&#8617;</a></p>
+    </li>
+  </ol>
+</div>

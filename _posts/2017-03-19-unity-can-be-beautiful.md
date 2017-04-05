@@ -15,7 +15,7 @@ First off, all Linux desktop environments are massively better than they were ev
 
 Why Linux? If you're going to be doing deep learning, you're probably going to be using either Linux or Mac. That's because developers of deep learning tools prefer writing for Unix-based operating systems. Unfortunately, since Mac is hard to equip with a decent GPU, you're pretty much stuck with Linux. Sure, Windows [recently got TensorFlow support](https://www.tensorflow.org/install/install_windows), but you'll find that TensorFlow updates and support for Windows are always a bit behind, and this goes for other deep learning packages too. Furthermore, if you have an issue with a deep learning library on Windows, it can be hard to find help, and to fix. Since library developers use Linux, most of these sort of issues are addressed already, or they have user-written solutions. That said, if you're still attached to Windows, you can always just [dual boot](http://www.everydaylinuxuser.com/2015/11/how-to-install-ubuntu-linux-alongside.html) like I do. If you're attached to Mac, you can [make Ubuntu 16.04 look just like Mac OSX](https://www.youtube.com/watch?v=eVzYtlR_OH0).
 
-# Stock Unity is ugly
+## Stock Unity is ugly
 
 At first encounter, Unity is pretty jarring.
 
@@ -23,7 +23,7 @@ At first encounter, Unity is pretty jarring.
 
 The icons are humongous, the launcher and docker both use a rounded 3-d theme that hearkens back to 2010, and every window has an ugly header. To my shock, even windows like Spotify and Discord _which are supposed to have their own built-in headers_ use the awful Ubuntu headers instead. Luckily, you can fix all of this distasteful stuff in just 10 or 20 minutes.
 
-# Move the launcher
+## Move the launcher
 
 You can shrink the launcher from the system menu.
 
@@ -43,7 +43,7 @@ Click __launcher__ in the upper left and you'll see this
 
 I like mine on the bottom, auto-hidden, and completely opaque. You can change tons of other Unity features with this tool, but not every feature. To remove window headers, you'll need one more tool.
 
-# Remove window headers
+## Remove window headers
 
 Removing window headers comes with a few caveats, all of which are worthwhile and more efficient once you get used to them. Firstly, you'll have to `alt + left click` to drag windows, although snap-resizing still works. Secondly, you'll have to use `alt + f4` to close windows, and `alt + space` followed by `n` to minimize windows. In fact, `alt + space` brings up a small menu with every window adjustment feature that is normally included on window headers. Lastly, in Unity, the title of the window is always displayed in the top bar, so you're really losing nothing by getting rid of window headers.
 
@@ -109,7 +109,7 @@ background-color: #000000;
 
 It removes all shadows, puts a one pixel black border around every window, and changes the color of that one pixel border to light blue for the active window. After adding this file, log out and log back in to see the change. If you don't like it, simply delete the `gtk.css` file you created, and things will be back to normal. One last note: this might fail to remove shadows, in which case you should proceed to the following step.
 
-# Get rid of window shadows (optional)
+## Get rid of window shadows (optional)
 
 If the above step failed to remove shadows, then we need to tell Unity to have `gtk.css` override your theme's shadow settings. The tool we need here is _compizconfig_. To install, type
 
@@ -132,7 +132,7 @@ Click the __decorations__ tab to see this.
 
 This tab lets us adjust window shadows, but not below the size of one pixel (annoying). To completely erase window shadows, make sure __Override Theme Settings__ is not checked, so that our `gtk.css` file dictates the shadow settings, which we had specified as being zero pixels in size.
 
-# Wrapping up
+## Wrapping up
 
 I hope you liked this walk-through to get your Unity desktop uncluttered. Feel free to change the color of the active window border in `gtk.css`, or make any other modifications. Do be careful messing around with compizconfig.
 

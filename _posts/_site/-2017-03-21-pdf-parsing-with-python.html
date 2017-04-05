@@ -1,0 +1,1297 @@
+<p>In this post, we’ll parse my ConEdison Bill in Python using <code class="highlighter-rouge">textract</code>. The bill is three pages, each in a different format. Luckily, <code class="highlighter-rouge">textract</code> manages to get data seperated into different lines. We’ll be working through a list of strings, where each string is typically one line in the pdf file.</p>
+
+<p>To get figures from the document, the simplest solution would be to use <code class="highlighter-rouge">enumerate</code> to index every line of the scraped document, and then to use fixed references to the line where each amount appers. Unfortunately, this solution makes a drastic assumption that every bill will have the exact same number of lines in the exact same order with the exact same spacings.</p>
+
+<p>Instead, we use a slightly harder but more robust solution. Our script assumes only that the distances between figures and their accompanying labels remain constant between bills. Our general technique is to scan the lines for a keyword, and then to grab the value that follows that keyword some number of lines following (usually two to four lines).</p>
+
+<h2 id="packages">Packages</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+</code></pre>
+</div>
+
+<h2 id="user-modified-variables">User-modified variables</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">filename</span> <span class="o">=</span> <span class="s">'9_19_2016.pdf'</span>
+</code></pre>
+</div>
+
+<h1 id="first-page">First page</h1>
+
+<p><img src="/images/pdf-parsing-with-python/bill.png" style="width: 100%; object-fit: contain" /></p>
+
+<h2 id="helper-functions">Helper functions</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_kth_line_after_nth_occurrence</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="s">"""Return kth line after the nth observation of string."""</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">corpus</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">corpus</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">k</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">corpus</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="s">"""Returns kwh rate of the line containing string.
+    
+    Works like get_kth_line_after_nth_occurrence() where k=0, but 
+    we incorporate splitting the line at '@' which precedes the 
+    rate, and at '</span><span class="se">\\</span><span class="s">', which follows the rate.
+    
+    We also trim any trailing '</span><span class="si">%</span><span class="s">' sign, so we can use it for sales tax.
+    """</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">corpus</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">string</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">rate</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'@'</span><span class="p">)</span>
+                <span class="k">break</span>
+
+    <span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    
+    <span class="c"># This is to remove the trailing '%' sign for sales tax rate</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">rate</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">():</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="n">rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rate</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">strip_dollars</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="s">"""Return float of string after stripping hyphens and dollars."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">strip_dollars</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">item</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="s">'None'</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">'</span><span class="err">\</span><span class="s">$'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">item</span>
+</code></pre>
+</div>
+
+<h2 id="get-lines-as-a-list-of-strings">Get lines as a list of strings</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">textract</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="n">textract</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>b'MATTHEW PETERSEN\n\nMessage Center\n\nYour account num'
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>"b'MATTHEW PETERSEN\\n\\nMessage Center\\n\\nYour accou"
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>  <span class="c"># remove b</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">text</span><span class="p">[:</span><span class="mi">50</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'MATTHEW PETERSEN\\n\\nMessage Center\\n\\nYour account'
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\\</span><span class="s">n'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">lines</span><span class="p">[:</span><span class="mi">11</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>['MATTHEW PETERSEN',
+ '',
+ 'Message Center',
+ '',
+ 'Your account number: 48-4305-1560-0006-7',
+ '',
+ 'Counter',
+ '',
+ 'Service delivered to: 560 W 163 St 35',
+ 'Your electric rate: EL1 Residential or Religious',
+ 'Your gas rate: GS1 Residential or Religious']
+</code></pre>
+</div>
+
+<p><em>Don’t remove the empty strings, because they nicely divide some sections, that are difficult to separate otherwise.</em></p>
+
+<h1 id="client-details">Client details</h1>
+
+<p><img src="/images/pdf-parsing-with-python/client-details.png" style="height: 100%; object-fit: contain" /></p>
+
+<h2 id="name">Name</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">full_name</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">first_name</span><span class="p">,</span> <span class="n">last_name</span> <span class="o">=</span> <span class="n">full_name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">first_name</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'MATTHEW'
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">last_name</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'PETERSEN'
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">full_name</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'MATTHEW PETERSEN'
+</code></pre>
+</div>
+
+<h2 id="account-number">Account number</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">account_number</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Your account number:'</span><span class="p">)</span>
+<span class="n">account_number</span> <span class="o">=</span> <span class="n">account_number</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">account_number</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'48-4305-1560-0006-7'
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">account_number_clean</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">'-'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="n">account_number</span><span class="p">)</span>
+<span class="n">account_number_clean</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'484305156000067'
+</code></pre>
+</div>
+
+<h2 id="address">Address</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">address</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Service delivered to:'</span><span class="p">)</span>
+<span class="n">address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">address</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'560 W 163 St 35'
+</code></pre>
+</div>
+
+<h2 id="electric-rate">Electric rate</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">electric_rate</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Your electric rate:'</span><span class="p">)</span>
+<span class="n">electric_rate</span> <span class="o">=</span> <span class="n">electric_rate</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">electric_rate</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'EL1 Residential or Religious'
+</code></pre>
+</div>
+
+<h2 id="gas-rate">Gas rate</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">gas_rate</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Your gas rate:'</span><span class="p">)</span>
+<span class="n">gas_rate</span> <span class="o">=</span> <span class="n">gas_rate</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">gas_rate</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'GS1 Residential or Religious'
+</code></pre>
+</div>
+
+<h2 id="next-meter-reading-date">Next meter reading date</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">next_meter_reading_date</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Next meter reading date:'</span><span class="p">)</span>
+<span class="n">next_meter_reading_date</span> <span class="o">=</span> <span class="n">next_meter_reading_date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">next_meter_reading_date</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'Tuesday, Oct 18, 2016'
+</code></pre>
+</div>
+
+<h1 id="billing-summary-section">Billing summary section</h1>
+
+<p>A bit harder. Here’s what it looks like</p>
+
+<p><img src="/images/pdf-parsing-with-python/billing-summary.png" style="height: 100%; object-fit: contain" /></p>
+
+<p>The issue is that, in the text parse, the numbers themselves are divorced from their descriptions. The lines of our parse go first down the left column of descriptions, and then down the right column of figures.</p>
+
+<p>We <em>could</em> use fixed indexing to match descriptions to figures, but this will fail if another bill has a different number of categories (such as a new one, ‘past-due amount’).</p>
+
+<p>So we have to use dynamic indexing.</p>
+
+<h2 id="previous-charges-and-payments">Previous charges and payments</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Find start of 'previous charges' section</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">'Your previous charges and payments'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">previous_charges_start</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">break</span>
+
+<span class="c"># Find start of descriptions (assumes start immediately)</span>
+<span class="n">descriptions_start</span> <span class="o">=</span> <span class="n">previous_charges_start</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="c"># Find start of amounts (assumes start after next empty line)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">descriptions_start</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">descriptions_end</span> <span class="o">=</span> <span class="n">descriptions_start</span> <span class="o">+</span> <span class="n">i</span>
+        <span class="n">amounts_start</span> <span class="o">=</span> <span class="n">descriptions_end</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">break</span>
+
+<span class="c"># Find end of amounts (assumes end at next empty line)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">amounts_start</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">amounts_end</span> <span class="o">=</span> <span class="n">amounts_start</span> <span class="o">+</span> <span class="n">i</span>
+        <span class="k">break</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">descriptions</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">descriptions_start</span><span class="p">:</span><span class="n">descriptions_end</span><span class="p">]</span>
+<span class="n">descriptions</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>['Total charges from your last bill',
+ 'Payments through Sep 15, than you',
+ 'Remaining balance']
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">amounts</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">amounts_start</span><span class="p">:</span><span class="n">amounts_end</span><span class="p">]</span>
+<span class="n">amounts</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">amounts</span><span class="p">)</span>
+<span class="n">amounts</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[82.18, -82.18, 0.0]
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">previous_charges_and_payments</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">desc</span><span class="p">:</span> <span class="n">amt</span> <span class="k">for</span> <span class="n">desc</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">descriptions</span><span class="p">,</span> <span class="n">amounts</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="n">previous_charges_and_payments</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">'Payments</span><span class="w"> </span><span class="err">through</span><span class="w"> </span><span class="err">Sep</span><span class="w"> </span><span class="err">15,</span><span class="w"> </span><span class="err">than</span><span class="w"> </span><span class="err">you':</span><span class="w"> </span><span class="err">-82.18,</span><span class="w">
+ </span><span class="err">'Remaining</span><span class="w"> </span><span class="err">balance':</span><span class="w"> </span><span class="err">0.0,</span><span class="w">
+ </span><span class="err">'Total</span><span class="w"> </span><span class="err">charges</span><span class="w"> </span><span class="err">from</span><span class="w"> </span><span class="err">your</span><span class="w"> </span><span class="err">last</span><span class="w"> </span><span class="err">bill':</span><span class="w"> </span><span class="err">82.18</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="new-charges">New charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Find new charges section</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">'Your new charges'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">new_charges_start</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">break</span>
+
+<span class="c"># Find start of descriptions in new charges section</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">new_charges_start</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">descriptions_start</span> <span class="o">=</span> <span class="n">new_charges_start</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">break</span>
+
+<span class="c"># Find start of amounts in new charges section</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">descriptions_start</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">descriptions_end</span> <span class="o">=</span> <span class="n">descriptions_start</span> <span class="o">+</span> <span class="n">i</span>
+        <span class="n">amounts_start</span> <span class="o">=</span> <span class="n">descriptions_end</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">break</span>
+
+<span class="c"># Find end of amounts in new charges section</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">amounts_start</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">amounts_end</span> <span class="o">=</span> <span class="n">amounts_start</span> <span class="o">+</span> <span class="n">i</span>
+        <span class="k">break</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">descriptions</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">descriptions_start</span><span class="p">:</span><span class="n">descriptions_end</span><span class="p">]</span>
+<span class="n">descriptions</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>['Electricity charges - for 30 days', 'Gas charges - for 30 days']
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">amounts</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">amounts_start</span><span class="p">:</span><span class="n">amounts_end</span><span class="p">]</span>
+<span class="n">amounts</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">amounts</span><span class="p">)</span>
+<span class="n">amounts</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>[67.72, 23.67]
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">new_charges</span> <span class="o">=</span> <span class="p">{</span><span class="n">desc</span><span class="p">:</span> <span class="n">amt</span> <span class="k">for</span> <span class="n">desc</span><span class="p">,</span> <span class="n">amt</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">descriptions</span><span class="p">,</span> <span class="n">amounts</span><span class="p">)}</span>
+<span class="n">new_charges</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">'Electricity</span><span class="w"> </span><span class="err">charges</span><span class="w"> </span><span class="err">-</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">30</span><span class="w"> </span><span class="err">days':</span><span class="w"> </span><span class="err">67.72,</span><span class="w">
+ </span><span class="err">'Gas</span><span class="w"> </span><span class="err">charges</span><span class="w"> </span><span class="err">-</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">30</span><span class="w"> </span><span class="err">days':</span><span class="w"> </span><span class="err">23.67</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<h2 id="total-new-charges">Total new charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_new_charges</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total new charges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">total_new_charges</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_new_charges</span><span class="p">)</span>
+<span class="n">total_new_charges</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>91.39
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Add it to our dictionary</span>
+<span class="n">new_charges</span><span class="p">[</span><span class="s">'Total new charges'</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_new_charges</span>
+<span class="n">new_charges</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="err">'Electricity</span><span class="w"> </span><span class="err">charges</span><span class="w"> </span><span class="err">-</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">30</span><span class="w"> </span><span class="err">days':</span><span class="w"> </span><span class="err">67.72,</span><span class="w">
+ </span><span class="err">'Gas</span><span class="w"> </span><span class="err">charges</span><span class="w"> </span><span class="err">-</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">30</span><span class="w"> </span><span class="err">days':</span><span class="w"> </span><span class="err">23.67,</span><span class="w">
+ </span><span class="err">'Total</span><span class="w"> </span><span class="err">new</span><span class="w"> </span><span class="err">charges':</span><span class="w"> </span><span class="err">91.39</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double check that it equals the sum of other charges</span>
+<span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">new_charges</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">new_charges</span><span class="p">[</span><span class="s">'Total new charges'</span><span class="p">],</span> \
+    <span class="s">"Total new charges does not equal sum of listed new charges"</span>
+</code></pre>
+</div>
+
+<h2 id="billing-period">Billing period</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">billing_period</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Billing period'</span><span class="p">)</span>
+<span class="n">billing_period</span> <span class="o">=</span> <span class="n">billing_period</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">billing_period</span> <span class="o">=</span> <span class="n">billing_period</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' to '</span><span class="p">)</span>
+<span class="n">billing_period</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>['Aug 17, 2016', 'Sep 16, 2016']
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Cast billing period to datetime objects</span>
+<span class="n">fmt</span> <span class="o">=</span> <span class="s">'</span><span class="si">%</span><span class="s">b </span><span class="si">%</span><span class="s">d, </span><span class="si">%</span><span class="s">Y'</span>
+
+<span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">billing_period</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fmt</span><span class="p">)</span>
+<span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">billing_period</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">fmt</span><span class="p">)</span>
+
+<span class="n">billing_period</span> <span class="o">=</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span>
+<span class="n">billing_period</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>(datetime.datetime(2016, 8, 17, 0, 0), datetime.datetime(2016, 9, 16, 0, 0))
+</code></pre>
+</div>
+
+<h2 id="days-in-billing-period">Days in billing period</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">days_in_billing_period</span> <span class="o">=</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
+<span class="n">days_in_billing_period</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>30
+</code></pre>
+</div>
+
+<h2 id="meter-number">Meter number</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">meter_number</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Meter#'</span><span class="p">)</span>
+<span class="n">meter_number</span> <span class="o">=</span> <span class="n">meter_number</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">meter_number</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>'7543491'
+</code></pre>
+</div>
+
+<h2 id="kwh-used">kWh used</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">kwh_used</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Electricity you used'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">kwh_used</span> <span class="o">=</span> <span class="n">kwh_used</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">kwh_used</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">kwh_used</span><span class="p">)</span>
+<span class="n">kwh_used</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>236.0
+</code></pre>
+</div>
+
+<hr />
+<h1 id="supply-charges-electricity">Supply charges (electricity)</h1>
+
+<h2 id="kwh-rate-supply">kWh rate (supply)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_kwh_supply</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Supply'</span><span class="p">)</span>
+<span class="n">cents_per_kwh_supply</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>7.5932
+</code></pre>
+</div>
+
+<h2 id="supply-charge">Supply charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">kwh_used</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>236.0
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_kwh_supply</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>7.5932
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Divide by 100 to get dollars again</span>
+<span class="n">supply_charge_elec</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwh_used</span> <span class="o">*</span> <span class="n">cents_per_kwh_supply</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">supply_charge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>17.919952000000002
+</code></pre>
+</div>
+
+<h2 id="merchant-function-charge">Merchant function charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">merchant_function_charge_elec</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Your electricity use'</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">merchant_function_charge_elec</span> <span class="o">=</span> \
+    <span class="n">strip_dollars</span><span class="p">(</span><span class="n">merchant_function_charge_elec</span><span class="p">)</span>
+<span class="n">merchant_function_charge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.19
+</code></pre>
+</div>
+
+<h2 id="grt-and-other-tax-surcharges-supply">GRT and other tax surcharges (supply)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Both delivery and supply grt have the same description, so</span>
+<span class="c"># it's impossible to search for one or the other uniquely. We</span>
+<span class="c"># have to get them both together (delivery appears first in the</span>
+<span class="c"># text parse, although it's actually further in the document)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s">'GRT &amp; other tax surcharges'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">grt_delivery_elec</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">continue_index</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">break</span>    
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">[</span><span class="n">continue_index</span><span class="p">:]):</span>
+    <span class="k">if</span> <span class="s">'GRT &amp; other tax surcharges'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">grt_supply_elec</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="n">continue_index</span> <span class="o">+</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">break</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">grt_delivery_elec</span><span class="p">,</span> <span class="n">grt_supply_elec</span> <span class="o">=</span> \
+    <span class="n">strip_dollars</span><span class="p">([</span><span class="n">grt_delivery_elec</span><span class="p">,</span> <span class="n">grt_supply_elec</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">grt_delivery_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2.2
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">grt_supply_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.46
+</code></pre>
+</div>
+
+<h2 id="total-supply-charges">Total supply charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_supply_charges_elec</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total supply charges'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">total_supply_charges_elec</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_supply_charges_elec</span><span class="p">)</span>
+<span class="n">total_supply_charges_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>19.57
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double-check that it matches the sum of component charges</span>
+
+<span class="n">total_supply_charges_elec_cpt</span> \
+<span class="o">=</span> <span class="n">supply_charge_elec</span> \
+<span class="o">+</span> <span class="n">merchant_function_charge_elec</span> \
+<span class="o">+</span> <span class="n">grt_supply_elec</span>
+
+<span class="n">total_supply_charges_elec_cpt</span> <span class="o">=</span> \
+    <span class="nb">round</span><span class="p">(</span><span class="n">total_supply_charges_elec_cpt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">total_supply_charges_elec</span> <span class="o">==</span> \
+    <span class="n">total_supply_charges_elec_cpt</span><span class="p">,</span> \
+    <span class="s">"Total supply charge does not equal sum of component charges"</span>
+</code></pre>
+</div>
+
+<hr />
+<h1 id="delivery-charges-electricity">Delivery charges (electricity)</h1>
+
+<h2 id="basic-service-charge">Basic service charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">basic_service_charge_elec</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Basic service charge'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">basic_service_charge_elec</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">basic_service_charge_elec</span><span class="p">)</span>
+<span class="n">basic_service_charge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>16.36
+</code></pre>
+</div>
+
+<h2 id="kwh-rate-delivery">kWh rate (delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_kwh_delivery</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Delivery'</span><span class="p">)</span>
+<span class="n">cents_per_kwh_delivery</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>10.5551
+</code></pre>
+</div>
+
+<h2 id="delivery-charge">Delivery charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">delivery_charge_elec</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwh_used</span> <span class="o">*</span> <span class="n">cents_per_kwh_delivery</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">delivery_charge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>24.910036
+</code></pre>
+</div>
+
+<h2 id="kwh-rate-system-benefit-charge">kWh rate (system benefit charge)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_kwh_sys_ben</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'System Benefit Charge'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cents_per_kwh_sys_ben</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.6186
+</code></pre>
+</div>
+
+<h2 id="system-benefit-charge">System benefit charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">system_benefit_charge_elec</span> <span class="o">=</span> <span class="p">(</span><span class="n">kwh_used</span> <span class="o">*</span> <span class="n">cents_per_kwh_sys_ben</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">system_benefit_charge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.4598959999999999
+</code></pre>
+</div>
+
+<h2 id="kwh-rate-temporary-ny-state-surcharge">kWh rate (Temporary NY State Surcharge)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_kwh_temp_ny_st_sur</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Temporary NY State'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cents_per_kwh_temp_ny_st_sur</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.1271
+</code></pre>
+</div>
+
+<h2 id="temporary-ny-state-surcharge">Temporary NY State Surcharge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">temporary_ny_state_surcharge_elec</span> <span class="o">=</span> \
+    <span class="p">(</span><span class="n">kwh_used</span> <span class="o">*</span> <span class="n">cents_per_kwh_temp_ny_st_sur</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">temporary_ny_state_surcharge_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.29995599999999994
+</code></pre>
+</div>
+
+<h2 id="grt---other-tax-surcharges-delivery">GRT  &amp; other tax surcharges (delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># From earlier, we had to get both at the same time</span>
+<span class="n">grt_delivery_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2.2
+</code></pre>
+</div>
+
+<h2 id="total-delivery-charges">Total delivery charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_delivery_charges_elec</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total delivery charges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">total_delivery_charges_elec</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_delivery_charges_elec</span><span class="p">)</span>
+<span class="n">total_delivery_charges_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>45.23
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Check that total delivery charges equals the sum of components</span>
+
+<span class="n">total_delivery_charges_elec_cpt</span> \
+<span class="o">=</span> <span class="n">basic_service_charge_elec</span> \
+<span class="o">+</span> <span class="n">delivery_charge_elec</span> \
+<span class="o">+</span> <span class="n">system_benefit_charge_elec</span> \
+<span class="o">+</span> <span class="n">temporary_ny_state_surcharge_elec</span> \
+<span class="o">+</span> <span class="n">grt_delivery_elec</span>
+
+<span class="n">total_delivery_charges_elec_cpt</span> <span class="o">=</span> \
+    <span class="nb">round</span><span class="p">(</span><span class="n">total_delivery_charges_elec_cpt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">total_delivery_charges_elec</span> \
+    <span class="o">==</span> <span class="n">total_delivery_charges_elec_cpt</span><span class="p">,</span> \
+    <span class="s">"Total delivery charges does not equal sum of components"</span>
+</code></pre>
+</div>
+
+<hr />
+<h1 id="finishing-electricity">Finishing electricity</h1>
+
+<h2 id="sales-tax-rate">Sales tax rate</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">sales_tax_rate_elec</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'Sales tax'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sales_tax_rate_elec</span> <span class="o">/=</span> <span class="mi">100</span>
+<span class="n">sales_tax_rate_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.045
+</code></pre>
+</div>
+
+<h2 id="sales-tax">Sales tax</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">sales_tax_elec</span> <span class="o">=</span> <span class="n">sales_tax_rate_elec</span> \
+    <span class="o">*</span> <span class="p">(</span><span class="n">total_supply_charges_elec</span> <span class="o">+</span> <span class="n">total_delivery_charges_elec</span><span class="p">)</span>
+<span class="n">sales_tax_elec</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">sales_tax_elec</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sales_tax_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2.92
+</code></pre>
+</div>
+
+<h2 id="total-electricity-charges">Total electricity charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_charges_elec</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total electricity charges'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">total_charges_elec</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_charges_elec</span><span class="p">)</span>
+<span class="n">total_charges_elec</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>67.72
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double check our figures</span>
+
+<span class="n">total_charges_elec_cpt</span> \
+<span class="o">=</span> <span class="n">total_supply_charges_elec</span> \
+<span class="o">+</span> <span class="n">total_delivery_charges_elec</span> \
+<span class="o">+</span> <span class="n">sales_tax_elec</span>
+
+<span class="k">assert</span> <span class="n">total_charges_elec_cpt</span> <span class="o">==</span> <span class="n">total_charges_elec</span><span class="p">,</span> \
+    <span class="s">"Total electricity charges does not equal sum of components"</span>
+</code></pre>
+</div>
+
+<hr />
+<h1 id="gas">Gas</h1>
+
+<h1 id="supply-charges-gas">Supply charges (gas)</h1>
+
+<h2 id="therms-used">Therms used</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># WARNING: This is a hacky way to get therms used...</span>
+<span class="n">therms_used</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Your average daily gas use'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">therms_used</span> <span class="o">=</span> <span class="n">therms_used</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">therms_used</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">therms_used</span><span class="p">)</span>
+<span class="n">therms_used</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>4.0
+</code></pre>
+</div>
+
+<h2 id="cents-per-therm-supply">Cents per therm (supply)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_therm_supply</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="s">'therms @'</span><span class="p">)</span>
+<span class="n">cents_per_therm_supply</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>26.5
+</code></pre>
+</div>
+
+<h2 id="supply-charge-1">Supply charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Divide by 100 to get dollars</span>
+<span class="n">supply_charge_gas</span> <span class="o">=</span> <span class="p">(</span><span class="n">cents_per_therm_supply</span> <span class="o">*</span> <span class="n">therms_used</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">supply_charge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.06
+</code></pre>
+</div>
+
+<h2 id="merchant-function-charge-1">Merchant function charge</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">merchant_function_charge_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Merchant function charge'</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">merchant_function_charge_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">merchant_function_charge_gas</span><span class="p">)</span>
+<span class="n">merchant_function_charge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.07
+</code></pre>
+</div>
+
+<h2 id="grt--other-tax-surcharges">GRT &amp; other tax surcharges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">grt_supply_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'GRT &amp; other tax surcharges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">4</span>
+<span class="p">)</span>
+<span class="n">grt_supply_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">grt_supply_gas</span><span class="p">)</span>
+<span class="n">grt_supply_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.03
+</code></pre>
+</div>
+
+<h2 id="total-supply-charges-gas">Total supply charges (gas)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_supply_charges_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total supply charges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">total_supply_charges_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_supply_charges_gas</span><span class="p">)</span>
+<span class="n">total_supply_charges_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.16
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double check our work on supply charges for gas</span>
+
+<span class="n">total_supply_charges_gas_cpt</span> \
+<span class="o">=</span> <span class="n">supply_charge_gas</span> \
+<span class="o">+</span> <span class="n">merchant_function_charge_gas</span> \
+<span class="o">+</span> <span class="n">grt_supply_gas</span>
+
+<span class="n">total_supply_charges_gas_cpt</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_supply_charges_gas_cpt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">total_supply_charges_gas_cpt</span> <span class="o">==</span> <span class="n">total_supply_charges_gas</span><span class="p">,</span> \
+    <span class="s">"Total supply charges gas does not equal sum of components"</span>
+</code></pre>
+</div>
+
+<h1 id="delivery-charges-gas">Delivery charges (gas)</h1>
+
+<h2 id="basic-service-covers-3-therms">Basic service (covers 3 therms)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">basic_service_charge_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Basic service charge'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">basic_service_charge_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">basic_service_charge_gas</span><span class="p">)</span>
+<span class="n">basic_service_charge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>19.2
+</code></pre>
+</div>
+
+<h2 id="excess-service-charge-on-excess-of-3-therms">Excess service charge (on excess of 3 therms)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">excess_therms</span> <span class="o">=</span> <span class="n">therms_used</span> <span class="o">-</span> <span class="mf">3.0</span>
+
+<span class="n">cents_per_therm_excess</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Remaining </span><span class="si">%.1</span><span class="s">f therms'</span> <span class="o">%</span> <span class="n">excess_therms</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">cents_per_therm_excess</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>97.0
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">excess_service_charge_gas</span> <span class="o">=</span> \
+    <span class="p">(</span><span class="n">excess_therms</span> <span class="o">*</span> <span class="n">cents_per_therm_excess</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">excess_service_charge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.97
+</code></pre>
+</div>
+
+<h2 id="monthly-rate-adjustment-gas-delivery">Monthly rate adjustment (gas delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_therm_mthly_adj</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Monthly rate adjustment @'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">cents_per_therm_mthly_adj</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>3.5
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">monthly_rate_adjustment_gas</span> <span class="o">=</span> <span class="p">(</span><span class="n">therms_used</span> <span class="o">*</span> <span class="n">cents_per_therm_mthly_adj</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">monthly_rate_adjustment_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.14
+</code></pre>
+</div>
+
+<h2 id="system-benefit-charge-gas-delivery">System benefit charge (gas delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_therm_sys_ben_chg</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'System Benefit Charge @'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">cents_per_therm_sys_ben_chg</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.25
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">system_benefit_charge_gas</span> <span class="o">=</span> \
+    <span class="p">(</span><span class="n">therms_used</span> <span class="o">*</span> <span class="n">cents_per_therm_sys_ben_chg</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">system_benefit_charge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.05
+</code></pre>
+</div>
+
+<h2 id="temporary-ny-state-surcharge-gas-delivery">Temporary NY state surcharge (gas delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">cents_per_therm_temp_ny_st_sur</span> <span class="o">=</span> <span class="n">get_rate_of_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Temporary NY State Surcharge @'</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">cents_per_therm_temp_ny_st_sur</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2.0
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">temporary_ny_state_surcharge_gas</span> <span class="o">=</span> \
+    <span class="p">(</span><span class="n">therms_used</span> <span class="o">*</span> <span class="n">cents_per_therm_temp_ny_st_sur</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+<span class="n">temporary_ny_state_surcharge_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>0.08
+</code></pre>
+</div>
+
+<h2 id="grt--other-tax-surcharges-gas-delivery">GRT &amp; other tax surcharges (gas delivery)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">grt_delivery_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'GRT &amp; other tax surcharges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+<span class="n">grt_delivery_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">grt_delivery_gas</span><span class="p">)</span>
+<span class="n">grt_delivery_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.05
+</code></pre>
+</div>
+
+<h2 id="total-delivery-charges-gas">Total delivery charges (gas)</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># WARNING: it's strange for the value to follow 8 lines later</span>
+<span class="n">total_delivery_charges_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total delivery charges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
+<span class="n">total_delivery_charges_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_delivery_charges_gas</span><span class="p">)</span>
+<span class="n">total_delivery_charges_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>21.49
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double check our work (gas delivery)</span>
+
+<span class="n">total_delivery_charges_gas_cpt</span> \
+<span class="o">=</span> <span class="n">basic_service_charge_gas</span> \
+<span class="o">+</span> <span class="n">excess_service_charge_gas</span> \
+<span class="o">+</span> <span class="n">monthly_rate_adjustment_gas</span> \
+<span class="o">+</span> <span class="n">system_benefit_charge_gas</span> \
+<span class="o">+</span> <span class="n">temporary_ny_state_surcharge_gas</span> \
+<span class="o">+</span> <span class="n">grt_delivery_gas</span>
+
+<span class="n">total_delivery_charges_gas_cpt</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_delivery_charges_gas_cpt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">total_delivery_charges_gas_cpt</span> <span class="o">==</span> <span class="n">total_delivery_charges_gas</span><span class="p">,</span> \
+    <span class="s">"Total delivery charges gas is not equal to the sum of its components"</span>
+</code></pre>
+</div>
+
+<h1 id="finishing-up-gas">Finishing up gas</h1>
+
+<h2 id="sales-tax-1">Sales tax</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">sales_tax_rate_gas</span> <span class="o">=</span> <span class="n">sales_tax_rate_elec</span>
+
+<span class="n">sales_tax_gas</span> <span class="o">=</span> <span class="n">sales_tax_rate_gas</span> \
+    <span class="o">*</span> <span class="p">(</span><span class="n">total_supply_charges_gas</span> <span class="o">+</span> <span class="n">total_delivery_charges_gas</span><span class="p">)</span>
+<span class="n">sales_tax_gas</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">sales_tax_gas</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">sales_tax_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>1.02
+</code></pre>
+</div>
+
+<h2 id="total-gas-charges">Total gas charges</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">total_charges_gas</span> <span class="o">=</span> <span class="n">get_kth_line_after_nth_occurrence</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">,</span> <span class="s">'Total gas charges'</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">total_charges_gas</span> <span class="o">=</span> <span class="n">strip_dollars</span><span class="p">(</span><span class="n">total_charges_gas</span><span class="p">)</span>
+<span class="n">total_charges_gas</span>
+</code></pre>
+</div>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>23.67
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Double check our work</span>
+
+<span class="n">total_charges_gas_cpt</span> \
+<span class="o">=</span> <span class="n">total_supply_charges_gas</span> \
+<span class="o">+</span> <span class="n">total_delivery_charges_gas</span> \
+<span class="o">+</span> <span class="n">sales_tax_gas</span>
+
+<span class="n">total_charges_gas_cpt</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">total_charges_gas_cpt</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">total_charges_gas_cpt</span> <span class="o">==</span> <span class="n">total_charges_gas</span><span class="p">,</span> \
+    <span class="s">"Total gas charges is not equal to sum of components"</span>
+</code></pre>
+</div>
+
+<h1 id="write-to-csv-file">Write to CSV file</h1>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span>
+</code></pre>
+</div>
+
+<h3 id="helper-function-to-make-sure-we-only-write-each-bill-once">Helper function to make sure we only write each bill once</h3>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">csv_column_has_id</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">ID</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">','</span><span class="p">):</span>
+    <span class="s">"""Checks for presence of id in column_name of csvfile."""</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csvfile</span><span class="p">,</span> <span class="s">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">csvfile</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c"># Header row: find number of ID column</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+                <span class="n">id_column_number</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">words</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">words</span><span class="p">[</span><span class="n">id_column_number</span><span class="p">]</span> <span class="o">==</span> <span class="n">ID</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+</code></pre>
+</div>
+
+<h2 id="variables-to-write">Variables to write</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># Unique ID of this dataset is the filename of the pdf.</span>
+<span class="c"># We will not write a new row to conedison.csv if this ID </span>
+<span class="c"># exists already in the ID column</span>
+<span class="n">ID</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">'first_name'</span><span class="p">,</span> <span class="n">first_name</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'last_name'</span><span class="p">,</span> <span class="n">last_name</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'full_name'</span><span class="p">,</span> <span class="n">full_name</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'account_number'</span><span class="p">,</span> <span class="n">account_number</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'account_number_clean'</span><span class="p">,</span> <span class="n">account_number_clean</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'address'</span><span class="p">,</span> <span class="n">address</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'electric_rate'</span><span class="p">,</span> <span class="n">electric_rate</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'gas_rate'</span><span class="p">,</span> <span class="n">gas_rate</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'meter_number'</span><span class="p">,</span> <span class="n">meter_number</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">elec</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">'kwh_used'</span><span class="p">,</span> <span class="n">kwh_used</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_kwh_supply'</span><span class="p">,</span> <span class="n">cents_per_kwh_supply</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'supply_charge_elec'</span><span class="p">,</span> <span class="n">supply_charge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'merchant_function_charge_elec'</span><span class="p">,</span> <span class="n">merchant_function_charge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'grt_supply_elec'</span><span class="p">,</span> <span class="n">grt_supply_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_supply_charges_elec'</span><span class="p">,</span> <span class="n">total_supply_charges_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'basic_service_charge_elec'</span><span class="p">,</span> <span class="n">basic_service_charge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_kwh_delivery'</span><span class="p">,</span> <span class="n">cents_per_kwh_delivery</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'delivery_charge_elec'</span><span class="p">,</span> <span class="n">delivery_charge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_kwh_sys_ben'</span><span class="p">,</span> <span class="n">cents_per_kwh_sys_ben</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'system_benefit_charge_elec'</span><span class="p">,</span> <span class="n">system_benefit_charge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_kwh_temp_ny_st_sur'</span><span class="p">,</span> <span class="n">cents_per_kwh_temp_ny_st_sur</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'temporary_ny_state_surcharge_elec'</span><span class="p">,</span> <span class="n">temporary_ny_state_surcharge_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'grt_delivery_elec'</span><span class="p">,</span> <span class="n">grt_delivery_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_delivery_charges_elec'</span><span class="p">,</span> <span class="n">total_delivery_charges_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'sales_tax_rate_elec'</span><span class="p">,</span> <span class="n">sales_tax_rate_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'sales_tax_elec'</span><span class="p">,</span> <span class="n">sales_tax_elec</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_charges_elec'</span><span class="p">,</span> <span class="n">total_charges_elec</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="n">gas</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">'therms_used'</span><span class="p">,</span> <span class="n">therms_used</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_therm_supply'</span><span class="p">,</span> <span class="n">cents_per_therm_supply</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'supply_charge_gas'</span><span class="p">,</span> <span class="n">supply_charge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'merchant_function_charge_gas'</span><span class="p">,</span> <span class="n">merchant_function_charge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'grt_supply_gas'</span><span class="p">,</span> <span class="n">grt_supply_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_supply_charges_gas'</span><span class="p">,</span> <span class="n">total_supply_charges_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'basic_service_charge_gas'</span><span class="p">,</span> <span class="n">basic_service_charge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_therm_excess'</span><span class="p">,</span> <span class="n">cents_per_therm_excess</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'excess_service_charge_gas'</span><span class="p">,</span> <span class="n">excess_service_charge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_therm_mthly_adj'</span><span class="p">,</span> <span class="n">cents_per_therm_mthly_adj</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'monthly_rate_adjustment_gas'</span><span class="p">,</span> <span class="n">monthly_rate_adjustment_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_therm_sys_ben_chg'</span><span class="p">,</span> <span class="n">cents_per_therm_sys_ben_chg</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'system_benefit_charge_gas'</span><span class="p">,</span> <span class="n">system_benefit_charge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'cents_per_therm_temp_ny_st_sur'</span><span class="p">,</span> <span class="n">cents_per_therm_temp_ny_st_sur</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'temporary_ny_state_surcharge_gas'</span><span class="p">,</span> <span class="n">temporary_ny_state_surcharge_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'grt_delivery_gas'</span><span class="p">,</span> <span class="n">grt_delivery_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_delivery_charges_gas'</span><span class="p">,</span> <span class="n">total_delivery_charges_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'sales_tax_rate_gas'</span><span class="p">,</span> <span class="n">sales_tax_rate_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'sales_tax_gas'</span><span class="p">,</span> <span class="n">sales_tax_gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">'total_charges_gas'</span><span class="p">,</span> <span class="n">total_charges_gas</span><span class="p">),</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<h2 id="write-data">Write data</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># If the file doesn't exist, make it...</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">mknod</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">)</span>
+    
+    <span class="c"># ...then make a heading row of variable names</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+            <span class="p">[</span><span class="s">'ID'</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">client</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">elec</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="n">tup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">gas</span><span class="p">]</span>
+        <span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="c"># If our bill is not yet stored in the file</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">csv_column_has_id</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">,</span> <span class="s">'ID'</span><span class="p">,</span> <span class="n">ID</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ID</span><span class="p">)]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">client</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">elec</span><span class="p">]</span>
+            <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tup</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">gas</span><span class="p">]</span>
+        <span class="p">)</span>
+</code></pre>
+</div>
+
+<h1 id="try-reading-in-our-scraped-data-with-pandas">Try reading in our scraped data with Pandas</h1>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'conedison.csv'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span>
+</code></pre>
+</div>
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ID</th>
+      <th>first_name</th>
+      <th>last_name</th>
+      <th>full_name</th>
+      <th>account_number</th>
+      <th>account_number_clean</th>
+      <th>address</th>
+      <th>electric_rate</th>
+      <th>gas_rate</th>
+      <th>meter_number</th>
+      <th>...</th>
+      <th>monthly_rate_adjustment_gas</th>
+      <th>cents_per_therm_sys_ben_chg</th>
+      <th>system_benefit_charge_gas</th>
+      <th>cents_per_therm_temp_ny_st_sur</th>
+      <th>temporary_ny_state_surcharge_gas</th>
+      <th>grt_delivery_gas</th>
+      <th>total_delivery_charges_gas</th>
+      <th>sales_tax_rate_gas</th>
+      <th>sales_tax_gas</th>
+      <th>total_charges_gas</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>9_19_2016</td>
+      <td>MATTHEW</td>
+      <td>PETERSEN</td>
+      <td>MATTHEW PETERSEN</td>
+      <td>48-4305-1560-0006-7</td>
+      <td>484305156000067</td>
+      <td>560 W 163 St 35</td>
+      <td>EL1 Residential or Religious</td>
+      <td>GS1 Residential or Religious</td>
+      <td>7543491</td>
+      <td>...</td>
+      <td>0.14</td>
+      <td>1.25</td>
+      <td>0.05</td>
+      <td>2.0</td>
+      <td>0.08</td>
+      <td>1.05</td>
+      <td>21.49</td>
+      <td>0.045</td>
+      <td>1.02</td>
+      <td>23.67</td>
+    </tr>
+  </tbody>
+</table>
+<p>1 rows × 48 columns</p>
+</div>
+
+<h1 id="summary">Summary</h1>
+
+<h3 id="notes">Notes:</h3>
+
+<ul>
+  <li>Unless otherwise specified, all numbers are in dollars</li>
+  <li>If document format changes, some numbers in this program must be changed (the parameters input to helper functions through the document), but nothing else. There’s inherent mess in text-parsing a PDF file, and counting the lines between figures and their matching descriptions was the simple solution.</li>
+  <li>If ConEdison does not actually round intermediate calculations, then assertion checks in this program may fail by being off by one cent. This shouldn’t matter, because we always use the total printed on ConEdison’s bill, and are only assertion checking to make sure our intermediate figures are correct, should we want to use them later.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code>
+</code></pre>
+</div>
