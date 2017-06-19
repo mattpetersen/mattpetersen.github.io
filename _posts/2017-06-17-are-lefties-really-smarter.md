@@ -19,11 +19,11 @@ Any story that's perfectly poised to make the internet do backflips deserves an 
 The justification for the finding was that hand function is
 > "a manifestation of brain function and is therefore related to cognition."
 
-This is so broad a statement as to be meaningless. Every action is a manifestation of brain function. Is a manifestation of brian function necessarily related to cognition? Is cognition necessarily related to intelligence? We have a lot of bridges to build here.
+This is so broad a statement as to be meaningless. Every action is a manifestation of brain function. Is a manifestation of brain function necessarily related to cognition? Is cognition necessarily related to intelligence? We have a lot of bridges to build here.
 
 ### 3 - False assumptions
 
-While it is true that [lefties have more connections between brain hemispheres](http://science.sciencemag.org/content/229/4714/665.long), a property known as _lateralization_, there is actually [no significant link between lateralization and brain function](http://www.pnas.org/content/110/36/E3435.full.pdf). This may seem counterintuitive, because [labotomized patients lose 9.2 to 17 points of IQ](https://en.wikipedia.org/wiki/Talk%3ALobotomy#IQ_drop). These facts together point to diminishing returns of lateralization beyond a certain threshhold. Our default assumption should be that there's no IQ benefit from the increased lateralization found in lefties, since we're comparing against regular people not lobotomized patients.
+While it is true that [lefties have more connections between brain hemispheres](http://science.sciencemag.org/content/229/4714/665.long), a property known as _lateralization_, there is actually [no significant link between lateralization and brain function](http://www.pnas.org/content/110/36/E3435.full.pdf). This may seem counterintuitive, because [labotomized patients lose 9.2 to 17 points of IQ](https://en.wikipedia.org/wiki/Talk%3ALobotomy#IQ_drop). These facts together point to diminishing returns of lateralization beyond a certain threshold. Our default assumption should be that there's no IQ benefit from the increased lateralization found in lefties, since we're comparing against regular people not lobotomized patients.
 
 ### 4 - Mixed effect direction
 
