@@ -36,7 +36,7 @@ From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. I
 
 
 <br>
-## Jacobian
+## Jacobian of softmax
 
 Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s_i$$, and a column for each input element $$x_j$$. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll compute row $$i$$ of the Jacobian, which is the gradient of output element $$s_i$$ with respect to each of its input elements $$x_j$$.
 
@@ -114,7 +114,7 @@ which is the dot product since we're using row vectors. This formula comes from 
 
 
 <br>
-## Gradient
+## Gradient of cross-entropy
 
 Since our $$\mathbf y$$ is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise $$\log$$ and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it's applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of the dot product operation is matrix multiplied on the left of the Jacobian of the elementwise logarithm in the part below:
 
@@ -132,9 +132,9 @@ where we used equation (69) of [the matrix cookbook](http://www2.imm.dtu.dk/pubd
 
 
 <br>
-## Chain rule
+## Combining
 
-By the chain rule, the sensitivity of cost $$H(\mathbf y, \mathbf s)$$ to the input to the softmax layer $$\mathbf x$$ is given by a simple gradient-Jacobian product, each of which we've already comptued:
+By the chain rule, the sensitivity of cost $$H$$ to the input to the softmax layer $$\mathbf x$$ is given by a simple gradient-Jacobian product, each of which we've already comptued:
 
 $$\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s).$$
 

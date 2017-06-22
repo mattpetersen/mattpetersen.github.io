@@ -4,7 +4,7 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-06-22T13:27:44-04:00</updated>
+	<updated>2017-06-22T13:44:31-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
@@ -110,7 +110,7 @@
 &lt;p&gt;From now on, to keep things clear, we won’t write dependence on &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. Instead we’ll write &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, understanding that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; are each a function of the entire vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;jacobian&quot;&gt;Jacobian&lt;/h2&gt;
+&lt;h2 id=&quot;jacobian-of-softmax&quot;&gt;Jacobian of softmax&lt;/h2&gt;
 
 &lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, which is the gradient of output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
 
@@ -184,7 +184,7 @@ H(\mathbf y, \mathbf s)
 &lt;p&gt;which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;gradient&quot;&gt;Gradient&lt;/h2&gt;
+&lt;h2 id=&quot;gradient-of-cross-entropy&quot;&gt;Gradient of cross-entropy&lt;/h2&gt;
 
 &lt;p&gt;Since our &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise &lt;script type=&quot;math/tex&quot;&gt;\log&lt;/script&gt; and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of the dot product operation is matrix multiplied on the left of the Jacobian of the elementwise logarithm in the part below:&lt;/p&gt;
 
@@ -201,9 +201,9 @@ H(\mathbf y, \mathbf s)
 &lt;p&gt;where we used equation (69) of &lt;a href=&quot;http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf&quot;&gt;the matrix cookbook&lt;/a&gt; for the derivative of the dot product.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;chain-rule&quot;&gt;Chain rule&lt;/h2&gt;
+&lt;h2 id=&quot;combining&quot;&gt;Combining&lt;/h2&gt;
 
-&lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H(\mathbf y, \mathbf s)&lt;/script&gt; to the input to the softmax layer &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; is given by a simple gradient-Jacobian product, each of which we’ve already comptued:&lt;/p&gt;
+&lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt; to the input to the softmax layer &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; is given by a simple gradient-Jacobian product, each of which we’ve already comptued:&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s).&lt;/script&gt;
 

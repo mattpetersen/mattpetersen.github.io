@@ -126,7 +126,7 @@
 <p>From now on, to keep things clear, we won’t write dependence on <script type="math/tex">\mathbf x</script>. Instead we’ll write <script type="math/tex">\mathbf s(\mathbf x)</script> as <script type="math/tex">\mathbf s</script> and <script type="math/tex">s(\mathbf x)_i</script> as <script type="math/tex">s_i</script>, understanding that <script type="math/tex">\mathbf s</script> and <script type="math/tex">s_i</script> are each a function of the entire vector <script type="math/tex">\mathbf x</script>.</p>
 
 <p><br /></p>
-<h2 id="jacobian">Jacobian</h2>
+<h2 id="jacobian-of-softmax">Jacobian of softmax</h2>
 
 <p>Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element <script type="math/tex">s_i</script>, and a column for each input element <script type="math/tex">x_j</script>. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row <script type="math/tex">i</script> of the Jacobian, which is the gradient of output element <script type="math/tex">s_i</script> with respect to each of its input elements <script type="math/tex">x_j</script>.</p>
 
@@ -200,7 +200,7 @@ H(\mathbf y, \mathbf s)
 <p>which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.</p>
 
 <p><br /></p>
-<h2 id="gradient">Gradient</h2>
+<h2 id="gradient-of-cross-entropy">Gradient of cross-entropy</h2>
 
 <p>Since our <script type="math/tex">\mathbf y</script> is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise <script type="math/tex">\log</script> and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of the dot product operation is matrix multiplied on the left of the Jacobian of the elementwise logarithm in the part below:</p>
 
@@ -217,9 +217,9 @@ H(\mathbf y, \mathbf s)
 <p>where we used equation (69) of <a href="http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf">the matrix cookbook</a> for the derivative of the dot product.</p>
 
 <p><br /></p>
-<h2 id="chain-rule">Chain rule</h2>
+<h2 id="combining">Combining</h2>
 
-<p>By the chain rule, the sensitivity of cost <script type="math/tex">H(\mathbf y, \mathbf s)</script> to the input to the softmax layer <script type="math/tex">\mathbf x</script> is given by a simple gradient-Jacobian product, each of which we’ve already comptued:</p>
+<p>By the chain rule, the sensitivity of cost <script type="math/tex">H</script> to the input to the softmax layer <script type="math/tex">\mathbf x</script> is given by a simple gradient-Jacobian product, each of which we’ve already comptued:</p>
 
 <script type="math/tex; mode=display">\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s).</script>
 
