@@ -135,7 +135,7 @@ The first term is the gradient of cross-entropy cost to softmax activation. Reme
 
 <script type="math/tex; mode=display">
 \begin{aligned}
-\nabla_{\mathbf x} H(\mathbf y, \mathbf s(\mathbf x))
+\nabla_{\mathbf x} H
 &= -\frac{\mathbf y}{\mathbf s(\mathbf x)} \bigg[ \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x) \bigg] \\[1.6em]
 &= \frac{\mathbf y}{\mathbf s(\mathbf x)}\mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)  - \frac{\mathbf y}{\mathbf s(\mathbf x)} \ \text{diag} \big(\mathbf s(\mathbf x)\big) \\[1.6em]
 &= \mathbf y \ \mathbf S(\mathbf x)^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
