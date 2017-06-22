@@ -8,7 +8,9 @@ comments: true
 tags: backpropogation, matrix calculus, softmax, cross-entropy, neural networks, deep learning
 ---
 
+
 A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. _We use row vectors and row gradients_, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.
+
 
 <br>
 ## Softmax
@@ -30,64 +32,71 @@ Softmax is nice because it turns $$\mathbf x$$ into a probability distribution.
 * Each element $$s(\mathbf x)_i$$ is between $$0$$ and $$1$$.
 * The elements $$s(\mathbf x)_i$$ sum to $$1$$.
 
+From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. Instead we'll write $$\mathbf s(\mathbf x)$$ as $$\mathbf s$$ and $$s(\mathbf x)_i$$ as $$s_i$$, understanding that $$\mathbf s$$ and $$s_i$$ are each a function of the entire vector $$\mathbf x$$.
 
 
 <br>
 ## Jacobian
 
-Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s(\mathbf x)_i$$, and a column for each input element $$x_j$$. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll compute row $$i$$ of the Jacobian, which is the gradient of output element $$s(\mathbf x)_i$$ with respect to each of its input elements $$x_j$$.
+Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s_i$$, and a column for each input element $$x_j$$. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll compute row $$i$$ of the Jacobian, which is the gradient of output element $$s_i$$ with respect to each of its input elements $$x_j$$.
 
-First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s(\mathbf x)_i$$, with respect to its $$i$$'th input, $$x_i$$:
-
-<script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial s(\mathbf x)_i}{\partial x_{i}} &= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
-&= s(\mathbf x)_i - s(\mathbf x)_i^2 \qquad \text{diagonal entry}
-\end{aligned}
-</script>
-
-Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s(\mathbf x)_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$.
+First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s_i$$, with respect to its $$i$$'th input, $$x_i$$:
 
 <script type="math/tex; mode=display">
 \begin{aligned}
-\frac{\partial s(\mathbf x)_i}{\partial x_j} &= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
-&= - s(\mathbf x)_i s(\mathbf x)_j \qquad \text{off-diagonal entry}
+\frac{\partial s_i}{\partial x_{i}} &= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&= s_i - s_i^2 \qquad \text{diagonal entry}
 \end{aligned}
 </script>
 
-The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element $$s(\mathbf x)_i$$ with respect to each of its input elements $$x_j$$.
+Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$.
 
 <script type="math/tex; mode=display">
-\mathbf J_{\mathbf x} =
+\begin{aligned}
+\frac{\partial s_i}{\partial x_j} &= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&= - s_i s_j \qquad \text{off-diagonal entry}
+\end{aligned}
+</script>
+
+The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element $$s_i$$ with respect to each of its input elements $$x_j$$.
+
+$$
+\mathbf J_{\mathbf x}(\mathbf s) =
 \begin{bmatrix}
-    \nabla s(\mathbf x)_0 \\[0.5em]
-    \nabla s(\mathbf x)_1 \\[0.5em]
+    \nabla s_0 \\[0.5em]
+    \nabla s_1 \\[0.5em]
     . . . \\
-    \nabla s(\mathbf x)_n
+    \nabla s_n
 \end{bmatrix}
-=
-\begin{bmatrix}
-    s(\mathbf x)_0 - s(\mathbf x)_0^2 & -s(\mathbf x)_0 s(\mathbf x)_1 & . . .  & -s(\mathbf x)_0 s(\mathbf x)_n \\[0.5em]
-    -s(\mathbf x)_1 s(\mathbf x)_0 & s(\mathbf x)_1 - s(\mathbf x)_1^2 & . . .   & -s(\mathbf x)_1 s(\mathbf x)_n \\[0.5em]
+$$
+
+<script type="math/tex; mode=display">
+= \begin{bmatrix}
+    s_0 - s_0^2 & -s_0 s_1 & . . .  & -s_0 s_n \\[0.5em]
+    -s_1 s_0 & s_1 - s_1^2 & . . .   & -s_1 s_n \\[0.5em]
     . . . & . . .  & . . . & . . . \\[0.5em]
-    -s(\mathbf x)_n s(\mathbf x)_0 & -s(\mathbf x)_n s(\mathbf x)_1 & . . .  & s(\mathbf x)_n - s(\mathbf x)_n^2
+    -s_n s_0 & -s_n s_1 & . . .  & s_n - s_n^2
 \end{bmatrix}
 </script>
 
 Notice that we can express this matrix as
 
-$$\mathbf J_{\mathbf x} = \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)$$
+$$\mathbf J_{\mathbf x}(\mathbf s) = \text{diag} (\mathbf s) - \mathbf s^\top \mathbf s$$
 
 where the second term is the $$n \times n$$ outer product.
-
 
 
 <br>
 ## Cross-entropy
 
-Cross-entropy measures the difference between two probability distributions. We saw that $$\mathbf s(\mathbf x)$$ is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:
+Cross-entropy measures the difference between two probability distributions. We saw that $$\mathbf s$$ is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:
 
-$$\mathbf y = \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} = \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix},$$
+<script type="math/tex; mode=display">
+\begin{aligned}
+\mathbf y &= \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} \\[1.6em]
+          &= \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix}
+\end{aligned}
+</script>
 
 where the $$1$$ appears at the index of the correct class.
 
@@ -95,14 +104,13 @@ The cross-entropy between our predicted distribution over classes, $$\mathbf s( 
 
 <script type="math/tex; mode=display">
 \begin{aligned}
-H(\mathbf y, \mathbf s(\mathbf x))
-&= -\sum_{i=1}^n y_i \log s(\mathbf x)_i \\[1.6em] 
-&= -\mathbf y \log \mathbf s(\mathbf x)^\top,
+H(\mathbf y, \mathbf s)
+&= -\sum_{i=1}^n y_i \log s_i \\[1.6em] 
+&= -\mathbf y \log \mathbf s^\top,
 \end{aligned}
 </script>
 
 which is the dot product since we're using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.
-
 
 
 <br>
@@ -112,11 +120,11 @@ Since our $$\mathbf y$$ is given and fixed, cross-entropy is a vector-to-scalar 
 
 <script type="math/tex; mode=display">
 \begin{aligned}
-\nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) 
-&= -\nabla_{\mathbf s(\mathbf x)} \mathbf y \log \mathbf s(\mathbf x)^\top \\[1.6em]
-&= -\mathbf y \nabla_{\mathbf s(\mathbf x)} \log \mathbf s(\mathbf x) \\[1.6em]
-&= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s(\mathbf x)}\right) \\[1.6em]
-&= -\frac{\mathbf y}{\mathbf s(\mathbf x)},
+\nabla_{\mathbf s} H 
+&= -\nabla_{\mathbf s} \mathbf y \log \mathbf s^\top \\[1.6em]
+&= -\mathbf y \nabla_{\mathbf s} \log \mathbf s \\[1.6em]
+&= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s}\right) \\[1.6em]
+&= -\frac{\mathbf y}{\mathbf s},
 \end{aligned}
 </script>
 
@@ -126,9 +134,9 @@ where we used equation (69) of [the matrix cookbook](http://www2.imm.dtu.dk/pubd
 <br>
 ## Chain rule
 
-By the chain rule, the sensitivity of cost $$H(\mathbf y, \mathbf s(\mathbf x))$$ to the input to the softmax layer $$\mathbf x$$ is given by a simple gradient-Jacobian product, each of which we've already comptued:
+By the chain rule, the sensitivity of cost $$H(\mathbf y, \mathbf s)$$ to the input to the softmax layer $$\mathbf x$$ is given by a simple gradient-Jacobian product, each of which we've already comptued:
 
-$$\nabla_{\mathbf x} H = \nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) \ \mathbf J_{\mathbf x}.$$
+$$\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s).$$
 
 The first term is the gradient of cross-entropy cost to softmax activation. Remember that we're using row gradients. The second term is the Jacobian of softmax activation to softmax input. Expanding and simplifying, we get
 
@@ -136,10 +144,10 @@ The first term is the gradient of cross-entropy cost to softmax activation. Reme
 <script type="math/tex; mode=display">
 \begin{aligned}
 \nabla_{\mathbf x} H
-&= -\frac{\mathbf y}{\mathbf s(\mathbf x)} \bigg[ \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x) \bigg] \\[1.6em]
-&= \frac{\mathbf y}{\mathbf s(\mathbf x)}\mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)  - \frac{\mathbf y}{\mathbf s(\mathbf x)} \ \text{diag} \big(\mathbf s(\mathbf x)\big) \\[1.6em]
-&= \mathbf y \ \mathbf S(\mathbf x)^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
-&= \mathbf s(\mathbf x) - \mathbf{y}.
+&= -\frac{\mathbf y}{\mathbf s} \bigg[ \text{diag} \big(\mathbf s\big) - \mathbf s^\top \mathbf s \bigg] \\[1.6em]
+&= \frac{\mathbf y}{\mathbf s}\mathbf s^\top \mathbf s  - \frac{\mathbf y}{\mathbf s} \ \text{diag} \big(\mathbf s\big) \\[1.6em]
+&= \mathbf y \ \mathbf S^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
+&= \mathbf s - \mathbf{y}.
 \end{aligned}
 </script>
 

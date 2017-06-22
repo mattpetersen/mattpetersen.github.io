@@ -4,79 +4,13 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-06-22T02:51:42-04:00</updated>
+	<updated>2017-06-22T13:27:44-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
 		<email>peterm0273@gmail.com</email>
 	</author>
 
-	
-		<entry>
-			<title>Coding softmax with cross-entropy</title>
-			<link href="http://mattpetersen.github.io/coding-softmax-with-cross-entropy"/>
-			<updated>2017-06-22T00:00:00-04:00</updated>
-			<id>http://mattpetersen.github.io/coding-softmax-with-cross-entropy</id>
-			<content type="html">&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;information&quot;&gt;Information&lt;/h2&gt;
-
-&lt;p&gt;Information theory is built upon one intuition: that the information conveyed about a distribution &lt;script type=&quot;math/tex&quot;&gt;P(x)&lt;/script&gt; by an observation &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; is inversely proportional to the probability of that observation.&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;I (x) := \frac{1}{P(x)}.&lt;/script&gt;
-
-&lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; We’d like the information from two independent observations to be additive. That is, if we observe &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; and observe &lt;script type=&quot;math/tex&quot;&gt;y&lt;/script&gt;, the information gained, &lt;script type=&quot;math/tex&quot;&gt;I(x, y)&lt;/script&gt;, should equal &lt;script type=&quot;math/tex&quot;&gt;I(x) + I(y)&lt;/script&gt;, but notice that&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;I(x) + I(y) = \frac{1}{P(x)} + \frac{1}{P(y)} \neq \frac{1}{P(x)P(y)} = I(x, y).&lt;/script&gt;
-
-&lt;p&gt;&lt;strong&gt;Solution:&lt;/strong&gt; Use logarithms in our definition&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;I_P(x) := \log \frac{1}{P(x)}.&lt;/script&gt;
-
-&lt;p&gt;Then information is additive.&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;I(x) + I(y) = \log \frac{1}{P(x)} + \log \frac{1}{P(y)} = \log \frac{1}{P(x)P(y)} = I(x, y)&lt;/script&gt;
-
-&lt;p&gt;where we used (in order), the definition of information, the property of logarithms, and the fact that &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;y&lt;/script&gt; were assumed to be independent, such that &lt;script type=&quot;math/tex&quot;&gt;P(x)P(y) = P(x, y)&lt;/script&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;entropy&quot;&gt;Entropy&lt;/h2&gt;
-
-&lt;p&gt;The entropy of a discrete distribution &lt;script type=&quot;math/tex&quot;&gt;P&lt;/script&gt; is just the expected information of one sample &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; from that distribution&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\begin{aligned}
-H(P) :&amp;= \mathbb{E} \left[ I(x) \right] \\
-&amp;= \mathbb{E} \left[\log \frac{1}{P(x)}\right] \\
-&amp;= -\mathbb{E} \left[ \log P(x) \right] \\
-&amp;= - \sum_{x \in P} P(x) \log P(x)
-\end{aligned}
-&lt;/script&gt;
-
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;cross-entropy&quot;&gt;Cross-entropy&lt;/h2&gt;
-
-&lt;p&gt;If we&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf y = \begin{bmatrix} y_0,\ y_1,\ . . . \ ,\ y_9 \end{bmatrix}&lt;/script&gt;
-
-&lt;h3 id=&quot;invariance-to-scaling&quot;&gt;Invariance to scaling&lt;/h3&gt;
-
-&lt;p&gt;Softmax is invariant to additively scaling every element of &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; by the same constant &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt;.&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\begin{aligned}
-s(x + c)_i &amp;= \frac{e^{x_i + c}}{\sum_{j=0}^{9} e^{x_j + c}}    \\[1.2em]
-           &amp;= \frac{e^{x_i}e^c}{\sum_{j=0}^{9} e^{x_j}e^c}      \\[1.2em]
-           &amp;= \frac{e^c e^{x_i}}{e^c \sum_{j=0}^{9} e^{x_j}}    \\[1.2em]
-           &amp;= \frac{e^{x_i}}{\sum_{j=0}^{9} e^{x_j}} = s(x)_i
-\end{aligned}
-&lt;/script&gt;
-
-&lt;p&gt;That means we can protect softmax from numerical overflow by subtracting the maximum entry of $x$ from every element of $x$&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;s(x - \max(x))_i = \frac{e^{x_i - \max(x)}}{\sum_{j=1}^{10} e^{x_j - \max(x)}} = \frac{e^{x_i}}{\sum_{j=1}^{10} e^{x_j}} = s(x)_i&lt;/script&gt;
-</content>
-		</entry>
 	
 		<entry>
 			<title>Tidal music player for Linux</title>
@@ -173,60 +107,67 @@ s(x + c)_i &amp;= \frac{e^{x_i + c}}{\sum_{j=0}^{9} e^{x_j + c}}    \\[1.2em]
   &lt;li&gt;The elements &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt;.&lt;/li&gt;
 &lt;/ul&gt;
 
+&lt;p&gt;From now on, to keep things clear, we won’t write dependence on &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. Instead we’ll write &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, understanding that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; are each a function of the entire vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;.&lt;/p&gt;
+
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;jacobian&quot;&gt;Jacobian&lt;/h2&gt;
 
-&lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, which is the gradient of output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, which is the gradient of output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
 
-&lt;p&gt;First compute the diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;:&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\begin{aligned}
-\frac{\partial s(\mathbf x)_i}{\partial x_{i}} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
-&amp;= s(\mathbf x)_i - s(\mathbf x)_i^2 \qquad \text{diagonal entry}
-\end{aligned}
-&lt;/script&gt;
-
-&lt;p&gt;Now compute every off-diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;First compute the diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;:&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
-\frac{\partial s(\mathbf x)_i}{\partial x_j} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
-&amp;= - s(\mathbf x)_i s(\mathbf x)_j \qquad \text{off-diagonal entry}
+\frac{\partial s_i}{\partial x_{i}} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&amp;= s_i - s_i^2 \qquad \text{diagonal entry}
 \end{aligned}
 &lt;/script&gt;
 
-&lt;p&gt;The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;Now compute every off-diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt;.&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\mathbf J_{\mathbf x} =
+\begin{aligned}
+\frac{\partial s_i}{\partial x_j} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&amp;= - s_i s_j \qquad \text{off-diagonal entry}
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf x}(\mathbf s) =
 \begin{bmatrix}
-    \nabla s(\mathbf x)_0 \\[0.5em]
-    \nabla s(\mathbf x)_1 \\[0.5em]
+    \nabla s_0 \\[0.5em]
+    \nabla s_1 \\[0.5em]
     . . . \\
-    \nabla s(\mathbf x)_n
-\end{bmatrix}
-=
-\begin{bmatrix}
-    s(\mathbf x)_0 - s(\mathbf x)_0^2 &amp; -s(\mathbf x)_0 s(\mathbf x)_1 &amp; . . .  &amp; -s(\mathbf x)_0 s(\mathbf x)_n \\[0.5em]
-    -s(\mathbf x)_1 s(\mathbf x)_0 &amp; s(\mathbf x)_1 - s(\mathbf x)_1^2 &amp; . . .   &amp; -s(\mathbf x)_1 s(\mathbf x)_n \\[0.5em]
+    \nabla s_n
+\end{bmatrix}&lt;/script&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+= \begin{bmatrix}
+    s_0 - s_0^2 &amp; -s_0 s_1 &amp; . . .  &amp; -s_0 s_n \\[0.5em]
+    -s_1 s_0 &amp; s_1 - s_1^2 &amp; . . .   &amp; -s_1 s_n \\[0.5em]
     . . . &amp; . . .  &amp; . . . &amp; . . . \\[0.5em]
-    -s(\mathbf x)_n s(\mathbf x)_0 &amp; -s(\mathbf x)_n s(\mathbf x)_1 &amp; . . .  &amp; s(\mathbf x)_n - s(\mathbf x)_n^2
+    -s_n s_0 &amp; -s_n s_1 &amp; . . .  &amp; s_n - s_n^2
 \end{bmatrix}
 &lt;/script&gt;
 
 &lt;p&gt;Notice that we can express this matrix as&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf x} = \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)&lt;/script&gt;
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf x}(\mathbf s) = \text{diag} (\mathbf s) - \mathbf s^\top \mathbf s&lt;/script&gt;
 
 &lt;p&gt;where the second term is the &lt;script type=&quot;math/tex&quot;&gt;n \times n&lt;/script&gt; outer product.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;cross-entropy&quot;&gt;Cross-entropy&lt;/h2&gt;
 
-&lt;p&gt;Cross-entropy measures the difference between two probability distributions. We saw that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:&lt;/p&gt;
+&lt;p&gt;Cross-entropy measures the difference between two probability distributions. We saw that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf y = \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} = \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix},&lt;/script&gt;
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+\mathbf y &amp;= \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} \\[1.6em]
+          &amp;= \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix}
+\end{aligned}
+&lt;/script&gt;
 
 &lt;p&gt;where the &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; appears at the index of the correct class.&lt;/p&gt;
 
@@ -234,9 +175,9 @@ s(x + c)_i &amp;= \frac{e^{x_i + c}}{\sum_{j=0}^{9} e^{x_j + c}}    \\[1.2em]
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
-H(\mathbf y, \mathbf s(\mathbf x))
-&amp;= -\sum_{i=1}^n y_i \log s(\mathbf x)_i \\[1.6em] 
-&amp;= -\mathbf y \log \mathbf s(\mathbf x)^\top,
+H(\mathbf y, \mathbf s)
+&amp;= -\sum_{i=1}^n y_i \log s_i \\[1.6em] 
+&amp;= -\mathbf y \log \mathbf s^\top,
 \end{aligned}
 &lt;/script&gt;
 
@@ -249,11 +190,11 @@ H(\mathbf y, \mathbf s(\mathbf x))
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
-\nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) 
-&amp;= -\nabla_{\mathbf s(\mathbf x)} \mathbf y \log \mathbf s(\mathbf x)^\top \\[1.6em]
-&amp;= -\mathbf y \nabla_{\mathbf s(\mathbf x)} \log \mathbf s(\mathbf x) \\[1.6em]
-&amp;= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s(\mathbf x)}\right) \\[1.6em]
-&amp;= -\frac{\mathbf y}{\mathbf s(\mathbf x)},
+\nabla_{\mathbf s} H 
+&amp;= -\nabla_{\mathbf s} \mathbf y \log \mathbf s^\top \\[1.6em]
+&amp;= -\mathbf y \nabla_{\mathbf s} \log \mathbf s \\[1.6em]
+&amp;= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s}\right) \\[1.6em]
+&amp;= -\frac{\mathbf y}{\mathbf s},
 \end{aligned}
 &lt;/script&gt;
 
@@ -262,19 +203,19 @@ H(\mathbf y, \mathbf s(\mathbf x))
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;chain-rule&quot;&gt;Chain rule&lt;/h2&gt;
 
-&lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H(\mathbf y, \mathbf s(\mathbf x))&lt;/script&gt; to the input to the softmax layer &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; is given by a simple gradient-Jacobian product, each of which we’ve already comptued:&lt;/p&gt;
+&lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H(\mathbf y, \mathbf s)&lt;/script&gt; to the input to the softmax layer &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; is given by a simple gradient-Jacobian product, each of which we’ve already comptued:&lt;/p&gt;
 
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;\nabla_{\mathbf x} H = \nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) \ \mathbf J_{\mathbf x}.&lt;/script&gt;
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s).&lt;/script&gt;
 
 &lt;p&gt;The first term is the gradient of cross-entropy cost to softmax activation. Remember that we’re using row gradients. The second term is the Jacobian of softmax activation to softmax input. Expanding and simplifying, we get&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
-\nabla_{\mathbf x} H(\mathbf y, \mathbf s(\mathbf x))
-&amp;= -\frac{\mathbf y}{\mathbf s(\mathbf x)} \bigg[ \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x) \bigg] \\[1.6em]
-&amp;= \frac{\mathbf y}{\mathbf s(\mathbf x)}\mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)  - \frac{\mathbf y}{\mathbf s(\mathbf x)} \ \text{diag} \big(\mathbf s(\mathbf x)\big) \\[1.6em]
-&amp;= \mathbf y \ \mathbf S(\mathbf x)^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
-&amp;= \mathbf s(\mathbf x) - \mathbf{y}.
+\nabla_{\mathbf x} H
+&amp;= -\frac{\mathbf y}{\mathbf s} \bigg[ \text{diag} \big(\mathbf s\big) - \mathbf s^\top \mathbf s \bigg] \\[1.6em]
+&amp;= \frac{\mathbf y}{\mathbf s}\mathbf s^\top \mathbf s  - \frac{\mathbf y}{\mathbf s} \ \text{diag} \big(\mathbf s\big) \\[1.6em]
+&amp;= \mathbf y \ \mathbf S^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
+&amp;= \mathbf s - \mathbf{y}.
 \end{aligned}
 &lt;/script&gt;
 
