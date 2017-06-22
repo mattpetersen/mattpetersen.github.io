@@ -47,6 +47,7 @@ p.posttags {
 .equation { /* 'katex_center.js' renders of <dtex>e=mc^2</dtex> */
     text-align: center;
     font-size: 1.1em;
+    margin: 2em auto;
     color: #444;
 }
 hr { /* horizontal rule */

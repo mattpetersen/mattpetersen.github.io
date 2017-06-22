@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Are Lefties Really Smarter?"
+title: "Are lefties really smarter?"
 date: 2017-06-17
 header: true
 footer: true

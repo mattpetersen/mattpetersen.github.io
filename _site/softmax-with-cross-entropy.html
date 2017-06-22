@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- meta.html -->
+    <!-- Set character encoding for the document -->
+    <meta charset="utf-8">
+    <!-- Something about IE -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Make the site fit to different screens -->
+    <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- For web crawlers -->
+    <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+    <meta name="rating" content="General">  <!-- check my site age -->
+    <meta name="subject" content="Deep learning and neural networks">
+    <meta name=”description” content=”A blog about deep learning and neural networks”>
+    <title>Softmax with cross-entropy</title> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!-- end meta.html -->
+
+
+    <!-- analytics.html -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-38506466-1', 'jmcglone.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- end analytics.html -->
+
+
+    <!-- favicons.html -->
+    <!-- For old, favicon.ico in root (16x16, 32x32, 48x48) -->
+    <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
+    <link rel="icon" href="/images/favicons/favicon-16.png" sizes="16x16" type="image/png">  
+    <link rel="icon" href="/images/favicons/favicon-32.png" sizes="32x32" type="image/png">
+    <!-- For phone home screen shortcuts -->
+    <link rel="icon" href="/images/favicons/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-57.png" sizes="57x57" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-62.png" sizes="62x62" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-76.png" sizes="76x76" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-120.png" sizes="120x120" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-128.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-144.png" sizes="144x144" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-152.png" sizes="152x152" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-180.png" sizes="180x180" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-195.png" sizes="195x195" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-196.png" sizes="196x196" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-228.png" sizes="228x228" type="image/png">
+    <!-- For windows live tiles -->
+    <link rel="icon" href="/images/favicons/smalltile.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/mediumtile.png" sizes="270x270" type="image/png">
+    <link rel="icon" href="/images/favicons/widetile.png" sizes="558x270" type="image/png">
+    <link rel="icon" href="/images/favicons/largetile.png" sizes="558x558" type="image/png">
+    <!--  end favicons.html -->
+
+
+    <!-- author.html -->
+    <link rel="author" href="humans.txt">
+    <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+    <link rel="me" href="mailto:peterm0273@gmail.com">
+    <!-- end author.html -->
+
+</head>
+
+<body>
+
+    <!-- header.html -->
+    <div class="header">
+        <header>
+            <nav>
+                <ul>
+            	   <li><a href="/">Home</a></li>
+            	   <li><a href="/about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <!-- end header.html -->
+
+
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <!-- Post header -->
+    <h1>Softmax with cross-entropy</h1>
+    <p class="postdate">Posted on June 21, 2017</p>
+    <p class="posttags">backpropogation, matrix calculus, softmax, cross-entropy, neural networks, deep learning </p>
+    <hr>
+
+<!-- Post content -->
+<p>A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. <em>We use row vectors and row gradients</em>, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.</p>
+
+<p><br /></p>
+<h2 id="softmax">Softmax</h2>
+
+<p>Softmax is a vector-to-vector transformation that turns a row vector</p>
+
+<script type="math/tex; mode=display">\mathbf x = \begin{bmatrix} x_1,\ x_2,\ . . . \ ,\  x_n \end{bmatrix}</script>
+
+<p>into a normalized row vector</p>
+
+<script type="math/tex; mode=display">\mathbf s( \mathbf x ) = \begin{bmatrix} s(\mathbf  x)_1,\ s(\mathbf  x)_2,\ . . . \, \ s(\mathbf x)_n \end{bmatrix}.</script>
+
+<p>The transformation is described element-wise, where the <script type="math/tex">i</script>th output <script type="math/tex">s(\mathbf x)_i</script> is a function of the entire input <script type="math/tex">\mathbf x</script>, and is given by</p>
+
+<script type="math/tex; mode=display">s(\mathbf x)_i = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}.</script>
+
+<p>Softmax is nice because it turns <script type="math/tex">\mathbf x</script> into a probability distribution.</p>
+
+<ul>
+  <li>Each element <script type="math/tex">s(\mathbf x)_i</script> is between <script type="math/tex">0</script> and <script type="math/tex">1</script>.</li>
+  <li>The elements <script type="math/tex">s(\mathbf x)_i</script> sum to <script type="math/tex">1</script>.</li>
+</ul>
+
+<p><br /></p>
+<h2 id="jacobian">Jacobian</h2>
+
+<p>Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element <script type="math/tex">s(\mathbf x)_i</script>, and a column for each input element <script type="math/tex">x_j</script>. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row <script type="math/tex">i</script> of the Jacobian, which is the gradient of output element <script type="math/tex">s(\mathbf x)_i</script> with respect to each of its input elements <script type="math/tex">x_j</script>.</p>
+
+<p>First compute the diagonal entry of row <script type="math/tex">i</script> of the Jacobian, that is, compute the derivative of the <script type="math/tex">i</script>‘th output of softmax, <script type="math/tex">s(\mathbf x)_i</script>, with respect to its <script type="math/tex">i</script>‘th input, <script type="math/tex">x_i</script>:</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_{i}} &= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&= s(\mathbf x)_i - s(\mathbf x)_i^2 \qquad \text{diagonal entry}
+\end{aligned}
+</script>
+
+<p>Now compute every off-diagonal entry of row <script type="math/tex">i</script> of the Jacobian, that is, compute the derivative of the <script type="math/tex">i</script>‘th output of softmax, <script type="math/tex">s(\mathbf x)_i</script>, with respect to its <script type="math/tex">j</script>‘th input, <script type="math/tex">x_j</script>, where <script type="math/tex">j \neq i</script>.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_j} &= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&= - s(\mathbf x)_i s(\mathbf x)_j \qquad \text{off-diagonal entry}
+\end{aligned}
+</script>
+
+<p>The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element <script type="math/tex">s(\mathbf x)_i</script> with respect to each of its input elements <script type="math/tex">x_j</script>.</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf x} =
+\begin{bmatrix}
+    \nabla s(\mathbf x)_0 \\[0.5em]
+    \nabla s(\mathbf x)_1 \\[0.5em]
+    . . . \\
+    \nabla s(\mathbf x)_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+    s(\mathbf x)_0 - s(\mathbf x)_0^2 & -s(\mathbf x)_0 s(\mathbf x)_1 & . . .  & -s(\mathbf x)_0 s(\mathbf x)_n \\[0.5em]
+    -s(\mathbf x)_1 s(\mathbf x)_0 & s(\mathbf x)_1 - s(\mathbf x)_1^2 & . . .   & -s(\mathbf x)_1 s(\mathbf x)_n \\[0.5em]
+    . . . & . . .  & . . . & . . . \\[0.5em]
+    -s(\mathbf x)_n s(\mathbf x)_0 & -s(\mathbf x)_n s(\mathbf x)_1 & . . .  & s(\mathbf x)_n - s(\mathbf x)_n^2
+\end{bmatrix}
+</script>
+
+<p>Notice that we can express this matrix as</p>
+
+<script type="math/tex; mode=display">\mathbf J_{\mathbf x} = \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)</script>
+
+<p>where the second term is the <script type="math/tex">n \times n</script> outer product.</p>
+
+<p><br /></p>
+<h2 id="cross-entropy">Cross-entropy</h2>
+
+<p>Cross-entropy measures the difference between two probability distributions. We saw that <script type="math/tex">\mathbf s(\mathbf x)</script> is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:</p>
+
+<script type="math/tex; mode=display">\mathbf y = \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} = \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix},</script>
+
+<p>where the <script type="math/tex">1</script> appears at the index of the correct class.</p>
+
+<p>The cross-entropy between our predicted distribution over classes, <script type="math/tex">\mathbf s( \mathbf x)</script>, and the true distribution over classes, <script type="math/tex">\mathbf y</script>, is a scalar measure of their difference, which is perfect for a cost function. It’ll drive our softmax distribution toward the one-hot distribution. We can write this cost function as</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+H(\mathbf y, \mathbf s(\mathbf x))
+&= -\sum_{i=1}^n y_i \log s(\mathbf x)_i \\[1.6em] 
+&= -\mathbf y \log \mathbf s(\mathbf x)^\top,
+\end{aligned}
+</script>
+
+<p>which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.</p>
+
+<p><br /></p>
+<h2 id="gradient">Gradient</h2>
+
+<p>Since our <script type="math/tex">\mathbf y</script> is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise <script type="math/tex">\log</script> and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of the dot product operation is matrix multiplied on the left of the Jacobian of the elementwise logarithm in the part below:</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) 
+&= -\nabla_{\mathbf s(\mathbf x)} \mathbf y \log \mathbf s(\mathbf x)^\top \\[1.6em]
+&= -\mathbf y \nabla_{\mathbf s(\mathbf x)} \log \mathbf s(\mathbf x) \\[1.6em]
+&= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s(\mathbf x)}\right) \\[1.6em]
+&= -\frac{\mathbf y}{\mathbf s(\mathbf x)},
+\end{aligned}
+</script>
+
+<p>where we used equation (69) of <a href="http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf">the matrix cookbook</a> for the derivative of the dot product.</p>
+
+<p><br /></p>
+<h2 id="chain-rule">Chain rule</h2>
+
+<p>By the chain rule, the sensitivity of cost <script type="math/tex">H(\mathbf y, \mathbf s(\mathbf x))</script> to the input to the softmax layer <script type="math/tex">\mathbf x</script> is given by a simple gradient-Jacobian product, each of which we’ve already comptued:</p>
+
+<script type="math/tex; mode=display">\nabla_{\mathbf x} H = \nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) \ \mathbf J_{\mathbf x}.</script>
+
+<p>The first term is the gradient of cross-entropy cost to softmax activation. Remember that we’re using row gradients. The second term is the Jacobian of softmax activation to softmax input. Expanding and simplifying, we get</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\nabla_{\mathbf x} H(\mathbf y, \mathbf s(\mathbf x))
+&= -\frac{\mathbf y}{\mathbf s(\mathbf x)} \bigg[ \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x) \bigg] \\[1.6em]
+&= \frac{\mathbf y}{\mathbf s(\mathbf x)}\mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)  - \frac{\mathbf y}{\mathbf s(\mathbf x)} \ \text{diag} \big(\mathbf s(\mathbf x)\big) \\[1.6em]
+&= \mathbf y \ \mathbf S(\mathbf x)^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
+&= \mathbf s(\mathbf x) - \mathbf{y}.
+\end{aligned}
+</script>
+
+<p>The last line follows from the fact that <script type="math/tex">\mathbf y</script> was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any <script type="math/tex">\mathbf y</script> whose elements sum to <script type="math/tex">1</script> would satisfy the same property. To be more specific, the equation above would hold not just for one-hot <script type="math/tex">\mathbf y</script>, but for any <script type="math/tex">\mathbf y</script> specifying a distribution over classes. <script type="math/tex">\square</script></p>
+
+
+
+<!-- disqus.html -->
+<div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = "Softmax with cross-entropy";
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
+</div>
+<!-- end disqus.html -->
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
+
+
+
+    <!-- footer.html -->
+    <div class="footer">
+        <footer>
+          <hr> <!-- Horizontal rule -->
+          <ul> <!-- Links to my other sites -->
+      	      <li><a href="mailto:peterm0273@gmail.com"
+                     title="peterm0273@gmail.com">email</a></li>
+      	      <li><a href="https://github.com/mattpetersen"
+                     title="github.com/mattpetersen">github</a></li>
+      	      <li><a href="https://twitter.com/mattpetersen_ai"
+                     title="twitter.com/mattpetersen_ai">twitter</a></li>
+          </ul>
+        </footer>
+    </div>
+    <!-- end footer.html -->
+
+
+</html>

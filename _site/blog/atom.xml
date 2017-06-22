@@ -4,13 +4,323 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-04-05T17:41:45-04:00</updated>
+	<updated>2017-06-22T02:51:42-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
 		<email>peterm0273@gmail.com</email>
 	</author>
 
+	
+		<entry>
+			<title>Coding softmax with cross-entropy</title>
+			<link href="http://mattpetersen.github.io/coding-softmax-with-cross-entropy"/>
+			<updated>2017-06-22T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/coding-softmax-with-cross-entropy</id>
+			<content type="html">&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;information&quot;&gt;Information&lt;/h2&gt;
+
+&lt;p&gt;Information theory is built upon one intuition: that the information conveyed about a distribution &lt;script type=&quot;math/tex&quot;&gt;P(x)&lt;/script&gt; by an observation &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; is inversely proportional to the probability of that observation.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;I (x) := \frac{1}{P(x)}.&lt;/script&gt;
+
+&lt;p&gt;&lt;strong&gt;Problem:&lt;/strong&gt; We’d like the information from two independent observations to be additive. That is, if we observe &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; and observe &lt;script type=&quot;math/tex&quot;&gt;y&lt;/script&gt;, the information gained, &lt;script type=&quot;math/tex&quot;&gt;I(x, y)&lt;/script&gt;, should equal &lt;script type=&quot;math/tex&quot;&gt;I(x) + I(y)&lt;/script&gt;, but notice that&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;I(x) + I(y) = \frac{1}{P(x)} + \frac{1}{P(y)} \neq \frac{1}{P(x)P(y)} = I(x, y).&lt;/script&gt;
+
+&lt;p&gt;&lt;strong&gt;Solution:&lt;/strong&gt; Use logarithms in our definition&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;I_P(x) := \log \frac{1}{P(x)}.&lt;/script&gt;
+
+&lt;p&gt;Then information is additive.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;I(x) + I(y) = \log \frac{1}{P(x)} + \log \frac{1}{P(y)} = \log \frac{1}{P(x)P(y)} = I(x, y)&lt;/script&gt;
+
+&lt;p&gt;where we used (in order), the definition of information, the property of logarithms, and the fact that &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;y&lt;/script&gt; were assumed to be independent, such that &lt;script type=&quot;math/tex&quot;&gt;P(x)P(y) = P(x, y)&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;entropy&quot;&gt;Entropy&lt;/h2&gt;
+
+&lt;p&gt;The entropy of a discrete distribution &lt;script type=&quot;math/tex&quot;&gt;P&lt;/script&gt; is just the expected information of one sample &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; from that distribution&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+H(P) :&amp;= \mathbb{E} \left[ I(x) \right] \\
+&amp;= \mathbb{E} \left[\log \frac{1}{P(x)}\right] \\
+&amp;= -\mathbb{E} \left[ \log P(x) \right] \\
+&amp;= - \sum_{x \in P} P(x) \log P(x)
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;cross-entropy&quot;&gt;Cross-entropy&lt;/h2&gt;
+
+&lt;p&gt;If we&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf y = \begin{bmatrix} y_0,\ y_1,\ . . . \ ,\ y_9 \end{bmatrix}&lt;/script&gt;
+
+&lt;h3 id=&quot;invariance-to-scaling&quot;&gt;Invariance to scaling&lt;/h3&gt;
+
+&lt;p&gt;Softmax is invariant to additively scaling every element of &lt;script type=&quot;math/tex&quot;&gt;x&lt;/script&gt; by the same constant &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+s(x + c)_i &amp;= \frac{e^{x_i + c}}{\sum_{j=0}^{9} e^{x_j + c}}    \\[1.2em]
+           &amp;= \frac{e^{x_i}e^c}{\sum_{j=0}^{9} e^{x_j}e^c}      \\[1.2em]
+           &amp;= \frac{e^c e^{x_i}}{e^c \sum_{j=0}^{9} e^{x_j}}    \\[1.2em]
+           &amp;= \frac{e^{x_i}}{\sum_{j=0}^{9} e^{x_j}} = s(x)_i
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;That means we can protect softmax from numerical overflow by subtracting the maximum entry of $x$ from every element of $x$&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;s(x - \max(x))_i = \frac{e^{x_i - \max(x)}}{\sum_{j=1}^{10} e^{x_j - \max(x)}} = \frac{e^{x_i}}{\sum_{j=1}^{10} e^{x_j}} = s(x)_i&lt;/script&gt;
+</content>
+		</entry>
+	
+		<entry>
+			<title>Tidal music player for Linux</title>
+			<link href="http://mattpetersen.github.io/tidal-music-player-for-linux"/>
+			<updated>2017-06-21T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/tidal-music-player-for-linux</id>
+			<content type="html">&lt;p&gt;I found an awesome package called &lt;a href=&quot;https://github.com/Bunkerbewohner/tidal-music-linux&quot;&gt;tidal-music-linux&lt;/a&gt; that wraps a Chromium web player in an Electron shell for a standalone Tidal player like on Windows. It’s written by &lt;a href=&quot;https://github.com/Bunkerbewohner&quot;&gt;Mathias Kahl&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/tidal-music-player/screenshot.png&quot; style=&quot;width: 100%; object-fit: contain&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It should work in either Ubuntu or Arch. A major drawback is that I haven’t gotten HiFi playback to work. It says HiFi is only allowed in Chrome. Maybe wrapping a Chrome player in Electron rather than a Chromium player would solve this. Regardless, here’s how to install if you’re okay with 320 kbps playback in a beautiful standalone application.&lt;/p&gt;
+
+&lt;h2 id=&quot;arch-instructions&quot;&gt;Arch Instructions&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Install &lt;a href=&quot;https://aur.archlinux.org/packages/pepper-flash/&quot;&gt;Pepper Flash Player&lt;/a&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;yaourt -S pepper-flash&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Install &lt;a href=&quot;https://get.adobe.com/flashplayer/&quot;&gt;Adobe Flash Player&lt;/a&gt;:
+    &lt;ul&gt;
+      &lt;li&gt;Download the .tar.gz bundle from the link above&lt;/li&gt;
+      &lt;li&gt;Move the .tar.gz bundle to &lt;code class=&quot;highlighter-rouge&quot;&gt;usr/lib/adobe-flashplugin&lt;/code&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;mkdir /usr/lib/adobe-flashplugin&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo mv ~/Downloads/flash_player_ppapi_linux.x86_64.tar.gz /usr/lib/adobe-flashplugin&lt;/code&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Install &lt;a href=&quot;https://www.archlinux.org/packages/community/any/npm/&quot;&gt;Node Package Manager (NPM)&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sudo pacman -S npm&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Download
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;git clone https://github.com/Bunkerbewohner/tidal-music-linux&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Change name
+    &lt;ul&gt;
+      &lt;li&gt;Inside package.json the name “Tidal music - Linux” creates an install error, so change it to something like “tidal-music-linux”
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;gedit tidal-music-linux/package.json&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;Change the second line to “name”: “tidal-music-linux”&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Install
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;cd tidal-music-linux&lt;/code&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;npm install&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Run
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;npm start&lt;/code&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+</content>
+		</entry>
+	
+		<entry>
+			<title>Softmax with cross-entropy</title>
+			<link href="http://mattpetersen.github.io/softmax-with-cross-entropy"/>
+			<updated>2017-06-21T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/softmax-with-cross-entropy</id>
+			<content type="html">&lt;p&gt;A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. &lt;em&gt;We use row vectors and row gradients&lt;/em&gt;, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;softmax&quot;&gt;Softmax&lt;/h2&gt;
+
+&lt;p&gt;Softmax is a vector-to-vector transformation that turns a row vector&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf x = \begin{bmatrix} x_1,\ x_2,\ . . . \ ,\  x_n \end{bmatrix}&lt;/script&gt;
+
+&lt;p&gt;into a normalized row vector&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf s( \mathbf x ) = \begin{bmatrix} s(\mathbf  x)_1,\ s(\mathbf  x)_2,\ . . . \, \ s(\mathbf x)_n \end{bmatrix}.&lt;/script&gt;
+
+&lt;p&gt;The transformation is described element-wise, where the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;th output &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; is a function of the entire input &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, and is given by&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;s(\mathbf x)_i = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}.&lt;/script&gt;
+
+&lt;p&gt;Softmax is nice because it turns &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; into a probability distribution.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Each element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; is between &lt;script type=&quot;math/tex&quot;&gt;0&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt;.&lt;/li&gt;
+  &lt;li&gt;The elements &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;jacobian&quot;&gt;Jacobian&lt;/h2&gt;
+
+&lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, which is the gradient of output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;First compute the diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_{i}} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&amp;= s(\mathbf x)_i - s(\mathbf x)_i^2 \qquad \text{diagonal entry}
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;Now compute every off-diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output of softmax, &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_j} &amp;= \frac{\sum_{j=1}^{n} e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^{n} e^{x_j})^2} \\[1.6em]
+&amp;= - s(\mathbf x)_i s(\mathbf x)_j \qquad \text{off-diagonal entry}
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\mathbf J_{\mathbf x} =
+\begin{bmatrix}
+    \nabla s(\mathbf x)_0 \\[0.5em]
+    \nabla s(\mathbf x)_1 \\[0.5em]
+    . . . \\
+    \nabla s(\mathbf x)_n
+\end{bmatrix}
+=
+\begin{bmatrix}
+    s(\mathbf x)_0 - s(\mathbf x)_0^2 &amp; -s(\mathbf x)_0 s(\mathbf x)_1 &amp; . . .  &amp; -s(\mathbf x)_0 s(\mathbf x)_n \\[0.5em]
+    -s(\mathbf x)_1 s(\mathbf x)_0 &amp; s(\mathbf x)_1 - s(\mathbf x)_1^2 &amp; . . .   &amp; -s(\mathbf x)_1 s(\mathbf x)_n \\[0.5em]
+    . . . &amp; . . .  &amp; . . . &amp; . . . \\[0.5em]
+    -s(\mathbf x)_n s(\mathbf x)_0 &amp; -s(\mathbf x)_n s(\mathbf x)_1 &amp; . . .  &amp; s(\mathbf x)_n - s(\mathbf x)_n^2
+\end{bmatrix}
+&lt;/script&gt;
+
+&lt;p&gt;Notice that we can express this matrix as&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf x} = \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)&lt;/script&gt;
+
+&lt;p&gt;where the second term is the &lt;script type=&quot;math/tex&quot;&gt;n \times n&lt;/script&gt; outer product.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;cross-entropy&quot;&gt;Cross-entropy&lt;/h2&gt;
+
+&lt;p&gt;Cross-entropy measures the difference between two probability distributions. We saw that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; is a distribution. The correct class is also a distribution, that is, assuming we encode it as a one-hot vector:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf y = \begin{bmatrix} y_1,\ y_2,\ . . . \ ,\ y_n \end{bmatrix} = \begin{bmatrix} 0,\ 0,\ . . . \ , \ 1,\ . . . \ , \ 0 \end{bmatrix},&lt;/script&gt;
+
+&lt;p&gt;where the &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; appears at the index of the correct class.&lt;/p&gt;
+
+&lt;p&gt;The cross-entropy between our predicted distribution over classes, &lt;script type=&quot;math/tex&quot;&gt;\mathbf s( \mathbf x)&lt;/script&gt;, and the true distribution over classes, &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;, is a scalar measure of their difference, which is perfect for a cost function. It’ll drive our softmax distribution toward the one-hot distribution. We can write this cost function as&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+H(\mathbf y, \mathbf s(\mathbf x))
+&amp;= -\sum_{i=1}^n y_i \log s(\mathbf x)_i \\[1.6em] 
+&amp;= -\mathbf y \log \mathbf s(\mathbf x)^\top,
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;gradient&quot;&gt;Gradient&lt;/h2&gt;
+
+&lt;p&gt;Since our &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise &lt;script type=&quot;math/tex&quot;&gt;\log&lt;/script&gt; and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of the dot product operation is matrix multiplied on the left of the Jacobian of the elementwise logarithm in the part below:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+\nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) 
+&amp;= -\nabla_{\mathbf s(\mathbf x)} \mathbf y \log \mathbf s(\mathbf x)^\top \\[1.6em]
+&amp;= -\mathbf y \nabla_{\mathbf s(\mathbf x)} \log \mathbf s(\mathbf x) \\[1.6em]
+&amp;= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s(\mathbf x)}\right) \\[1.6em]
+&amp;= -\frac{\mathbf y}{\mathbf s(\mathbf x)},
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;where we used equation (69) of &lt;a href=&quot;http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf&quot;&gt;the matrix cookbook&lt;/a&gt; for the derivative of the dot product.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;chain-rule&quot;&gt;Chain rule&lt;/h2&gt;
+
+&lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H(\mathbf y, \mathbf s(\mathbf x))&lt;/script&gt; to the input to the softmax layer &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; is given by a simple gradient-Jacobian product, each of which we’ve already comptued:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\nabla_{\mathbf x} H = \nabla_{\mathbf s(\mathbf x)} H(\mathbf y, \mathbf s(\mathbf x)) \ \mathbf J_{\mathbf x}.&lt;/script&gt;
+
+&lt;p&gt;The first term is the gradient of cross-entropy cost to softmax activation. Remember that we’re using row gradients. The second term is the Jacobian of softmax activation to softmax input. Expanding and simplifying, we get&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+\nabla_{\mathbf x} H(\mathbf y, \mathbf s(\mathbf x))
+&amp;= -\frac{\mathbf y}{\mathbf s(\mathbf x)} \bigg[ \text{diag} \big(\mathbf s(\mathbf x)\big) - \mathbf s(\mathbf x)^\top \mathbf s(\mathbf x) \bigg] \\[1.6em]
+&amp;= \frac{\mathbf y}{\mathbf s(\mathbf x)}\mathbf s(\mathbf x)^\top \mathbf s(\mathbf x)  - \frac{\mathbf y}{\mathbf s(\mathbf x)} \ \text{diag} \big(\mathbf s(\mathbf x)\big) \\[1.6em]
+&amp;= \mathbf y \ \mathbf S(\mathbf x)^{\text{repeated row}} - \mathbf y \ \text{diag} \big(\mathbf 1\big) \\[1.6em]
+&amp;= \mathbf s(\mathbf x) - \mathbf{y}.
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;The last line follows from the fact that &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; whose elements sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; would satisfy the same property. To be more specific, the equation above would hold not just for one-hot &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;, but for any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; specifying a distribution over classes. &lt;script type=&quot;math/tex&quot;&gt;\square&lt;/script&gt;&lt;/p&gt;
+</content>
+		</entry>
+	
+		<entry>
+			<title>Are lefties really smarter?</title>
+			<link href="http://mattpetersen.github.io/are-lefties-really-smarter"/>
+			<updated>2017-06-17T00:00:00-04:00</updated>
+			<id>http://mattpetersen.github.io/are-lefties-really-smarter</id>
+			<content type="html">&lt;p&gt;There’s &lt;a href=&quot;https://www.indy100.com/article/left-handed-people-smarter-science-ifl-science-maths-7797656&quot;&gt;a viral article&lt;/a&gt; today that the science is finally settled and left-handed people are smarter than right-handed people. There are good reasons to be skeptical. For those curious, the source paper can be found &lt;a href=&quot;http://journal.frontiersin.org/article/10.3389/fpsyg.2017.00948/full&quot;&gt;here&lt;/a&gt;. I’m not a neuroscientist so if I’m mistaken anywhere I would love to hear from you.&lt;/p&gt;
+
+&lt;h3 id=&quot;1---virality&quot;&gt;1 - Virality&lt;/h3&gt;
+
+&lt;p&gt;Any story that’s perfectly poised to make the internet do backflips deserves an extra ounce of skepticism. False positives tend to be &lt;a href=&quot;https://www.scientificamerican.com/article/an-epidemic-of-false-claims/&quot;&gt;over-represented in viral studies&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;2---vague-assertions&quot;&gt;2 - Vague assertions&lt;/h3&gt;
+
+&lt;p&gt;The justification for the finding was that hand function is&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;“a manifestation of brain function and is therefore related to cognition.”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This is so broad a statement as to be meaningless. Every action is a manifestation of brain function. Is a manifestation of brain function necessarily related to cognition? Is cognition necessarily related to intelligence? We have a lot of bridges to build here.&lt;/p&gt;
+
+&lt;h3 id=&quot;3---false-assumptions&quot;&gt;3 - False assumptions&lt;/h3&gt;
+
+&lt;p&gt;While it is true that &lt;a href=&quot;http://science.sciencemag.org/content/229/4714/665.long&quot;&gt;lefties have more connections between brain hemispheres&lt;/a&gt;, a property known as &lt;em&gt;lateralization&lt;/em&gt;, there is actually &lt;a href=&quot;http://www.pnas.org/content/110/36/E3435.full.pdf&quot;&gt;no significant link between lateralization and brain function&lt;/a&gt;. This may seem counterintuitive, because &lt;a href=&quot;https://en.wikipedia.org/wiki/Talk%3ALobotomy#IQ_drop&quot;&gt;labotomized patients lose 9.2 to 17 points of IQ&lt;/a&gt;. These facts together point to diminishing returns of lateralization beyond a certain threshold. Our default assumption should be that there’s no IQ benefit from the increased lateralization found in lefties, since we’re comparing against regular people not lobotomized patients.&lt;/p&gt;
+
+&lt;h3 id=&quot;4---mixed-effect-direction&quot;&gt;4 - Mixed effect direction&lt;/h3&gt;
+
+&lt;p&gt;Lefty children perform &lt;a href=&quot;http://onlinelibrary.wiley.com/doi/10.1111/j.1467-985X.2012.01074.x/abstract&quot;&gt;worse in math&lt;/a&gt; and &lt;a href=&quot;https://link.springer.com/article/10.1353/dem.0.0053&quot;&gt;“significantly worse in nearly all measures of development”&lt;/a&gt; when compared to righty children. Why should the effect direction reverse upon adulthood? The simplest answer is that one or both effects are spurious.&lt;/p&gt;
+
+&lt;h3 id=&quot;5---overparameterized-model&quot;&gt;5 - Overparameterized model&lt;/h3&gt;
+
+&lt;p&gt;The authors fit a quartic polynomial linear regression with the only justification being its increased expressive power. But with great expressive power comes great responsibility. Try enough models, with enough complexity, and you’ll eventually find one that fits. That means, as we increase the complexity of our model, we’re increasing our chance of false positives.&lt;/p&gt;
+
+&lt;p&gt;I think economists do the best job here. Economists first build a mathematically intuitive, theoretical explanation of phenomena. That mathematical explanation hints at the proper form of the empirical model with which to test the theory. This is a robust scientific method where we first hypothesize, and then test once, as opposed to testing many times and forming a hypothesis from what works. The latter method is prone to overfitting and false positives. The former method is prone to underfitting. In my opinion a good scientist should heir on the side of underfitting, although Erika Salomon makes a great case that overfitting is worth the cost of false positives, because we &lt;a href=&quot;http://www.erikasalomon.com/2015/06/p-hacking-true-effects/&quot;&gt;also get more true positives&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h3&gt;
+
+&lt;p&gt;I just wanted to point out some red statistical flags. I don’t mean to slander the authors of the original study, and I’ve not said anything to &lt;em&gt;disprove&lt;/em&gt; their statements, but only to emphasize that we should be careful. If you’re a neuroscientists or someone with in-depth knowledge of the field, I’d be grateful for your setting me straight on anything above. Cheers guys :)&lt;/p&gt;
+</content>
+		</entry>
 	
 		<entry>
 			<title>Why PhD's work for free</title>

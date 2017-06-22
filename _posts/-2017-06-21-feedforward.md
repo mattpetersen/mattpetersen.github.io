@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Feedforward"
-date: 2017-03-12
+date: 2017-06-21
 header: true
 footer: true
 comments: true

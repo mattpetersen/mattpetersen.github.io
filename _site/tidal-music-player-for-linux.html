@@ -15,7 +15,7 @@
     <meta name="rating" content="General">  <!-- check my site age -->
     <meta name="subject" content="Deep learning and neural networks">
     <meta name=”description” content=”A blog about deep learning and neural networks”>
-    <title>Matt's Blog</title> 
+    <title>Tidal music player for Linux</title> 
     <link rel="stylesheet" type="text/css" href="/css/main.css">
     <!-- end meta.html -->
 
@@ -83,32 +83,115 @@
     <!-- end header.html -->
 
 
-    <!-- index.html (Home) -->
-    <h1>Matt's Blog</h1>
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
-    <!-- List of blog posts fetched from '_posts/*.md' -->
+    <!-- Post header -->
+    <h1>Tidal music player for Linux</h1>
+    <p class="postdate">Posted on June 21, 2017</p>
+    <p class="posttags"></p>
+    <hr>
+
+<!-- Post content -->
+<p>I found an awesome package called <a href="https://github.com/Bunkerbewohner/tidal-music-linux">tidal-music-linux</a> that wraps a Chromium web player in an Electron shell for a standalone Tidal player like on Windows. It’s written by <a href="https://github.com/Bunkerbewohner">Mathias Kahl</a>.</p>
+
+<p><img src="/images/tidal-music-player/screenshot.png" style="width: 100%; object-fit: contain" /></p>
+
+<p>It should work in either Ubuntu or Arch. A major drawback is that I haven’t gotten HiFi playback to work. It says HiFi is only allowed in Chrome. Maybe wrapping a Chrome player in Electron rather than a Chromium player would solve this. Regardless, here’s how to install if you’re okay with 320 kbps playback in a beautiful standalone application.</p>
+
+<h2 id="arch-instructions">Arch Instructions</h2>
+
+<ul>
+  <li>Install <a href="https://aur.archlinux.org/packages/pepper-flash/">Pepper Flash Player</a>:
     <ul>
-        
-            <li>Jun 22, 2017 »
-            <a href="/coding-softmax-with-cross-entropy">Coding softmax with cross-entropy</a></li>
-        
-            <li>Jun 21, 2017 »
-            <a href="/tidal-music-player-for-linux">Tidal music player for Linux</a></li>
-        
-            <li>Jun 21, 2017 »
-            <a href="/softmax-with-cross-entropy">Softmax with cross-entropy</a></li>
-        
-            <li>Jun 17, 2017 »
-            <a href="/are-lefties-really-smarter">Are lefties really smarter?</a></li>
-        
-            <li>Apr 5, 2017 »
-            <a href="/why-phds-work-for-free">Why PhD's work for free</a></li>
-        
-            <li>Mar 19, 2017 »
-            <a href="/unity-can-be-beautiful">Unity can be beautiful</a></li>
-        
+      <li><code class="highlighter-rouge">yaourt -S pepper-flash</code></li>
     </ul>
-    <!-- end index.html (Home) -->
+  </li>
+  <li>Install <a href="https://get.adobe.com/flashplayer/">Adobe Flash Player</a>:
+    <ul>
+      <li>Download the .tar.gz bundle from the link above</li>
+      <li>Move the .tar.gz bundle to <code class="highlighter-rouge">usr/lib/adobe-flashplugin</code>
+        <ul>
+          <li><code class="highlighter-rouge">mkdir /usr/lib/adobe-flashplugin</code></li>
+          <li><code class="highlighter-rouge">sudo mv ~/Downloads/flash_player_ppapi_linux.x86_64.tar.gz /usr/lib/adobe-flashplugin</code></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Install <a href="https://www.archlinux.org/packages/community/any/npm/">Node Package Manager (NPM)</a>
+    <ul>
+      <li><code class="highlighter-rouge">sudo pacman -S npm</code></li>
+    </ul>
+  </li>
+  <li>Download
+    <ul>
+      <li><code class="highlighter-rouge">git clone https://github.com/Bunkerbewohner/tidal-music-linux</code></li>
+    </ul>
+  </li>
+  <li>Change name
+    <ul>
+      <li>Inside package.json the name “Tidal music - Linux” creates an install error, so change it to something like “tidal-music-linux”
+        <ul>
+          <li><code class="highlighter-rouge">gedit tidal-music-linux/package.json</code></li>
+          <li>Change the second line to “name”: “tidal-music-linux”</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>Install
+    <ul>
+      <li><code class="highlighter-rouge">cd tidal-music-linux</code></li>
+      <li><code class="highlighter-rouge">npm install</code></li>
+    </ul>
+  </li>
+  <li>Run
+    <ul>
+      <li><code class="highlighter-rouge">npm start</code></li>
+    </ul>
+  </li>
+</ul>
+
+
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
 
 
 

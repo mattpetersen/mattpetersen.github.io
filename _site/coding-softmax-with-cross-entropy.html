@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- meta.html -->
+    <!-- Set character encoding for the document -->
+    <meta charset="utf-8">
+    <!-- Something about IE -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Make the site fit to different screens -->
+    <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- For web crawlers -->
+    <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+    <meta name="rating" content="General">  <!-- check my site age -->
+    <meta name="subject" content="Deep learning and neural networks">
+    <meta name=”description” content=”A blog about deep learning and neural networks”>
+    <title>Coding softmax with cross-entropy</title> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!-- end meta.html -->
+
+
+    <!-- analytics.html -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-38506466-1', 'jmcglone.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- end analytics.html -->
+
+
+    <!-- favicons.html -->
+    <!-- For old, favicon.ico in root (16x16, 32x32, 48x48) -->
+    <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
+    <link rel="icon" href="/images/favicons/favicon-16.png" sizes="16x16" type="image/png">  
+    <link rel="icon" href="/images/favicons/favicon-32.png" sizes="32x32" type="image/png">
+    <!-- For phone home screen shortcuts -->
+    <link rel="icon" href="/images/favicons/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-57.png" sizes="57x57" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-62.png" sizes="62x62" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-76.png" sizes="76x76" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-120.png" sizes="120x120" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-128.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-144.png" sizes="144x144" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-152.png" sizes="152x152" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-180.png" sizes="180x180" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-195.png" sizes="195x195" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-196.png" sizes="196x196" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-228.png" sizes="228x228" type="image/png">
+    <!-- For windows live tiles -->
+    <link rel="icon" href="/images/favicons/smalltile.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/mediumtile.png" sizes="270x270" type="image/png">
+    <link rel="icon" href="/images/favicons/widetile.png" sizes="558x270" type="image/png">
+    <link rel="icon" href="/images/favicons/largetile.png" sizes="558x558" type="image/png">
+    <!--  end favicons.html -->
+
+
+    <!-- author.html -->
+    <link rel="author" href="humans.txt">
+    <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+    <link rel="me" href="mailto:peterm0273@gmail.com">
+    <!-- end author.html -->
+
+</head>
+
+<body>
+
+    <!-- header.html -->
+    <div class="header">
+        <header>
+            <nav>
+                <ul>
+            	   <li><a href="/">Home</a></li>
+            	   <li><a href="/about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <!-- end header.html -->
+
+
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <!-- Post header -->
+    <h1>Coding softmax with cross-entropy</h1>
+    <p class="postdate">Posted on June 22, 2017</p>
+    <p class="posttags">backpropogation, softmax, cross-entropy, neural networks, deep learning, python, coding </p>
+    <hr>
+
+<!-- Post content -->
+<p><br /></p>
+<h2 id="information">Information</h2>
+
+<p>Information theory is built upon one intuition: that the information conveyed about a distribution <script type="math/tex">P(x)</script> by an observation <script type="math/tex">x</script> is inversely proportional to the probability of that observation.</p>
+
+<script type="math/tex; mode=display">I (x) := \frac{1}{P(x)}.</script>
+
+<p><strong>Problem:</strong> We’d like the information from two independent observations to be additive. That is, if we observe <script type="math/tex">x</script> and observe <script type="math/tex">y</script>, the information gained, <script type="math/tex">I(x, y)</script>, should equal <script type="math/tex">I(x) + I(y)</script>, but notice that</p>
+
+<script type="math/tex; mode=display">I(x) + I(y) = \frac{1}{P(x)} + \frac{1}{P(y)} \neq \frac{1}{P(x)P(y)} = I(x, y).</script>
+
+<p><strong>Solution:</strong> Use logarithms in our definition</p>
+
+<script type="math/tex; mode=display">I_P(x) := \log \frac{1}{P(x)}.</script>
+
+<p>Then information is additive.</p>
+
+<script type="math/tex; mode=display">I(x) + I(y) = \log \frac{1}{P(x)} + \log \frac{1}{P(y)} = \log \frac{1}{P(x)P(y)} = I(x, y)</script>
+
+<p>where we used (in order), the definition of information, the property of logarithms, and the fact that <script type="math/tex">x</script> and <script type="math/tex">y</script> were assumed to be independent, such that <script type="math/tex">P(x)P(y) = P(x, y)</script>.</p>
+
+<p><br /></p>
+<h2 id="entropy">Entropy</h2>
+
+<p>The entropy of a discrete distribution <script type="math/tex">P</script> is just the expected information of one sample <script type="math/tex">x</script> from that distribution</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+H(P) :&= \mathbb{E} \left[ I(x) \right] \\
+&= \mathbb{E} \left[\log \frac{1}{P(x)}\right] \\
+&= -\mathbb{E} \left[ \log P(x) \right] \\
+&= - \sum_{x \in P} P(x) \log P(x)
+\end{aligned}
+</script>
+
+<p><br /></p>
+<h2 id="cross-entropy">Cross-entropy</h2>
+
+<p>If we</p>
+
+<script type="math/tex; mode=display">\mathbf y = \begin{bmatrix} y_0,\ y_1,\ . . . \ ,\ y_9 \end{bmatrix}</script>
+
+<h3 id="invariance-to-scaling">Invariance to scaling</h3>
+
+<p>Softmax is invariant to additively scaling every element of <script type="math/tex">x</script> by the same constant <script type="math/tex">c</script>.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+s(x + c)_i &= \frac{e^{x_i + c}}{\sum_{j=0}^{9} e^{x_j + c}}    \\[1.2em]
+           &= \frac{e^{x_i}e^c}{\sum_{j=0}^{9} e^{x_j}e^c}      \\[1.2em]
+           &= \frac{e^c e^{x_i}}{e^c \sum_{j=0}^{9} e^{x_j}}    \\[1.2em]
+           &= \frac{e^{x_i}}{\sum_{j=0}^{9} e^{x_j}} = s(x)_i
+\end{aligned}
+</script>
+
+<p>That means we can protect softmax from numerical overflow by subtracting the maximum entry of $x$ from every element of $x$</p>
+
+<script type="math/tex; mode=display">s(x - \max(x))_i = \frac{e^{x_i - \max(x)}}{\sum_{j=1}^{10} e^{x_j - \max(x)}} = \frac{e^{x_i}}{\sum_{j=1}^{10} e^{x_j}} = s(x)_i</script>
+
+
+
+<!-- disqus.html -->
+<div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = "Coding softmax with cross-entropy";
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
+</div>
+<!-- end disqus.html -->
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
+
+
+
+    <!-- footer.html -->
+    <div class="footer">
+        <footer>
+          <hr> <!-- Horizontal rule -->
+          <ul> <!-- Links to my other sites -->
+      	      <li><a href="mailto:peterm0273@gmail.com"
+                     title="peterm0273@gmail.com">email</a></li>
+      	      <li><a href="https://github.com/mattpetersen"
+                     title="github.com/mattpetersen">github</a></li>
+      	      <li><a href="https://twitter.com/mattpetersen_ai"
+                     title="twitter.com/mattpetersen_ai">twitter</a></li>
+          </ul>
+        </footer>
+    </div>
+    <!-- end footer.html -->
+
+
+</html>
