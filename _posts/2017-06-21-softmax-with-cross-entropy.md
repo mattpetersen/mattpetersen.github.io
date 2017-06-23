@@ -151,4 +151,103 @@ The first term is the gradient of cross-entropy cost to softmax activation. Reme
 \end{aligned}
 </script>
 
-The last line follows from the fact that $$\mathbf y$$ was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any $$\mathbf y$$ whose elements sum to $$1$$ would satisfy the same property. To be more specific, the equation above would hold not just for one-hot $$\mathbf y$$, but for any $$\mathbf y$$ specifying a distribution over classes. $$\square$$
+The last line follows from the fact that $$\mathbf y$$ was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any $$\mathbf y$$ whose elements sum to $$1$$ would satisfy the same property. To be more specific, the equation above would hold not just for one-hot $$\mathbf y$$, but for any $$\mathbf y$$ specifying a distribution over classes.
+
+
+<br>
+## Batch of examples
+
+Our work thus far considered a single example. Hence $$\mathbf x$$, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of $$m$$ examples, then $$\mathbf X$$ contains a row vector for each example in the minibatch.
+
+$$ \mathbf X
+= \begin{bmatrix}
+\mathbf x_1 \\[0.4em]
+\mathbf x_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf x_m
+\end{bmatrix} = m \times n $$
+
+Softmax is still a vector-to-vector transformation, but it's applied independently to each row of $$\mathbf X$$.
+
+$$ \mathbf S
+= \begin{bmatrix}
+\mathbf s(\mathbf x_1) \\[0.4em]
+\mathbf s(\mathbf x_2) \\[0.4em]
+    . . .                \\[0.4em]
+\mathbf s(\mathbf x_m)
+\end{bmatrix} = m \times n $$
+
+Since we do one vector-to-vector softmax on each row of $$\mathbf X$$, we have $$m$$ Jacobian matrices. That is, we have one Jacobian matrix for each example in our minibatch. We can line these $$m$$ Jacobian matrices up as a vector, noting that each Jacobian itself is $$n \times n$$.
+
+$$ \mathbf J_{\mathbf X}(\mathbf S)
+= \begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                 \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m) 
+\end{bmatrix} = m \times (n \times n) $$
+
+It's important to note that we can only do this because our rows are independently softmaxed. If not, we'd have a $$4$$-dimensional Jacobian running around, because we'd need the derivative of each output element of a matrix, with respect to each input element of a matrix. What a mess.
+
+Luckily, we can exploit the same trick for our cross-entropy, because cross entropy applies independently to each row of $$\mathbf S$$. First we let each row of $$\mathbf Y$$ be a one-hot label for an example.
+
+$$ \mathbf Y
+= \begin{bmatrix}
+\mathbf y_1 \\[0.4em]
+\mathbf y_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf y_m
+\end{bmatrix} = m \times n $$
+
+Then we compute the mean cross-entropy by averaging the cross-entropy of each pair of rows:
+
+$$ H(\mathbf Y, \mathbf S) = \frac{1}{m} \sum_{i=1}^m \mathbf y_i \log \mathbf s_i $$
+
+Since mean cross-entropy maps a matrix to a scalar row-wise, its Jacobian with respect to $$\mathbf S$$ will be a matrix whose rows are our familiar gradient vectors from before:
+
+$$ \mathbf J_{\mathbf S}(H)
+= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix} = m \times n $$
+
+Now we combine with our chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.
+
+$$\nabla_{\mathbf X} H = \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathbf S).$$
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+&= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                  \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m)
+\end{bmatrix} \\[1.6em]
+\\[0.4em] &= (m \times n) \cdot (m \times n) \times n \\[1.6em]
+&= 1 \times n
+\end{aligned}
+</script>
+
+This looks confusing, if we break it down, we simply dot, for each of our $$m$$ examples, the $$m$$'th row of $$\mathbf J_{\mathbf S}(H)$$, against the $$m$$'th matrix of $$\mathbf J_{\mathbf X}(\mathbf S)$$, and then sum the resulting row vectors. We saw previously that each of these gradient-Jacobian products is given by
+
+$$\mathbf s_i - \mathbf y_i$$
+
+Summing the resulting vectors and remembering our scalar of $$\frac{1}{m}$$ we get
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+&\frac{1}{m} \sum_{i=1}^m \mathbf s_i - \mathbf y_i \\[1.6em]
+= &\frac{1}{m} \sum_{\text{rows}} \mathbf S - \mathbf Y \\[1.6em]
+= &1 \times n
+\end{aligned}
+</script>
+
+So when we use average cross-entropy cost after a softmax output layer, the sensitivity of cost with respect to the weighted input to the softmax layer is just the row-average of the difference of our softmax output $$\mathbf S$$ from the true output $$\mathbf Y$$. Since each row corresponds to one example in our batch, we're simply averaging the individual gradients of the examples. We get this nice result thanks to the fact that both softmax and cross-entropy are row-to-row operations. $$\square$$

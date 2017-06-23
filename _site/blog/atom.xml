@@ -4,7 +4,7 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-06-22T13:44:31-04:00</updated>
+	<updated>2017-06-23T01:32:49-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
@@ -219,7 +219,105 @@ H(\mathbf y, \mathbf s)
 \end{aligned}
 &lt;/script&gt;
 
-&lt;p&gt;The last line follows from the fact that &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; whose elements sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; would satisfy the same property. To be more specific, the equation above would hold not just for one-hot &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;, but for any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; specifying a distribution over classes. &lt;script type=&quot;math/tex&quot;&gt;\square&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;The last line follows from the fact that &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; whose elements sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; would satisfy the same property. To be more specific, the equation above would hold not just for one-hot &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;, but for any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; specifying a distribution over classes.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;batch-of-examples&quot;&gt;Batch of examples&lt;/h2&gt;
+
+&lt;p&gt;Our work thus far considered a single example. Hence &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt; examples, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt; contains a row vector for each example in the minibatch.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf X
+= \begin{bmatrix}
+\mathbf x_1 \\[0.4em]
+\mathbf x_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf x_m
+\end{bmatrix} = m \times n&lt;/script&gt;
+
+&lt;p&gt;Softmax is still a vector-to-vector transformation, but it’s applied independently to each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf S
+= \begin{bmatrix}
+\mathbf s(\mathbf x_1) \\[0.4em]
+\mathbf s(\mathbf x_2) \\[0.4em]
+    . . .                \\[0.4em]
+\mathbf s(\mathbf x_m)
+\end{bmatrix} = m \times n&lt;/script&gt;
+
+&lt;p&gt;Since we do one vector-to-vector softmax on each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt;, we have &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt; Jacobian matrices. That is, we have one Jacobian matrix for each example in our minibatch. We can line these &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt; Jacobian matrices up as a vector, noting that each Jacobian itself is &lt;script type=&quot;math/tex&quot;&gt;n \times n&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf X}(\mathbf S)
+= \begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                 \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m) 
+\end{bmatrix} = m \times (n \times n)&lt;/script&gt;
+
+&lt;p&gt;It’s important to note that we can only do this because our rows are independently softmaxed. If not, we’d have a &lt;script type=&quot;math/tex&quot;&gt;4&lt;/script&gt;-dimensional Jacobian running around, because we’d need the derivative of each output element of a matrix, with respect to each input element of a matrix. What a mess.&lt;/p&gt;
+
+&lt;p&gt;Luckily, we can exploit the same trick for our cross-entropy, because cross entropy applies independently to each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt;. First we let each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf Y&lt;/script&gt; be a one-hot label for an example.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf Y
+= \begin{bmatrix}
+\mathbf y_1 \\[0.4em]
+\mathbf y_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf y_m
+\end{bmatrix} = m \times n&lt;/script&gt;
+
+&lt;p&gt;Then we compute the mean cross-entropy by averaging the cross-entropy of each pair of rows:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;H(\mathbf Y, \mathbf S) = \frac{1}{m} \sum_{i=1}^m \mathbf y_i \log \mathbf s_i&lt;/script&gt;
+
+&lt;p&gt;Since mean cross-entropy maps a matrix to a scalar row-wise, its Jacobian with respect to &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt; will be a matrix whose rows are our familiar gradient vectors from before:&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf J_{\mathbf S}(H)
+= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix} = m \times n&lt;/script&gt;
+
+&lt;p&gt;Now we combine with our chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\nabla_{\mathbf X} H = \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathbf S).&lt;/script&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+&amp;= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                  \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m)
+\end{bmatrix} \\[1.6em]
+\\[0.4em] &amp;= (m \times n) \cdot (m \times n) \times n \\[1.6em]
+&amp;= 1 \times n
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;This looks confusing, if we break it down, we simply dot, for each of our &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt; examples, the &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt;‘th row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf J_{\mathbf S}(H)&lt;/script&gt;, against the &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt;‘th matrix of &lt;script type=&quot;math/tex&quot;&gt;\mathbf J_{\mathbf X}(\mathbf S)&lt;/script&gt;, and then sum the resulting row vectors. We saw previously that each of these gradient-Jacobian products is given by&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\mathbf s_i - \mathbf y_i&lt;/script&gt;
+
+&lt;p&gt;Summing the resulting vectors and remembering our scalar of &lt;script type=&quot;math/tex&quot;&gt;\frac{1}{m}&lt;/script&gt; we get&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;
+\begin{aligned}
+&amp;\frac{1}{m} \sum_{i=1}^m \mathbf s_i - \mathbf y_i \\[1.6em]
+= &amp;\frac{1}{m} \sum_{\text{rows}} \mathbf S - \mathbf Y \\[1.6em]
+= &amp;1 \times n
+\end{aligned}
+&lt;/script&gt;
+
+&lt;p&gt;So when we use average cross-entropy cost after a softmax output layer, the sensitivity of cost with respect to the weighted input to the softmax layer is just the row-average of the difference of our softmax output &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt; from the true output &lt;script type=&quot;math/tex&quot;&gt;\mathbf Y&lt;/script&gt;. Since each row corresponds to one example in our batch, we’re simply averaging the individual gradients of the examples. We get this nice result thanks to the fact that both softmax and cross-entropy are row-to-row operations. &lt;script type=&quot;math/tex&quot;&gt;\square&lt;/script&gt;&lt;/p&gt;
 </content>
 		</entry>
 	

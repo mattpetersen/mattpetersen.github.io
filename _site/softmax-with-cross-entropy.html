@@ -235,7 +235,105 @@ H(\mathbf y, \mathbf s)
 \end{aligned}
 </script>
 
-<p>The last line follows from the fact that <script type="math/tex">\mathbf y</script> was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any <script type="math/tex">\mathbf y</script> whose elements sum to <script type="math/tex">1</script> would satisfy the same property. To be more specific, the equation above would hold not just for one-hot <script type="math/tex">\mathbf y</script>, but for any <script type="math/tex">\mathbf y</script> specifying a distribution over classes. <script type="math/tex">\square</script></p>
+<p>The last line follows from the fact that <script type="math/tex">\mathbf y</script> was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any <script type="math/tex">\mathbf y</script> whose elements sum to <script type="math/tex">1</script> would satisfy the same property. To be more specific, the equation above would hold not just for one-hot <script type="math/tex">\mathbf y</script>, but for any <script type="math/tex">\mathbf y</script> specifying a distribution over classes.</p>
+
+<p><br /></p>
+<h2 id="batch-of-examples">Batch of examples</h2>
+
+<p>Our work thus far considered a single example. Hence <script type="math/tex">\mathbf x</script>, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of <script type="math/tex">m</script> examples, then <script type="math/tex">\mathbf X</script> contains a row vector for each example in the minibatch.</p>
+
+<script type="math/tex; mode=display">\mathbf X
+= \begin{bmatrix}
+\mathbf x_1 \\[0.4em]
+\mathbf x_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf x_m
+\end{bmatrix} = m \times n</script>
+
+<p>Softmax is still a vector-to-vector transformation, but it’s applied independently to each row of <script type="math/tex">\mathbf X</script>.</p>
+
+<script type="math/tex; mode=display">\mathbf S
+= \begin{bmatrix}
+\mathbf s(\mathbf x_1) \\[0.4em]
+\mathbf s(\mathbf x_2) \\[0.4em]
+    . . .                \\[0.4em]
+\mathbf s(\mathbf x_m)
+\end{bmatrix} = m \times n</script>
+
+<p>Since we do one vector-to-vector softmax on each row of <script type="math/tex">\mathbf X</script>, we have <script type="math/tex">m</script> Jacobian matrices. That is, we have one Jacobian matrix for each example in our minibatch. We can line these <script type="math/tex">m</script> Jacobian matrices up as a vector, noting that each Jacobian itself is <script type="math/tex">n \times n</script>.</p>
+
+<script type="math/tex; mode=display">\mathbf J_{\mathbf X}(\mathbf S)
+= \begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                 \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m) 
+\end{bmatrix} = m \times (n \times n)</script>
+
+<p>It’s important to note that we can only do this because our rows are independently softmaxed. If not, we’d have a <script type="math/tex">4</script>-dimensional Jacobian running around, because we’d need the derivative of each output element of a matrix, with respect to each input element of a matrix. What a mess.</p>
+
+<p>Luckily, we can exploit the same trick for our cross-entropy, because cross entropy applies independently to each row of <script type="math/tex">\mathbf S</script>. First we let each row of <script type="math/tex">\mathbf Y</script> be a one-hot label for an example.</p>
+
+<script type="math/tex; mode=display">\mathbf Y
+= \begin{bmatrix}
+\mathbf y_1 \\[0.4em]
+\mathbf y_2 \\[0.4em]
+    . . .     \\[0.4em]
+\mathbf y_m
+\end{bmatrix} = m \times n</script>
+
+<p>Then we compute the mean cross-entropy by averaging the cross-entropy of each pair of rows:</p>
+
+<script type="math/tex; mode=display">H(\mathbf Y, \mathbf S) = \frac{1}{m} \sum_{i=1}^m \mathbf y_i \log \mathbf s_i</script>
+
+<p>Since mean cross-entropy maps a matrix to a scalar row-wise, its Jacobian with respect to <script type="math/tex">\mathbf S</script> will be a matrix whose rows are our familiar gradient vectors from before:</p>
+
+<script type="math/tex; mode=display">\mathbf J_{\mathbf S}(H)
+= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix} = m \times n</script>
+
+<p>Now we combine with our chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.</p>
+
+<script type="math/tex; mode=display">\nabla_{\mathbf X} H = \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathbf S).</script>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+&= \frac{1}{m} \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1 \\[0.4em]
+-\mathbf y_2 / \mathbf s_2 \\[0.4em]
+    ...                          \\[0.4em]
+-\mathbf y_m / \mathbf s_m
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) \\[0.4em]
+\mathbf J_{\mathbf x_2}(\mathbf s_2) \\[0.4em]
+...                                  \\[0.4em]
+\mathbf J_{\mathbf x_m}(\mathbf s_m)
+\end{bmatrix} \\[1.6em]
+\\[0.4em] &= (m \times n) \cdot (m \times n) \times n \\[1.6em]
+&= 1 \times n
+\end{aligned}
+</script>
+
+<p>This looks confusing, if we break it down, we simply dot, for each of our <script type="math/tex">m</script> examples, the <script type="math/tex">m</script>‘th row of <script type="math/tex">\mathbf J_{\mathbf S}(H)</script>, against the <script type="math/tex">m</script>‘th matrix of <script type="math/tex">\mathbf J_{\mathbf X}(\mathbf S)</script>, and then sum the resulting row vectors. We saw previously that each of these gradient-Jacobian products is given by</p>
+
+<script type="math/tex; mode=display">\mathbf s_i - \mathbf y_i</script>
+
+<p>Summing the resulting vectors and remembering our scalar of <script type="math/tex">\frac{1}{m}</script> we get</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+&\frac{1}{m} \sum_{i=1}^m \mathbf s_i - \mathbf y_i \\[1.6em]
+= &\frac{1}{m} \sum_{\text{rows}} \mathbf S - \mathbf Y \\[1.6em]
+= &1 \times n
+\end{aligned}
+</script>
+
+<p>So when we use average cross-entropy cost after a softmax output layer, the sensitivity of cost with respect to the weighted input to the softmax layer is just the row-average of the difference of our softmax output <script type="math/tex">\mathbf S</script> from the true output <script type="math/tex">\mathbf Y</script>. Since each row corresponds to one example in our batch, we’re simply averaging the individual gradients of the examples. We get this nice result thanks to the fact that both softmax and cross-entropy are row-to-row operations. <script type="math/tex">\square</script></p>
 
 
 
