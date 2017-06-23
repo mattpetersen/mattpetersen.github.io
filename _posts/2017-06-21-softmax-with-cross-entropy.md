@@ -236,7 +236,7 @@ $$\nabla_{\mathbf X} H = \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathb
 \end{aligned}
 </script>
 
-This looks confusing, if we break it down, we simply dot, for each of our $$m$$ examples, the $$m$$'th row of $$\mathbf J_{\mathbf S}(H)$$, against the $$m$$'th matrix of $$\mathbf J_{\mathbf X}(\mathbf S)$$, and then sum the resulting row vectors. We saw previously that each of these gradient-Jacobian products is given by
+This looks confusing, but if we break it down, we simply dot, for each of our $$m$$ examples, the $$m$$'th row of $$\mathbf J_{\mathbf S}(H)$$, against the $$m$$'th matrix of $$\mathbf J_{\mathbf X}(\mathbf S)$$, and then sum the resulting row vectors. We saw previously that each of these individual gradient-Jacobian products is given by
 
 $$\mathbf s_i - \mathbf y_i$$
 
