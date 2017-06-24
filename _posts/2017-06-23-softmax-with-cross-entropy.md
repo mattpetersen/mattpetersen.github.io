@@ -8,9 +8,47 @@ comments: true
 tags: backpropogation, matrix calculus, softmax, cross-entropy, neural networks, deep learning
 ---
 
-
 A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. _We use row vectors and row gradients_, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.
 
+<br>
+## Main results
+---
+
+Softmax of a row vector:
+
+<script type="math/tex; mode=display">
+s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
+</script>
+
+Softmax of a matrix is the softmax of its rows:
+
+<script type="math/tex; mode=display">
+\mathbf S =              \begin{bmatrix}
+\mathbf s(\mathbf x_1)   \\[0.6em]
+\mathbf s(\mathbf x_2)   \\[0.6em]
+        ...              \\[0.6em]
+\mathbf s(\mathbf x_m)   \end{bmatrix}
+</script>
+
+Back-propogating error at the weighted input to the softmax layer for cross-entropy cost:
+
+<script type="math/tex; mode=display">
+\mathbf s(\mathbf x) - \mathbf y
+</script>
+
+__Note:__ Cross-entropy is equivalent to negative log likelihood when using one-hot labels, and the above result will still hold.
+
+For a mini-batch we have
+
+<script type="math/tex; mode=display">
+\frac{1}{m} (\mathbf S - \mathbf Y)
+</script>
+
+where the rows of $$\mathbf Y$$ are our one-hot true labels, and the rows of $$\mathbf S$$ are softmax distributions.
+
+<br>
+## Derivation of main results
+---
 
 <br>
 ## Softmax
@@ -19,9 +57,9 @@ Softmax is a vector-to-vector transformation that turns a row vector
 
 <script type="math/tex; mode=display">
 \mathbf x = \begin{bmatrix}
-x_1 \ \ \, 
-x_2 \ \ \,
-... \ \ \,
+x_1 \ \, 
+x_2 \ \,
+... \ \,
 x_n \end{bmatrix}
 </script>
 
@@ -29,16 +67,16 @@ into a normalized row vector
 
 <script type="math/tex; mode=display">
 \mathbf s(\mathbf x) = \begin{bmatrix}
-s(\mathbf x)_1 \ \ \,
-s(\mathbf x)_2 \ \ \,
-...            \ \ \,
+s(\mathbf x)_1 \ \,
+s(\mathbf x)_2 \ \,
+...            \ \,
 s(\mathbf x)_n \end{bmatrix}
 </script>
 
 The transformation is described element-wise, where the $$i$$th output $$s(\mathbf x)_i$$ is a function of the entire input $$\mathbf x$$, and is given by
 
 <script type="math/tex; mode=display">
-s(\mathbf x)_i = \frac{e^{x_i}}{\sum_{j=1}^{n} e^{x_j}}
+s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
 </script>
 
 Softmax is nice because it turns $$\mathbf x$$ into a probability distribution.
@@ -52,35 +90,44 @@ Softmax is nice because it turns $$\mathbf x$$ into a probability distribution.
 
 Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s_i$$, and a column for each input element $$x_j$$. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll compute row $$i$$ of the Jacobian, which is the gradient of output element $$s_i$$ with respect to each of its input elements $$x_j$$.
 
-First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s_i$$, with respect to its $$i$$'th input, $$x_i$$:
+<br>
+### Diagonal row entry
+
+First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$i$$'th input, $$x_i$$. All we need is the division rule from calculus.
 
 <script type="math/tex; mode=display">
 \begin{aligned}
 \frac{\partial s(\mathbf x)_i}{\partial x_i}
-&= \frac{\sum_{j=1}^n e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_{j=1}^n e^{x_j})^2} \\[1.6em]
-&= s(\mathbf x)_i - s(\mathbf x)_i^2 \qquad \text{diagonal entry}
+&= \frac{\sum_j e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_j e^{x_j})^2} \\[1.6em]
+&= s(\mathbf x)_i - s(\mathbf x)_i^2
 \end{aligned}
 </script>
 
-Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output of softmax, $$s_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$.
+<br>
+### Off-diagonal row entries
+
+Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$. Again we use the division rule, but in this case the derivative of the numerator, $$e^{x_i}$$ with respect to $$x_j$$ is zero, because $$j \neq i$$ means the numerator is constant with respect to $$x_j$$.
 
 <script type="math/tex; mode=display">
 \begin{aligned}
 \frac{\partial s(\mathbf x)_i}{\partial x_j}
-&= \frac{\sum_{j=1}^n e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_{j=1}^n e^{x_j})^2} \\[1.6em]
-&= - s(\mathbf x)_i s(\mathbf x)_j \qquad \text{off-diagonal entry}
+&= \frac{\sum_j e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_j e^{x_j})^2} \\[1.6em]
+&= - s(\mathbf x)_i s(\mathbf x)_j
 \end{aligned}
 </script>
 
-From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. Instead we'll write $$\mathbf s(\mathbf x)$$ as $$\mathbf s$$ and $$s(\mathbf x)_i$$ as $$s_i$$, understanding that $$\mathbf s$$ and $$s_i$$ are each a function of the entire vector $$\mathbf x$$.
+This is nice! The derivative of softmax is always phrased in terms of softmax. From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. Instead we'll write $$\mathbf s(\mathbf x)$$ as $$\mathbf s$$ and $$s(\mathbf x)_i$$ as $$s_i$$, understanding that $$\mathbf s$$ and $$s_i$$ are each a function of the entire vector $$\mathbf x$$.
+
+<br>
+### Full Jacobian
 
 The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element $$s_i$$ with respect to each of its input elements $$x_j$$.
 
 <script type="math/tex; mode=display">
 \mathbf J_{\mathbf x}(\mathbf s) = \begin{bmatrix}
-s_0 - s_0^2 &  -s_0 s_1   &    ...   &  -s_0 s_n     \\[0.5em]
- -s_1 s_0   & s_1 - s_1^2 &    ...   &  -s_1 s_n     \\[0.5em]
-   ...      &    ...      &    ...   &    ...        \\[0.5em]
+s_0 - s_0^2 &  -s_0 s_1   &    ...   &  -s_0 s_n     \\[0.6em]
+ -s_1 s_0   & s_1 - s_1^2 &    ...   &  -s_1 s_n     \\[0.6em]
+   ...      &    ...      &    ...   &    ...        \\[0.6em]
  -s_n s_0   &  -s_n s_1   &    ...   & s_n - s_n^2   \end{bmatrix}
 </script>
 
@@ -101,16 +148,16 @@ Cross-entropy measures the difference between two probability distributions. We 
 
 <script type="math/tex; mode=display"> \begin{aligned}
 \mathbf y &= \begin{bmatrix}
-        y_1  \ \ \,
-        y_2  \ \ \,
-        ...  \ \ \,
+        y_1  \ \,
+        y_2  \ \,
+        ...  \ \,
         y_n  \end{bmatrix} \\[1.1em]
 &=  \begin{bmatrix}
-0   \ \ \,
-0   \ \ \,
-... \ \ \,
-1   \ \ \,
-... \ \ \,
+0   \ \,
+0   \ \,
+... \ \,
+1   \ \,
+... \ \,
 0   \end{bmatrix}
 \end{aligned} </script>
 
@@ -156,7 +203,7 @@ By the chain rule, the sensitivity of cost $$H$$ to the input to the softmax lay
 \nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s)
 </script>
 
-The first term is the gradient of cross-entropy cost to softmax activation. The second term is the Jacobian of softmax activation to softmax input. Remember that we're using row gradients - this is a row vector times a matrix, resulting in a row vector. Expanding and simplifying, we get
+The first term is the gradient of cross-entropy to softmax activation. The second term is the Jacobian of softmax activation to softmax input. Remember that we're using row gradients - so this is a row vector times a matrix, resulting in a row vector. Expanding and simplifying, we get
 
 <script type="math/tex; mode=display"> \begin{aligned}
 \nabla_{\mathbf x} H
@@ -173,15 +220,15 @@ The last line follows from the fact that $$\mathbf y$$ was one-hot and applied t
 
 
 <br>
-# Now with a batch of examples
+## Now with a batch of examples
 ---
 Our work thus far considered a single example. Hence $$\mathbf x$$, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of $$m$$ examples, then $$\mathbf X$$ contains a row vector for each example in the minibatch.
 
 <script type="math/tex; mode=display">
 \mathbf X =   \begin{bmatrix}
-\mathbf x_1   \\[0.4em]
-\mathbf x_2   \\[0.4em]
-        ...   \\[0.4em]
+\mathbf x_1   \\[0.6em]
+\mathbf x_2   \\[0.6em]
+        ...   \\[0.6em]
 \mathbf x_m   \end{bmatrix} \sim m \times n
 </script>
 
@@ -208,13 +255,13 @@ Because rows are independently mapped, the Jacobian of row $$i$$ of $$\mathbf S$
 \mathbf J_{\mathbf x_{j \neq i}}(\mathbf s_i) = \mathbf 0
 </script>
 
-and the Jacobian of row $$i$$ of $$\mathbf S$$ with respect to row $$i$$ of $$\mathbf X$$ is
+and the Jacobian of row $$i$$ of $$\mathbf S$$ with respect to row $$i$$ of $$\mathbf X$$ is our familiar matrix from before
 
 <script type="math/tex; mode=display">
 \mathbf J_{\mathbf x_{i}}(\mathbf s_i) = \text{diag}(\mathbf s_i) - \mathbf s_i^\top \mathbf s_i
 </script>
 
-That means our Jacobian of $$\mathbf S$$ with respect to $$\mathbf X$$ is a diagonal $$m \times m$$ matrix of $$n \times n$$ matrices.
+That means our grand Jacobian of $$\mathbf S$$ with respect to $$\mathbf X$$ is a diagonal $$m \times m$$ matrix of $$n \times n$$ matrices, most of which are zero matrices:
 
 <script type="math/tex; mode=display">
 \mathbf J_{\mathbf X}(\mathbf S) = \begin{bmatrix}
@@ -231,9 +278,9 @@ Let each row of $$\mathbf Y$$ be a one-hot label for an example:
 
 <script type="math/tex; mode=display">
 \mathbf Y =   \begin{bmatrix}
-\mathbf y_1   \\[0.4em]
-\mathbf y_2   \\[0.4em]
-        ...   \\[0.4em]
+\mathbf y_1   \\[0.6em]
+\mathbf y_2   \\[0.6em]
+        ...   \\[0.6em]
 \mathbf y_m   \end{bmatrix} \sim m \times n
 </script>
 
@@ -255,19 +302,18 @@ __Note:__ this formulation is computationally wasteful. We shouldn't implement b
 Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to $$\mathbf S$$ will be a matrix.
 
 <script type="math/tex; mode=display"> \begin{aligned}
-\mathbf J_{\mathbf S}(H) 
-&= \frac{\partial}{\partial \mathbf S} H                              \\[1.6em]
-&= -\frac{\partial}{\partial \mathbf S}
-   \bigg(\frac{1}{m} \text{Tr}(\mathbf Y \log \mathbf S^\top) \bigg)  \\[1.6em]
-&= -\frac{1}{m} \frac{\partial}{\partial \mathbf S}
-   \Big(\text{Tr}(\mathbf Y \log \mathbf S^\top) \Big)                \\[1.6em]
+\mathbf J_{\mathbf S}(H)
+&= -\mathbf J_{\mathbf S}
+    \bigg(\frac{1}{m} \text{Tr}(\mathbf Y \log \mathbf S^\top) \bigg)  \\[1.6em]
+&= -\frac{1}{m} \mathbf J_{\mathbf S}
+    \text{Tr}(\mathbf Y \log \mathbf S^\top)                           \\[1.6em]
 &= -\frac{1}{m} \mathbf Y
-   \frac{\partial}{\partial \mathbf S} \Big(\log \mathbf S \Big)      \\[1.6em]
-&= -\frac{1}{m} \mathbf Y \odot \frac{1}{\mathbf S}                   \\[1.6em]
+    \mathbf J_{\mathbf S} \log \mathbf S                               \\[1.6em]
+&= -\frac{1}{m} \mathbf Y \odot \frac{1}{\mathbf S}                    \\[1.6em]
 &= -\frac{1}{m} \frac{\mathbf Y}{\mathbf S}
 \end{aligned} </script>
 
-Since $$\log \mathbf S$$ is an element-wise operation mapping a matrix to a matrix, its Jacobian is a matrix of element-wise derivatives which we chain rule by a hadamard product, rather than a dot product.
+Since $$\log \mathbf S$$ is an element-wise operation mapping a matrix to a matrix, its Jacobian is a matrix of element-wise derivatives which we chain rule by a Hadamard product, rather than by a dot product.
 
 <br>
 #### Why this works
@@ -330,37 +376,31 @@ and we have our result. $$\square$$
 We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.
 
 <script type="math/tex; mode=display"> \begin{aligned}
-\nabla_{\mathbf X} H
+\mathbf J_{\mathbf X}(H)
 &= \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathbf S)    \\[1.6em]
 &= \bigg(-\frac{1}{m} \frac{\mathbf Y}{\mathbf S}\bigg)
-   \bigg(\mathbf J_{\mathbf X}(\mathbf S) \bigg)                  \\[2.4em]
-&= \frac{1}{m} \odot \begin{bmatrix}
+   \mathbf J_{\mathbf X}(\mathbf S)                               \\[2.4em]
+&= \frac{1}{m}              \begin{bmatrix}
 -\mathbf y_1 / \mathbf s_1  \\[0.4em]
 -\mathbf y_2 / \mathbf s_2  \\[0.4em]
-...                        \\[0.4em]
--\mathbf y_m / \mathbf s_m
-\end{bmatrix}
-\begin{bmatrix}
-\mathbf J_{\mathbf x_1}(\mathbf s_1) & \mathbf 0 & ... & \mathbf 0    \\[0.4em]
-\mathbf 0 & \mathbf J_{\mathbf x_2}(\mathbf s_2) & ... & \mathbf 0    \\[0.4em]
-... & ... & ... & ...                                                 \\[0.4em]
-\mathbf 0 & \mathbf 0 & ... & \mathbf J_{\mathbf x_m}(\mathbf s_m)
-\end{bmatrix}                                                         \\[0.4em]
-\\[1.1em]
-&= \frac{1}{m} \odot \begin{bmatrix}
+...                         \\[0.4em]
+-\mathbf y_m / \mathbf s_m  \end{bmatrix}
+\mathbf J_{\mathbf X}(\mathbf S)  \\[2.4em]
+\\[0.6em]
+&= \frac{1}{m} \begin{bmatrix}
 -\frac{\mathbf y_1}{\mathbf s_1} \mathbf J_{\mathbf x_1}(\mathbf s_1)  \\[1.4em]
 -\frac{\mathbf y_2}{\mathbf s_2} \mathbf J_{\mathbf x_2}(\mathbf s_2)  \\[1.4em]
-...                                                                   \\[1.4em]
+...                                                                    \\[1.4em]
 -\frac{\mathbf y_m}{\mathbf s_m} \mathbf J_{\mathbf x_m}(\mathbf s_m)
-\end{bmatrix}                                                         \\[1.4em]
-\\[1.1em]
-&= \frac{1}{m} \odot       \begin{bmatrix}
+\end{bmatrix}                                                          \\[1.4em]
+\\[0.6em]
+&= \frac{1}{m}             \begin{bmatrix}
 \mathbf s_1 - \mathbf y_1  \\[0.4em]
 \mathbf s_2 - \mathbf y_2  \\[0.4em]
 ...                        \\[0.4em]
 \mathbf s_m - \mathbf y_m  \end{bmatrix}                              \\[1.4em]
-\\[1.1em]
-&= \frac{1}{m} \odot \Big(\mathbf S - \mathbf Y\Big)
+\\[0.6em]
+&= \frac{1}{m} \Big(\mathbf S - \mathbf Y\Big)
 \end{aligned} </script>
 
 So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch. $$\quad \square$$
