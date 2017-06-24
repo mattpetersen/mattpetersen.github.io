@@ -297,7 +297,7 @@ The above simplification works because each row of $$\mathbf S$$ is $$\mathbf s_
 __Note:__ this formulation is computationally wasteful. We shouldn't implement batch cross-entropy this way in a computer. We're only using it for its analytic simplicity to work out the backpropogating error. However, the end analytic result is actually computationally efficient.
 
 <br>
-## Gradient of cross-entropy
+## Jacobian of cross-entropy
 
 Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to $$\mathbf S$$ will be a matrix.
 
@@ -316,7 +316,7 @@ Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to
 Since $$\log \mathbf S$$ is an element-wise operation mapping a matrix to a matrix, its Jacobian is a matrix of element-wise derivatives which we chain rule by a Hadamard product, rather than by a dot product.
 
 <br>
-#### Why this works
+### Why this works
 
 This procedure is always true for any element-wise operations. We can see this by concatenating the rows of $$\mathbf S$$. 
 
