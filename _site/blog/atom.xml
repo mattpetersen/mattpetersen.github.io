@@ -76,7 +76,7 @@
 	<title>Matt Petersen's Blog</title>
 	<link href="http://mattpetersen.github.io/blog/atom.xml" rel="self"/>
 	<link href="http://mattpetersen.github.io/blog"/>
-	<updated>2017-06-24T14:10:24-04:00</updated>
+	<updated>2017-06-25T01:49:47-04:00</updated>
 	<id>http://mattpetersen.github.io/blog</id>
 	<author>
 		<name>Matt Petersen</name>
@@ -87,52 +87,13 @@
 		<entry>
 			<title>Softmax with cross-entropy</title>
 			<link href="http://mattpetersen.github.io/softmax-with-cross-entropy"/>
-			<updated>2017-06-23T00:00:00-04:00</updated>
+			<updated>2017-06-25T00:00:00-04:00</updated>
 			<id>http://mattpetersen.github.io/softmax-with-cross-entropy</id>
 			<content type="html">&lt;p&gt;A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. &lt;em&gt;We use row vectors and row gradients&lt;/em&gt;, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;main-results&quot;&gt;Main results&lt;/h2&gt;
-&lt;hr /&gt;
-
-&lt;p&gt;Softmax of a row vector:&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
-&lt;/script&gt;
-
-&lt;p&gt;Softmax of a matrix is the softmax of its rows:&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\mathbf S =              \begin{bmatrix}
-\mathbf s(\mathbf x_1)   \\[0.6em]
-\mathbf s(\mathbf x_2)   \\[0.6em]
-        ...              \\[0.6em]
-\mathbf s(\mathbf x_m)   \end{bmatrix}
-&lt;/script&gt;
-
-&lt;p&gt;Back-propogating error at the weighted input to the softmax layer for cross-entropy cost:&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\mathbf s(\mathbf x) - \mathbf y
-&lt;/script&gt;
-
-&lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; Cross-entropy is equivalent to negative log likelihood when using one-hot labels, and the above result will still hold.&lt;/p&gt;
-
-&lt;p&gt;For a mini-batch we have&lt;/p&gt;
-
-&lt;script type=&quot;math/tex; mode=display&quot;&gt;
-\frac{1}{m} (\mathbf S - \mathbf Y)
-&lt;/script&gt;
-
-&lt;p&gt;where the rows of &lt;script type=&quot;math/tex&quot;&gt;\mathbf Y&lt;/script&gt; are our one-hot true labels, and the rows of &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt; are softmax distributions.&lt;/p&gt;
-
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;derivation-of-main-results&quot;&gt;Derivation of main results&lt;/h2&gt;
-&lt;hr /&gt;
-
-&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;softmax&quot;&gt;Softmax&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Softmax is a vector-to-vector transformation that turns a row vector&lt;/p&gt;
 
@@ -154,7 +115,7 @@ s(\mathbf x)_2 \ \,
 s(\mathbf x)_n \end{bmatrix}
 &lt;/script&gt;
 
-&lt;p&gt;The transformation is described element-wise, where the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;th output &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; is a function of the entire input &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, and is given by&lt;/p&gt;
+&lt;p&gt;The transformation is easiest to describe element-wise. The &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;th output &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; is a function of the entire input &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, and is given by&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
@@ -168,14 +129,49 @@ s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
 &lt;/ul&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;jacobian-of-softmax&quot;&gt;Jacobian of softmax&lt;/h2&gt;
+&lt;h3 id=&quot;invariance-to-scaling&quot;&gt;Invariance to scaling&lt;/h3&gt;
 
-&lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll compute row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, which is the gradient of output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; with respect to each of its input elements &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;Softmax is invariant to additively scaling &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; by a constant &lt;script type=&quot;math/tex&quot;&gt;c&lt;/script&gt;.&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt; \begin{aligned}
+s(\mathbf x + c)_i &amp;= \frac{e^{x_i + c}}{\sum e^{x_j + c}}       \\[1.6em]
+                   &amp;= \frac{e^{x_i}e^c}{\sum e^{x_j}e^c}         \\[1.6em]
+                   &amp;= \frac{e^{x_i}}{\sum e^{x_j}}
+\end{aligned} &lt;/script&gt;
+
+&lt;p&gt;In other words, softmax only cares about the relative differences in the elements of &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. That means we can protect softmax from overflow by subtracting the maximum element of &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt; from every element of &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. This will also protect against underflow because the denominator will contain a sum of non-negative terms, one of which is &lt;script type=&quot;math/tex&quot;&gt;e^{x_\text{max} - x_\text{max}} = 1&lt;/script&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;softmax-in-python&quot;&gt;Softmax in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def softmax(x):
+    &quot;&quot;&quot;Return the softmax of a vector x.
+    
+    :type x: ndarray
+    :param x: vector input
+    
+    :returns: ndarray of same length as x
+    &quot;&quot;&quot;
+    x = x - np.max(x)
+    row_sum = np.sum(np.exp(x))
+    return np.array([np.exp(x_i) / row_sum for x_i in x])
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;jacobian-of-softmax&quot;&gt;Jacobian of softmax&lt;/h2&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, and a column for each input element &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+
+&lt;center&gt;&lt;img src=&quot;/images/softmax-cross-entropy/jacobian-softmax.png&quot; style=&quot;width: 40%;object-fit: contain&quot; /&gt;&lt;/center&gt;
+
+&lt;p&gt;The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll show how to compute these entries for an arbitrary row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h3 id=&quot;diagonal-row-entry&quot;&gt;Diagonal row entry&lt;/h3&gt;
 
-&lt;p&gt;First compute the diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;. All we need is the division rule from calculus.&lt;/p&gt;
+&lt;p&gt;First compute the diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;. That is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_i&lt;/script&gt;. All we need is the division rule from calculus.&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
@@ -188,7 +184,7 @@ s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h3 id=&quot;off-diagonal-row-entries&quot;&gt;Off-diagonal row entries&lt;/h3&gt;
 
-&lt;p&gt;Now compute every off-diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of the Jacobian, that is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt;. Again we use the division rule, but in this case the derivative of the numerator, &lt;script type=&quot;math/tex&quot;&gt;e^{x_i}&lt;/script&gt; with respect to &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt; is zero, because &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt; means the numerator is constant with respect to &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;Now compute every off-diagonal entry of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;. That is, compute the derivative of the &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt;‘th output, &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, with respect to its &lt;script type=&quot;math/tex&quot;&gt;j&lt;/script&gt;‘th input, &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;, where &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt;. Again we use the division rule, but in this case the derivative of the numerator, &lt;script type=&quot;math/tex&quot;&gt;e^{x_i}&lt;/script&gt; with respect to &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt; is zero, because &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt; means the numerator is constant with respect to &lt;script type=&quot;math/tex&quot;&gt;x_j&lt;/script&gt;.&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
 \begin{aligned}
@@ -198,7 +194,9 @@ s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
 \end{aligned}
 &lt;/script&gt;
 
-&lt;p&gt;This is nice! The derivative of softmax is always phrased in terms of softmax. From now on, to keep things clear, we won’t write dependence on &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. Instead we’ll write &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, understanding that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; are each a function of the entire vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;.&lt;/p&gt;
+&lt;p&gt;This is nice! The derivative of softmax is always phrased in terms of softmax.&lt;/p&gt;
+
+&lt;p&gt;From now on, to keep things clear, we won’t write dependence on &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;. Instead we’ll write &lt;script type=&quot;math/tex&quot;&gt;\mathbf s(\mathbf x)&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s(\mathbf x)_i&lt;/script&gt; as &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt;, understanding that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; and &lt;script type=&quot;math/tex&quot;&gt;s_i&lt;/script&gt; are each a function of the entire vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h3 id=&quot;full-jacobian&quot;&gt;Full Jacobian&lt;/h3&gt;
@@ -223,7 +221,23 @@ s_0 - s_0^2 &amp;  -s_0 s_1   &amp;    ...   &amp;  -s_0 s_n     \\[0.6em]
 &lt;p&gt;where the second term is the &lt;script type=&quot;math/tex&quot;&gt;n \times n&lt;/script&gt; outer product, because we defined &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; as a row vector.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;jacobian-of-softmax-in-python&quot;&gt;Jacobian of softmax in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def jacobian_softmax(s):
+    &quot;&quot;&quot;Return the Jacobian matrix of softmax vector s.
+
+    :type s: ndarray
+    :param s: vector input
+
+    :returns: ndarray of shape (len(s), len(s))
+    &quot;&quot;&quot;
+    return np.diag(s) - np.outer(s, s)
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;cross-entropy&quot;&gt;Cross-entropy&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Cross-entropy measures the difference between two probability distributions. We saw that &lt;script type=&quot;math/tex&quot;&gt;\mathbf s&lt;/script&gt; is a distribution. The correct class is also a distribution if we encode it as a one-hot vector:&lt;/p&gt;
 
@@ -234,11 +248,11 @@ s_0 - s_0^2 &amp;  -s_0 s_1   &amp;    ...   &amp;  -s_0 s_n     \\[0.6em]
         ...  \ \,
         y_n  \end{bmatrix} \\[1.1em]
 &amp;=  \begin{bmatrix}
-0   \ \,
-0   \ \,
-... \ \,
-1   \ \,
-... \ \,
+0   \ \ \,
+0   \ \ \,
+... \ \ \,
+1   \ \ \,
+... \ \ \,
 0   \end{bmatrix}
 \end{aligned} &lt;/script&gt;
 
@@ -257,7 +271,30 @@ H(\mathbf y, \mathbf s)
 &lt;p&gt;which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;cross-entropy-in-python&quot;&gt;Cross-entropy in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def cross_entropy(y, s):
+    &quot;&quot;&quot;Return the cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: scalar cost
+    &quot;&quot;&quot;
+    # Naively computes log(s_i) even when y_i = 0
+    # return -y.dot(np.log(s))
+    
+    # Efficient, but assumes y is one-hot
+    return -np.log(s[np.where(y)])
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;h2 id=&quot;gradient-of-cross-entropy&quot;&gt;Gradient of cross-entropy&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Since our &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise &lt;script type=&quot;math/tex&quot;&gt;\log&lt;/script&gt; and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of a dot product, being a linear operation, is just the vector &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;.&lt;/p&gt;
 
@@ -274,7 +311,26 @@ H(\mathbf y, \mathbf s)
 &lt;p&gt;where we used equation (69) of &lt;a href=&quot;http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf&quot;&gt;the matrix cookbook&lt;/a&gt; for the derivative of the dot product.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;finishing-up-with-the-chain-rule&quot;&gt;Finishing up with the chain rule&lt;/h2&gt;
+&lt;h3 id=&quot;gradient-of-cross-entropy-in-python&quot;&gt;Gradient of cross-entropy in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def gradient_cross_entropy(y, s):
+    &quot;&quot;&quot;Return the gradient of cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    &quot;&quot;&quot;
+    return -y / s
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;error-at-input-to-softmax-layer&quot;&gt;Error at input to softmax layer&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;By the chain rule, the sensitivity of cost &lt;script type=&quot;math/tex&quot;&gt;H&lt;/script&gt; to the input to the softmax layer, &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, is given by a gradient-Jacobian product, each of which we’ve already computed:&lt;/p&gt;
 
@@ -298,7 +354,25 @@ H(\mathbf y, \mathbf s)
 &lt;p&gt;The last line follows from the fact that &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; whose elements sum to &lt;script type=&quot;math/tex&quot;&gt;1&lt;/script&gt; would satisfy the same property. To be more specific, the equation above would hold not just for one-hot &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt;, but for any &lt;script type=&quot;math/tex&quot;&gt;\mathbf y&lt;/script&gt; specifying a distribution over classes.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;now-with-a-batch-of-examples&quot;&gt;Now with a batch of examples&lt;/h2&gt;
+&lt;h3 id=&quot;error-at-input-to-softmax-layer-in-python&quot;&gt;Error at input to softmax layer in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def error_softmax_input(y, s):
+    &quot;&quot;&quot;Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    &quot;&quot;&quot;
+    return s - y
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h1 id=&quot;now-with-a-batch-of-examples&quot;&gt;Now with a batch of examples&lt;/h1&gt;
 &lt;hr /&gt;
 &lt;p&gt;Our work thus far considered a single example. Hence &lt;script type=&quot;math/tex&quot;&gt;\mathbf x&lt;/script&gt;, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of &lt;script type=&quot;math/tex&quot;&gt;m&lt;/script&gt; examples, then &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt; contains a row vector for each example in the minibatch.&lt;/p&gt;
 
@@ -311,7 +385,8 @@ H(\mathbf y, \mathbf s)
 &lt;/script&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;softmax-1&quot;&gt;Softmax&lt;/h2&gt;
+&lt;h2 id=&quot;batch-softmax&quot;&gt;Batch softmax&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Softmax is still a vector-to-vector transformation, but it’s applied independently to each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt;.&lt;/p&gt;
 
@@ -324,7 +399,28 @@ H(\mathbf y, \mathbf s)
 &lt;/script&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;jacobian-of-softmax-1&quot;&gt;Jacobian of softmax&lt;/h2&gt;
+&lt;h3 id=&quot;batch-softmax-in-python&quot;&gt;Batch softmax in Python&lt;/h3&gt;
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def batch_softmax(x):
+    &quot;&quot;&quot;Return matrix of row-wise softmax of x.
+
+    :type x: ndarray
+    :param x: row per example and column per feature
+
+    :returns: ndarray of x.shape after row-wise softmax
+    &quot;&quot;&quot;
+    # Stabilize by subtracting row max from each row
+    row_maxes = np.max(x, axis=1)
+    row_maxes = row_maxes[:, np.newaxis]  # for broadcasting
+    x = x - row_maxes
+
+    return np.array([softmax(row) for row in x])
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;jacobian-of-batch-softmax&quot;&gt;Jacobian of batch softmax&lt;/h2&gt;
+&lt;hr /&gt;
+
 &lt;p&gt;Because rows are independently mapped, the Jacobian of row &lt;script type=&quot;math/tex&quot;&gt;i&lt;/script&gt; of &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt; with respect to row &lt;script type=&quot;math/tex&quot;&gt;j \neq i&lt;/script&gt; of &lt;script type=&quot;math/tex&quot;&gt;\mathbf X&lt;/script&gt; is a zero matrix.&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt;
@@ -348,7 +444,25 @@ H(\mathbf y, \mathbf s)
 \end{bmatrix} &lt;/script&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;cross-entropy-1&quot;&gt;Cross-entropy&lt;/h2&gt;
+&lt;h3 id=&quot;jacobian-of-batch-softmax-in-python&quot;&gt;Jacobian of batch softmax in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def jacobian_batch_softmax(s):
+    &quot;&quot;&quot;Return array of row-wise Jacobians of s.
+
+    :type s: ndarray
+    :param s: matrix whose rows are softmaxed
+
+    :returns: ndarray of shape
+              (s.shape[0], s.shape[0], s.shape[1], s.shape[1])
+    &quot;&quot;&quot;
+    # Array of nonzero Jacobians lying along tensor diagonal
+    return np.array([jacobian_softmax(row) for row in s])
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;mean-cross-entropy-of-batch&quot;&gt;Mean cross-entropy of batch&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Let each row of &lt;script type=&quot;math/tex&quot;&gt;\mathbf Y&lt;/script&gt; be a one-hot label for an example:&lt;/p&gt;
 
@@ -373,7 +487,28 @@ H(\mathbf Y, \mathbf S)
 &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; this formulation is computationally wasteful. We shouldn’t implement batch cross-entropy this way in a computer. We’re only using it for its analytic simplicity to work out the backpropogating error. However, the end analytic result is actually computationally efficient.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;gradient-of-cross-entropy-1&quot;&gt;Gradient of cross-entropy&lt;/h2&gt;
+&lt;h3 id=&quot;mean-cross-entropy-of-batch-in-python&quot;&gt;Mean cross-entropy of batch in Python&lt;/h3&gt;
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def mean_cross_entropy(y, s):
+    &quot;&quot;&quot;Return the mean row-wise cross-entropy of y and s.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: scalar, mean row-wise cross-entropy cost
+    &quot;&quot;&quot;
+    return np.mean([cross_entropy(y_row, s_row)
+                    for y_row, s_row in zip(y, s)])
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;jacobian-of-mean-cross-entropy-of-batch&quot;&gt;Jacobian of mean cross-entropy of batch&lt;/h2&gt;
+&lt;hr /&gt;
 
 &lt;p&gt;Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt; will be a matrix.&lt;/p&gt;
 
@@ -392,7 +527,7 @@ H(\mathbf Y, \mathbf S)
 &lt;p&gt;Since &lt;script type=&quot;math/tex&quot;&gt;\log \mathbf S&lt;/script&gt; is an element-wise operation mapping a matrix to a matrix, its Jacobian is a matrix of element-wise derivatives which we chain rule by a Hadamard product, rather than by a dot product.&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h4 id=&quot;why-this-works&quot;&gt;Why this works&lt;/h4&gt;
+&lt;h3 id=&quot;why-this-works&quot;&gt;Why this works&lt;/h3&gt;
 
 &lt;p&gt;This procedure is always true for any element-wise operations. We can see this by concatenating the rows of &lt;script type=&quot;math/tex&quot;&gt;\mathbf S&lt;/script&gt;.&lt;/p&gt;
 
@@ -447,9 +582,31 @@ H(\mathbf y, \mathbf s) = - \frac{1}{m} \mathbf y \log \mathbf s^\top
 &lt;p&gt;and we have our result. &lt;script type=&quot;math/tex&quot;&gt;\square&lt;/script&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;h2 id=&quot;finishing-up-with-the-chain-rule-1&quot;&gt;Finishing up with the chain rule&lt;/h2&gt;
+&lt;h3 id=&quot;jacobian-of-mean-cross-entropy-of-batch-in-python&quot;&gt;Jacobian of mean cross-entropy of batch in Python&lt;/h3&gt;
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def jacobian_mean_cross_entropy(y, s):
+    &quot;&quot;&quot;Return the Jacobian matrix for mean cross-entropy.
 
-&lt;p&gt;We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.&lt;/p&gt;
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape holding gradients as rows
+    &quot;&quot;&quot;
+    return -(1 / y.shape[0]) * (y / s)
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h2 id=&quot;error-at-input-to-softmax-layer-for-batch&quot;&gt;Error at input to softmax layer for batch&lt;/h2&gt;
+&lt;hr /&gt;
+
+&lt;p&gt;We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product. Multiplying a matrix against a tensor is difficult. One approach is to flatten everything, do a vector-matrix product as before, and then reshape everything, but this is not elegant or intuitive. Instead, we dot rows of &lt;script type=&quot;math/tex&quot;&gt;\mathbf J_{\mathbf S}(H)&lt;/script&gt;, each a gradient of a row-wise cross-entropy, against diagonal elements of &lt;script type=&quot;math/tex&quot;&gt;\mathbf J_{\mathbf X}(\mathbf S)&lt;/script&gt;, each a Jacobian matrix of a row-wise softmax.&lt;/p&gt;
+
+&lt;p&gt;We are able to do this because of the fact that &lt;script type=&quot;math/tex&quot;&gt;\mathbf J_{\mathbf X}(\mathbf S)&lt;/script&gt; is diagonal, which breaks the matrix-tensor product into an element-wise dot product of gradients and Jacobians. We owe this entirely to the fact that softmax is a row-to-row transformation, such that its Jacobian tensor is diagonal.&lt;/p&gt;
 
 &lt;script type=&quot;math/tex; mode=display&quot;&gt; \begin{aligned}
 \mathbf J_{\mathbf X}(H)
@@ -479,7 +636,29 @@ H(\mathbf y, \mathbf s) = - \frac{1}{m} \mathbf y \log \mathbf s^\top
 &amp;= \frac{1}{m} \Big(\mathbf S - \mathbf Y\Big)
 \end{aligned} &lt;/script&gt;
 
-&lt;p&gt;So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch. &lt;script type=&quot;math/tex&quot;&gt;\quad \square&lt;/script&gt;&lt;/p&gt;
+&lt;p&gt;Where the third step followed by the fact that &lt;script type=&quot;math/tex&quot;&gt;J_{\mathbf X}(\mathbf S)&lt;/script&gt; is diagonal. So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;error-at-input-to-softmax-layer-for-batch-in-python&quot;&gt;Error at input to softmax layer for batch in Python&lt;/h3&gt;
+
+&lt;pre class=&quot;prettyprint&quot;&gt;
+def batch_error_softmax_input(y, s):
+    &quot;&quot;&quot;Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape
+    &quot;&quot;&quot;
+    return (1 / y.shape[0]) * (S - Y)
+&lt;/pre&gt;
+
+&lt;p&gt;&lt;br /&gt; &lt;br /&gt;&lt;/p&gt;
 </content>
 		</entry>
 	

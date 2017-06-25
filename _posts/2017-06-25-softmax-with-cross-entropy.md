@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Softmax with cross-entropy"
-date: 2017-06-23
+date: 2017-06-25
 header: true
 footer: true
 comments: true
@@ -10,48 +10,12 @@ tags: backpropogation, matrix calculus, softmax, cross-entropy, neural networks,
 
 A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. _We use row vectors and row gradients_, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.
 
-<br>
-## Main results
----
 
-Softmax of a row vector:
 
-<script type="math/tex; mode=display">
-s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
-</script>
-
-Softmax of a matrix is the softmax of its rows:
-
-<script type="math/tex; mode=display">
-\mathbf S =              \begin{bmatrix}
-\mathbf s(\mathbf x_1)   \\[0.6em]
-\mathbf s(\mathbf x_2)   \\[0.6em]
-        ...              \\[0.6em]
-\mathbf s(\mathbf x_m)   \end{bmatrix}
-</script>
-
-Back-propogating error at the weighted input to the softmax layer for cross-entropy cost:
-
-<script type="math/tex; mode=display">
-\mathbf s(\mathbf x) - \mathbf y
-</script>
-
-__Note:__ Cross-entropy is equivalent to negative log likelihood when using one-hot labels, and the above result will still hold.
-
-For a mini-batch we have
-
-<script type="math/tex; mode=display">
-\frac{1}{m} (\mathbf S - \mathbf Y)
-</script>
-
-where the rows of $$\mathbf Y$$ are our one-hot true labels, and the rows of $$\mathbf S$$ are softmax distributions.
-
-<br>
-## Derivation of main results
----
 
 <br>
 ## Softmax
+---
 
 Softmax is a vector-to-vector transformation that turns a row vector
 
@@ -73,7 +37,7 @@ s(\mathbf x)_2 \ \,
 s(\mathbf x)_n \end{bmatrix}
 </script>
 
-The transformation is described element-wise, where the $$i$$th output $$s(\mathbf x)_i$$ is a function of the entire input $$\mathbf x$$, and is given by
+The transformation is easiest to describe element-wise. The $$i$$th output $$s(\mathbf x)_i$$ is a function of the entire input $$\mathbf x$$, and is given by
 
 <script type="math/tex; mode=display">
 s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
@@ -84,16 +48,54 @@ Softmax is nice because it turns $$\mathbf x$$ into a probability distribution.
 * Each element $$s(\mathbf x)_i$$ is between $$0$$ and $$1$$.
 * The elements $$s(\mathbf x)_i$$ sum to $$1$$.
 
+<br>
+### Invariance to scaling
+
+Softmax is invariant to additively scaling $$\mathbf x$$ by a constant $$c$$.
+
+<script type="math/tex; mode=display"> \begin{aligned}
+s(\mathbf x + c)_i &= \frac{e^{x_i + c}}{\sum e^{x_j + c}}       \\[1.6em]
+                   &= \frac{e^{x_i}e^c}{\sum e^{x_j}e^c}         \\[1.6em]
+                   &= \frac{e^{x_i}}{\sum e^{x_j}}
+\end{aligned} </script>
+
+In other words, softmax only cares about the relative differences in the elements of $$\mathbf x$$. That means we can protect softmax from overflow by subtracting the maximum element of $$\mathbf x$$ from every element of $$\mathbf x$$. This will also protect against underflow because the denominator will contain a sum of non-negative terms, one of which is $$e^{x_\text{max} - x_\text{max}} = 1$$.
+
+<br>
+### Softmax in Python
+
+<pre class="prettyprint">
+def softmax(x):
+    """Return the softmax of a vector x.
+    
+    :type x: ndarray
+    :param x: vector input
+    
+    :returns: ndarray of same length as x
+    """
+    x = x - np.max(x)
+    row_sum = np.sum(np.exp(x))
+    return np.array([np.exp(x_i) / row_sum for x_i in x])
+</pre>
+
+
+
+
 
 <br>
 ## Jacobian of softmax
+---
 
-Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s_i$$, and a column for each input element $$x_j$$. The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll compute row $$i$$ of the Jacobian, which is the gradient of output element $$s_i$$ with respect to each of its input elements $$x_j$$.
+Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element $$s_i$$, and a column for each input element $$x_j$$.
+
+<center><img src='/images/softmax-cross-entropy/jacobian-softmax.png' style='width: 40%;object-fit: contain'/></center>
+
+The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We'll show how to compute these entries for an arbitrary row $$i$$ of the Jacobian.
 
 <br>
 ### Diagonal row entry
 
-First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$i$$'th input, $$x_i$$. All we need is the division rule from calculus.
+First compute the diagonal entry of row $$i$$. That is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$i$$'th input, $$x_i$$. All we need is the division rule from calculus.
 
 <script type="math/tex; mode=display">
 \begin{aligned}
@@ -106,7 +108,7 @@ First compute the diagonal entry of row $$i$$ of the Jacobian, that is, compute 
 <br>
 ### Off-diagonal row entries
 
-Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$. Again we use the division rule, but in this case the derivative of the numerator, $$e^{x_i}$$ with respect to $$x_j$$ is zero, because $$j \neq i$$ means the numerator is constant with respect to $$x_j$$.
+Now compute every off-diagonal entry of row $$i$$. That is, compute the derivative of the $$i$$'th output, $$s_i$$, with respect to its $$j$$'th input, $$x_j$$, where $$j \neq i$$. Again we use the division rule, but in this case the derivative of the numerator, $$e^{x_i}$$ with respect to $$x_j$$ is zero, because $$j \neq i$$ means the numerator is constant with respect to $$x_j$$.
 
 <script type="math/tex; mode=display">
 \begin{aligned}
@@ -116,7 +118,9 @@ Now compute every off-diagonal entry of row $$i$$ of the Jacobian, that is, comp
 \end{aligned}
 </script>
 
-This is nice! The derivative of softmax is always phrased in terms of softmax. From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. Instead we'll write $$\mathbf s(\mathbf x)$$ as $$\mathbf s$$ and $$s(\mathbf x)_i$$ as $$s_i$$, understanding that $$\mathbf s$$ and $$s_i$$ are each a function of the entire vector $$\mathbf x$$.
+This is nice! The derivative of softmax is always phrased in terms of softmax.
+
+From now on, to keep things clear, we won't write dependence on $$\mathbf x$$. Instead we'll write $$\mathbf s(\mathbf x)$$ as $$\mathbf s$$ and $$s(\mathbf x)_i$$ as $$s_i$$, understanding that $$\mathbf s$$ and $$s_i$$ are each a function of the entire vector $$\mathbf x$$.
 
 <br>
 ### Full Jacobian
@@ -140,9 +144,28 @@ Notice that we can express this matrix as
 
 where the second term is the $$n \times n$$ outer product, because we defined $$\mathbf s$$ as a row vector.
 
+<br>
+### Jacobian of softmax in Python
+
+<pre class="prettyprint">
+def jacobian_softmax(s):
+    """Return the Jacobian matrix of softmax vector s.
+
+    :type s: ndarray
+    :param s: vector input
+
+    :returns: ndarray of shape (len(s), len(s))
+    """
+    return np.diag(s) - np.outer(s, s)
+</pre>
+
+
+
+
 
 <br>
 ## Cross-entropy
+---
 
 Cross-entropy measures the difference between two probability distributions. We saw that $$\mathbf s$$ is a distribution. The correct class is also a distribution if we encode it as a one-hot vector:
 
@@ -153,11 +176,11 @@ Cross-entropy measures the difference between two probability distributions. We 
         ...  \ \,
         y_n  \end{bmatrix} \\[1.1em]
 &=  \begin{bmatrix}
-0   \ \,
-0   \ \,
-... \ \,
-1   \ \,
-... \ \,
+0   \ \ \,
+0   \ \ \,
+... \ \ \,
+1   \ \ \,
+... \ \ \,
 0   \end{bmatrix}
 \end{aligned} </script>
 
@@ -175,9 +198,35 @@ H(\mathbf y, \mathbf s)
 
 which is the dot product since we're using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.
 
+<br>
+### Cross-entropy in Python
+
+<pre class="prettyprint">
+def cross_entropy(y, s):
+    """Return the cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: scalar cost
+    """
+    # Naively computes log(s_i) even when y_i = 0
+    # return -y.dot(np.log(s))
+    
+    # Efficient, but assumes y is one-hot
+    return -np.log(s[np.where(y)])
+</pre>
+
+
+
+
 
 <br>
 ## Gradient of cross-entropy
+---
 
 Since our $$\mathbf y$$ is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise $$\log$$ and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it's applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of a dot product, being a linear operation, is just the vector $$\mathbf y$$.
 
@@ -193,9 +242,28 @@ Since our $$\mathbf y$$ is given and fixed, cross-entropy is a vector-to-scalar 
 
 where we used equation (69) of [the matrix cookbook](http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf) for the derivative of the dot product.
 
+<br>
+### Gradient of cross-entropy in Python
+
+<pre class="prettyprint">
+def gradient_cross_entropy(y, s):
+    """Return the gradient of cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    """
+    return -y / s
+</pre>
+
 
 <br>
-## Finishing up with the chain rule
+## Error at input to softmax layer
+---
 
 By the chain rule, the sensitivity of cost $$H$$ to the input to the softmax layer, $$\mathbf x$$, is given by a gradient-Jacobian product, each of which we've already computed:
 
@@ -220,7 +288,31 @@ The last line follows from the fact that $$\mathbf y$$ was one-hot and applied t
 
 
 <br>
-## Now with a batch of examples
+### Error at input to softmax layer in Python
+
+<pre class="prettyprint">
+def error_softmax_input(y, s):
+    """Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    """
+    return s - y
+</pre>
+
+
+
+
+
+
+
+<br>
+# Now with a batch of examples
 ---
 Our work thus far considered a single example. Hence $$\mathbf x$$, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of $$m$$ examples, then $$\mathbf X$$ contains a row vector for each example in the minibatch.
 
@@ -233,8 +325,12 @@ Our work thus far considered a single example. Hence $$\mathbf x$$, our input to
 </script>
 
 
+
+
+
 <br>
-## Softmax
+## Batch softmax
+---
 
 Softmax is still a vector-to-vector transformation, but it's applied independently to each row of $$\mathbf X$$.
 
@@ -246,9 +342,34 @@ Softmax is still a vector-to-vector transformation, but it's applied independent
 \mathbf s(\mathbf x_m)   \end{bmatrix} \sim m \times n
 </script>
 
+<br>
+### Batch softmax in Python
+<pre class="prettyprint">
+def batch_softmax(x):
+    """Return matrix of row-wise softmax of x.
+
+    :type x: ndarray
+    :param x: row per example and column per feature
+
+    :returns: ndarray of x.shape after row-wise softmax
+    """
+    # Stabilize by subtracting row max from each row
+    row_maxes = np.max(x, axis=1)
+    row_maxes = row_maxes[:, np.newaxis]  # for broadcasting
+    x = x - row_maxes
+
+    return np.array([softmax(row) for row in x])
+</pre>
+
+
+
+
+
 
 <br>
-## Jacobian of softmax
+## Jacobian of batch softmax
+---
+
 Because rows are independently mapped, the Jacobian of row $$i$$ of $$\mathbf S$$ with respect to row $$j \neq i$$ of $$\mathbf X$$ is a zero matrix.
 
 <script type="math/tex; mode=display">
@@ -272,7 +393,29 @@ That means our grand Jacobian of $$\mathbf S$$ with respect to $$\mathbf X$$ is 
 \end{bmatrix} </script>
 
 <br>
-## Cross-entropy
+### Jacobian of batch softmax in Python
+
+<pre class="prettyprint">
+def jacobian_batch_softmax(s):
+    """Return array of row-wise Jacobians of s.
+
+    :type s: ndarray
+    :param s: matrix whose rows are softmaxed
+
+    :returns: ndarray of shape
+              (s.shape[0], s.shape[0], s.shape[1], s.shape[1])
+    """
+    # Array of nonzero Jacobians lying along tensor diagonal
+    return np.array([jacobian_softmax(row) for row in s])
+</pre>
+
+
+
+
+
+<br>
+## Mean cross-entropy of batch
+---
 
 Let each row of $$\mathbf Y$$ be a one-hot label for an example:
 
@@ -297,7 +440,29 @@ The above simplification works because each row of $$\mathbf S$$ is $$\mathbf s_
 __Note:__ this formulation is computationally wasteful. We shouldn't implement batch cross-entropy this way in a computer. We're only using it for its analytic simplicity to work out the backpropogating error. However, the end analytic result is actually computationally efficient.
 
 <br>
-## Jacobian of cross-entropy
+### Mean cross-entropy of batch in Python
+<pre class="prettyprint">
+def mean_cross_entropy(y, s):
+    """Return the mean row-wise cross-entropy of y and s.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: scalar, mean row-wise cross-entropy cost
+    """
+    return np.mean([cross_entropy(y_row, s_row)
+                    for y_row, s_row in zip(y, s)])
+</pre>
+
+
+<br>
+## Jacobian of mean cross-entropy of batch
+---
 
 Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to $$\mathbf S$$ will be a matrix.
 
@@ -370,10 +535,37 @@ Now since $$\mathbf y$$ and $$\mathbf s$$ are each of length $$m \cdot n$$, we c
 
 and we have our result. $$\square$$
 
-<br>
-## Finishing up with the chain rule
 
-We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product.
+<br>
+### Jacobian of mean cross-entropy of batch in Python
+<pre class="prettyprint">
+def jacobian_mean_cross_entropy(y, s):
+    """Return the Jacobian matrix for mean cross-entropy.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape holding gradients as rows
+    """
+    return -(1 / y.shape[0]) * (y / s)
+</pre>
+
+
+
+
+
+<br>
+## Error at input to softmax layer for batch
+---
+
+We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product. Multiplying a matrix against a tensor is difficult. One approach is to flatten everything, do a vector-matrix product as before, and then reshape everything, but this is not elegant or intuitive. Instead, we dot rows of $$\mathbf J_{\mathbf S}(H)$$, each a gradient of a row-wise cross-entropy, against diagonal elements of $$\mathbf J_{\mathbf X}(\mathbf S)$$, each a Jacobian matrix of a row-wise softmax.
+
+We are able to do this because of the fact that $$\mathbf J_{\mathbf X}(\mathbf S)$$ is diagonal, which breaks the matrix-tensor product into an element-wise dot product of gradients and Jacobians. We owe this entirely to the fact that softmax is a row-to-row transformation, such that its Jacobian tensor is diagonal.
 
 <script type="math/tex; mode=display"> \begin{aligned}
 \mathbf J_{\mathbf X}(H)
@@ -403,4 +595,26 @@ We apply the chain rule just as before. The only difference is that our gradient
 &= \frac{1}{m} \Big(\mathbf S - \mathbf Y\Big)
 \end{aligned} </script>
 
-So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch. $$\quad \square$$
+Where the third step followed by the fact that $$J_{\mathbf X}(\mathbf S)$$ is diagonal. So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch.
+
+<br>
+### Error at input to softmax layer for batch in Python
+
+<pre class="prettyprint">
+def batch_error_softmax_input(y, s):
+    """Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape
+    """
+    return (1 / y.shape[0]) * (S - Y)
+</pre>
+
+<br> <br>
