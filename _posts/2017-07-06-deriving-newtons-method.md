@@ -92,7 +92,7 @@ and exploiting the fact that the Hessian is symmetric such that $$H^\top = H$$
 <br>
 ### Setting the gradient to zero
 
-So this is the gradient of our quadratic approximation of our cost function $$J(\theta)$$ when evaluated at our current parameter setting $$\theta_0$$. If we set this equation equal to zero and solve for $$\theta$$ we get the new parameter setting that sets our gradient equal to zero when exploiting 
+So this is the gradient of our quadratic approximation of our cost function $$J(\theta)$$ when evaluated at our current parameter setting $$\theta_0$$. If we set this equation equal to zero and solve for $$\theta$$ we get the new parameter setting that sets our gradient equal to zero assuming that our quadratic approximation is valid up until that point:
 <script type="math/tex; mode=display">
 \begin{aligned}
 \nabla J(\theta_0) + H(\theta - \theta_0) := 0 \\[1.6em]
@@ -102,7 +102,6 @@ H \theta  = H \theta_0 - \nabla J(\theta_0) \\[1.6em]
 \end{aligned}
 </script>
 
-So taking one Newton step puts us at a point of zero gradient, to the extent that our actual cost function reflects a quadratic function such that our second-order approximation is a good one. 
 
 <br>
 ## Conclusion
