@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- meta.html -->
+    <!-- Set character encoding for the document -->
+    <meta charset="utf-8">
+    <!-- Something about IE -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Make the site fit to different screens -->
+    <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- For web crawlers -->
+    <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+    <meta name="rating" content="General">  <!-- check my site age -->
+    <meta name="subject" content="Deep learning and neural networks">
+    <meta name=”description” content=”A blog about deep learning and neural networks”>
+    <title>Deriving Newton's Method</title> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!-- end meta.html -->
+
+
+    <!-- analytics.html -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-38506466-1', 'jmcglone.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- end analytics.html -->
+
+
+    <!-- favicons.html -->
+    <!-- For old, favicon.ico in root (16x16, 32x32, 48x48) -->
+    <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
+    <link rel="icon" href="/images/favicons/favicon-16.png" sizes="16x16" type="image/png">  
+    <link rel="icon" href="/images/favicons/favicon-32.png" sizes="32x32" type="image/png">
+    <!-- For phone home screen shortcuts -->
+    <link rel="icon" href="/images/favicons/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-57.png" sizes="57x57" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-62.png" sizes="62x62" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-76.png" sizes="76x76" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-120.png" sizes="120x120" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-128.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-144.png" sizes="144x144" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-152.png" sizes="152x152" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-180.png" sizes="180x180" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-195.png" sizes="195x195" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-196.png" sizes="196x196" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-228.png" sizes="228x228" type="image/png">
+    <!-- For windows live tiles -->
+    <link rel="icon" href="/images/favicons/smalltile.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/mediumtile.png" sizes="270x270" type="image/png">
+    <link rel="icon" href="/images/favicons/widetile.png" sizes="558x270" type="image/png">
+    <link rel="icon" href="/images/favicons/largetile.png" sizes="558x558" type="image/png">
+    <!--  end favicons.html -->
+
+
+    <!-- author.html -->
+    <link rel="author" href="humans.txt">
+    <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+    <link rel="me" href="mailto:peterm0273@gmail.com">
+    <!-- end author.html -->
+
+</head>
+
+<body>
+
+    <!-- header.html -->
+    <div class="header">
+        <header>
+            <nav>
+                <ul>
+            	   <li><a href="/">Home</a></li>
+            	   <li><a href="/about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <!-- end header.html -->
+
+
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <!-- Post header -->
+    <h1>Deriving Newton's Method</h1>
+    <p class="postdate">Posted on July 6, 2017</p>
+    <p class="posttags">optimization, Newton's method, Taylor series, quadratic approximation </p>
+    <hr>
+
+<!-- Post content -->
+<p>This post and others are heavily inspired by Goodfellow’s Deep Learning <a href="http://www.deeplearningbook.org">book</a>. Newton’s method is just a smarter version of gradient descent. Let <script type="math/tex">J(\theta)</script> be our cost function. Gradient descent follows the gradient directly downhill from the previous point:</p>
+
+<script type="math/tex; mode=display">
+\theta_k = \theta_{k-1} - \nabla J(\theta_{k-1}) \quad \text{SGD}
+</script>
+
+<p>There’s one problem. The direction pointing directly downhill changes as we move.</p>
+
+<center><img src="http://trond.hjorteland.com/thesis/img208.gif" style="width:60%;object-fit: contain" /></center>
+
+<p>Newton’s avoids this wasteful naivety by considering how the gradient will change as we move. Since the Hessian is the gradient of the gradient, we just left-multiply our step by the inverse Hessian:</p>
+
+<script type="math/tex; mode=display">
+\theta_k = \theta_{k-1} - H^{-1} \nabla J(\theta_{k-1}) \quad \text{Newton's}
+</script>
+
+<p>So Newton’s just rescales each element of the gradient by the weighted sum of its second derivatives. We can derive Newton’s method with a few lines of calculus.</p>
+
+<p><br /></p>
+<h2 id="taylor-approximation">Taylor approximation</h2>
+
+<p>Remember that the Taylor polynomial approximates a function from the perspective of a given point. Here’s a GIF showing how the Taylor polynomial matches more and more of <script type="math/tex">\sin(x)</script> as we add terms, from the perspective of <script type="math/tex">x = 0</script>.</p>
+
+<center><img src="http://mathforum.org/mathimages/imgUpload/thumb/Taylor_Main.gif/400px-Taylor_Main.gif" style="width:40%;object-fit: contain" /></center>
+
+<p>Well, it takes a <em>lot</em> of terms. You’ll be surprised to hear that in a lot of optimization we only use two terms. Yeah, this is a bad approximation, but it works as long as we don’t move too far. Besides, after we move, we’ll make a new Taylor approximation from our new point, which will suit us for another small move from there.</p>
+
+<p><br /></p>
+<h2 id="deriving-newtons-from-the-taylor-expansion">Deriving Newton’s from the Taylor expansion</h2>
+
+<p>If we look at the second-order Taylor polynomial from the perspective of <script type="math/tex">\theta_0</script>, we have</p>
+
+<script type="math/tex; mode=display">
+J(\theta_0) + (\theta - \theta_0) \nabla J(\theta_0) + \frac{1}{2} (\theta - \theta_0) H (\theta - \theta_0)^\top
+</script>
+
+<p>This approximates our cost function <script type="math/tex">J(\theta)</script>, as long as we don’t move too far from our perspective point <script type="math/tex">\theta_0</script>. Since we’re trying to minimize our cost, we’ll set its gradient equal to zero. That means, in one step, we’ll move in the direction and distance that gets us to a flat gradient, assuming our quadratic approximation is accurate up until that point. This assumption can be good or bad. In deep learning it can end up jumping us to saddle points. A quick note: we’re using column gradients below, so <script type="math/tex">(\theta - \theta_0)^\top</script> is a row vector which forms a dot product with <script type="math/tex">J(\theta_0)</script>.</p>
+
+<p><br /></p>
+<h3 id="finding-the-gradient">Finding the gradient</h3>
+
+<p>The gradient of the second-order Taylor approximation of the cost function is
+<script type="math/tex; mode=display">
+\nabla \left[ J(\theta_0) + (\theta - \theta_0)^\top \nabla J(\theta_0) + \frac{1}{2} (\theta - \theta_0)^\top H (\theta - \theta_0) \right]
+</script>
+and by linearity of the gradient operator
+<script type="math/tex; mode=display">
+\nabla J(\theta_0) + \nabla \left[ (\theta - \theta_0)^\top \nabla J(\theta_0) \right] + \frac{1}{2} \nabla \left[ (\theta - \theta_0)^\top H (\theta - \theta_0) \right]
+</script>
+The first term is zero since <script type="math/tex">\theta_0</script> is fixed and we’re taking the gradient with respect to <script type="math/tex">\theta</script>.</p>
+
+<p>By linearity of transpose
+<script type="math/tex; mode=display">
+\nabla \left[ (\theta^\top - \theta_0^\top) \nabla J(\theta_0) \right] + \frac{1}{2} \nabla \left[ (\theta^\top - \theta_0^\top) H (\theta - \theta_0) \right]
+</script>
+and linearity of matrix product
+<script type="math/tex; mode=display">
+\nabla \left[ \theta^\top \nabla J(\theta_0) - \theta_0^\top \nabla J(\theta_0)  \right] + \frac{1}{2} \nabla \left[ \theta^\top H (\theta - \theta_0) - \theta_0^\top H (\theta - \theta_0) \right]
+</script>
+and again upon the right side
+<script type="math/tex; mode=display">
+\nabla \left[ \theta^\top \nabla J(\theta_0) - \theta_0^\top \nabla J(\theta_0)  \right] + \frac{1}{2} \nabla \left[\theta^\top H \theta - \theta^\top H \theta_0 - \theta_0^\top H \theta + \theta_0^\top H \theta_0 \right]
+</script>
+Distributing and applying the gradient operators gives
+<script type="math/tex; mode=display">
+\nabla J(\theta_0) + \frac{1}{2} \left[2 H \theta - H \theta_0 - (\theta_0^\top H)^\top + 0 \right]
+</script>
+and distributing the transpose across the product
+<script type="math/tex; mode=display">
+\nabla J(\theta_0) + \frac{1}{2} \left[2 H \theta - H \theta_0 - H^
+\top \theta_0 \right]
+</script>
+and exploiting the fact that the Hessian is symmetric such that <script type="math/tex">H^\top = H</script>
+<script type="math/tex; mode=display">
+\begin{aligned}
+\nabla J(\theta_0) + \frac{1}{2} \left[2 H \theta - 2 H \theta_0 \right] \\[1.6em]
+\nabla J(\theta_0) + H(\theta - \theta_0)
+\end{aligned}
+</script></p>
+
+<p><br /></p>
+<h3 id="setting-the-gradient-to-zero">Setting the gradient to zero</h3>
+
+<p>So this is the gradient of our quadratic approximation of our cost function <script type="math/tex">J(\theta)</script> when evaluated at our current parameter setting <script type="math/tex">\theta_0</script>. If we set this equation equal to zero and solve for <script type="math/tex">\theta</script> we get the new parameter setting that sets our gradient equal to zero when exploiting 
+<script type="math/tex; mode=display">
+\begin{aligned}
+\nabla J(\theta_0) + H(\theta - \theta_0) := 0 \\[1.6em]
+\nabla J(\theta_0) + H \theta - H \theta_0 = 0 \\[1.6em]
+H \theta  = H \theta_0 - \nabla J(\theta_0) \\[1.6em]
+\theta = \theta_0 - H^{-1} \nabla J(\theta_0)
+\end{aligned}
+</script></p>
+
+<p>So taking one Newton step puts us at a point of zero gradient, to the extent that our actual cost function reflects a quadratic function such that our second-order approximation is a good one.</p>
+
+<p><br /></p>
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Newton’s method is gradient descent where we scale the gradient by the inverse Hessian. This gives Newton’s foresight of how the gradient will change as we move, which lets us jump straight to the point where the gradient is zero if we so choose. A learning rate of <script type="math/tex">1</script> will make this happen. A learning rate less than <script type="math/tex">1</script> is more conservative.</p>
+
+<p>Newton’s has weakness. It will actually move uphill to a point of zero gradient, and that point could also be a saddle point rather than a local minimum. Additionally you have to use <script type="math/tex">O(n^2)</script> operations to compute the Hessian. There are ways to fix these weaknesses, known as <em>quasi-Newton methods</em>. We’ll explore these in future posts. <script type="math/tex">\quad \square</script></p>
+
+<p><br /></p>
+
+
+
+<!-- disqus.html -->
+<div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = "Deriving Newton's Method";
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
+</div>
+<!-- end disqus.html -->
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
+
+
+
+    <!-- footer.html -->
+    <div class="footer">
+        <footer>
+          <hr> <!-- Horizontal rule -->
+          <ul> <!-- Links to my other sites -->
+      	      <li><a href="mailto:peterm0273@gmail.com"
+                     title="peterm0273@gmail.com">email</a></li>
+      	      <li><a href="https://github.com/mattpetersen"
+                     title="github.com/mattpetersen">github</a></li>
+      	      <li><a href="https://twitter.com/mattpetersen_ai"
+                     title="twitter.com/mattpetersen_ai">twitter</a></li>
+          </ul>
+        </footer>
+    </div>
+    <!-- end footer.html -->
+
+
+</html>
