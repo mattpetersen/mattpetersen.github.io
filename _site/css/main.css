@@ -80,16 +80,11 @@ a:hover {
 @-ms-viewport{ /* IE 10 */
     width: device-width;
 }
-
 code {
     font-size: 1.0em;
-    color: red;
+    color: #d13232;  /* red */
 }
 pre.prettyprint { /* Remove border from pretty code blocks */
     font-size: 1.1em;
     border: 0px solid transparent !important;
 }
-
-
-
-
