@@ -11,7 +11,7 @@ comments: false
     <!-- List of blog posts fetched from '_posts/*.md' -->
     <ul>
         {% for post in site.posts %}
-            <li>{{ post.date | date: "%b %-d, %Y" }} »
+            <li>{{ post.date | date: "%b %d, %Y" }} »
             <a href="{{ post.url }}">{{ post.title }}</a></li>
         {% endfor %}
     </ul>

@@ -5,7 +5,7 @@
 <lastmod>2017-03-19T00:00:00-04:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/why-phds-work-for-free</loc>
+<loc>http://localhost:4000/our-overqualified-world</loc>
 <lastmod>2017-04-05T00:00:00-04:00</lastmod>
 </url>
 <url>
@@ -23,6 +23,18 @@
 <url>
 <loc>http://localhost:4000/deriving-newtons-method</loc>
 <lastmod>2017-07-06T00:00:00-04:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/another-cifar10-loader</loc>
+<lastmod>2017-07-26T00:00:00-04:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/another-mnist-loader</loc>
+<lastmod>2017-07-26T00:00:00-04:00</lastmod>
+</url>
+<url>
+<loc>http://localhost:4000/probability-theory</loc>
+<lastmod>2017-07-26T00:00:00-04:00</lastmod>
 </url>
 <url>
 <loc>http://localhost:4000/about/</loc>

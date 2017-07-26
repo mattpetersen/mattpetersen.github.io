@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Deriving Newton's Method"
+title: "Newton's method"
 date: 2017-07-06
 header: true
 footer: true

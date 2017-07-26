@@ -15,7 +15,7 @@
     <meta name="rating" content="General">  <!-- check my site age -->
     <meta name="subject" content="Deep learning and neural networks">
     <meta name=”description” content=”A blog about deep learning and neural networks”>
-    <title>Why PhD's work for free</title> 
+    <title>Another CIFAR-10 Loader</title> 
     <link rel="stylesheet" type="text/css" href="/css/main.css">
     <!-- end meta.html -->
 
@@ -93,64 +93,159 @@
     <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
 
     <!-- Post header -->
-    <h1>Why PhD's work for free</h1>
-    <p class="postdate">Posted on April 5, 2017</p>
-    <p class="posttags">economics, phd, jobs, wages, skills </p>
+    <h1>Another CIFAR-10 Loader</h1>
+    <p class="postdate">Posted on July 26, 2017</p>
+    <p class="posttags">python, cifar-10, urllib, tarfile </p>
     <hr>
 
 <!-- Post content -->
-<p>This is an informal post, so feel free to chime in with comments and corrections. I was talking with a friend last night about the shocking fact that welders and truckers often out-earn PhD holders. It was then that I realized something profound, which I think a lot of people overlook - <em>wages depend on scarcity, not skill</em>.</p>
-
-<p>This goes against our intuition, and for good reason. Throughout history, skilled labor was in short supply. Employers bargained against each other for those prestigious few who held advanced degrees, and this bargaining led to higher wages.</p>
-
-<p>In modern times the story is completely changing. With the entrance of China and India to the global stage, we’ve seen a glut of skilled labor worldwide. This glut has been expanded by the American mantra that children go to university, a decision that, historically, had always led to scarcer skills and higher wages. I’ll argue that this is no longer the case for a growing range of fields.</p>
-
-<h2 id="the-first-signs-of-an-education-epidemic">The first signs of an education epidemic</h2>
-
-<p>The glut of skilled labor first showed itself in the burgeoning unemployment of non-technical university graduates, those in arts and humanities. The problem has two sources. Firstly, universities have increased in number, and in enrollment. This is normal and follows market forces. Demand for university was high because graduates held scarce skills. Ballooning enrollment is simply the market acting to cure that scarcity.</p>
-
-<p>The second reason behind the unemployment of arts and humanities graduates is that learning and employing artistic skill is intrinsically rewarding, so these graduates are more susceptible to working for free. This blow is on top of already graduating from a field with higher natural enrollment due to its allure.</p>
-
-<p>The lesson is this. Having numerous intrinsically motivated peers is a recipe for low wages, and this effect is now happening in STEM.</p>
-
-<h2 id="the-latest-victim">The latest victim</h2>
-
-<p>My first encounter with the idea that STEM skills are entering a glut was at a regional data science competition in 2014. A professor told me about a colleague with a PhD in mathematical biology who was driving a semi truck. The pay was higher than jobs that employed his skill, and the solitude suited his personality.</p>
-
-<p>My second encounter was at a Goldman Sachs presentation at Columbia in 2015. The presenter said something quite harsh along the lines of</p>
-
-<p><em>You think your quantitative skills make you special? I can snap my fingers and have 10 pure math PhD’s from MIT lined up for unpaid internships with us. You have to be special beyond your technical skills.</em></p>
-
-<p>Survivorship bias has convinced many people that this glut doesn’t exist. When I met the data science team at eBay New York, it consisted of two PhD’s in physics who studied quantum properties of graphene, a PhD in number theory who studied spectral properties of matrices, and a PhD in computer science who studied machine learning. Their interviewing me means they’re at least open to hiring masters graduates, but teams like this are disproportionately doctorates.</p>
-
-<p>Aside from eBay, every data science team in New York that I’ve been blessed to meet has consisted entirely of fantastic PhD’s, and from top schools at that. This sounds like great news for the PhD job market. Unfortunately we’re only seeing the successful tip of the PhD iceberg. Statistics speak to <a href="http://www.sciencemag.org/careers/2016/06/fool-s-gold-phd-employment-data">a broader unemployment and underemployment of PhD’s at large</a>, although it’s hard to quantify the exact job market outcome of each of field of study.</p>
-
-<h2 id="historical-precedent">Historical precedent</h2>
-
-<p>This is not the first time that a glut of skilled labor has depressed wages. Over the past few decades, the music industry, at least among small musicians, has moved almost entirely to donations. Venues have closed, sales have slowed, and streaming has taken over. This unfortunate trend shares much in common with our glut in education.</p>
+<p>There are lots of CIFAR-10 loaders out there. This one…</p>
 
 <ul>
-  <li>Creating music is intrinsically rewarding.</li>
-  <li>Modern wealth affords unprecedented numbers of people to pursue it.</li>
+  <li>Does not unzip the CIFAR-10 tar file (leaner)</li>
+  <li>Loads straight into Numpy (faster)</li>
+  <li>Downloads the tar file automatically if missing (easier)</li>
 </ul>
 
-<p>These two forces have driven wages for musicians to virtual nonexistence, where small artists now survive mostly on <a href="https://www.patreon.com/">Patreon</a> donations.</p>
-
-<p>A second industry experiencing a glut of skilled workers is online content creation and curation. Blogs, <a href="https://medium.com/">Medium</a> articles, and YouTube personalities are doing for free what news anchors and writers used to make a salary doing. We can again identify our two core reagents driving wages to nonexistence among online content creators.</p>
+<p><strong>Install:</strong></p>
 
 <ul>
-  <li>Creating and curating online content is intrinsically rewarding.</li>
-  <li>Unprecedented numbers of people own the computers and time to do this.</li>
+  <li><code class="highlighter-rouge">pip install cifar10_web</code></li>
 </ul>
 
-<p>A case example is the increasing number of free online textbooks (see <a href="http://www.deeplearningbook.org/">Goodfellow 206</a> and <a href="https://sites.ualberta.ca/~szepesva/RLBook.html">Szepesvari 2013</a>) and <a href="http://distill.pub/">incredibly fantastic educational blogs</a>.</p>
+<p><strong>Usage:</strong></p>
 
-<p>The last historical precedent that I can point to is more recent - the plethora of online open-source code. GitHub is the finest example of the willingness of human beings to do labor for nothing more than intrinsic reward. If companies are able to profitably use open-source code, they have less reason to employ full time programmers.</p>
+<ul>
+  <li><code class="highlighter-rouge">
+train_images, train_labels, test_images, test_labels = cifar10(path=None, onehot=False)
+</code></li>
+</ul>
 
-<h2 id="in-summary">In summary</h2>
+<p><strong>Options:</strong></p>
 
-<p>Will programmers and mathematicians be the starving artists of tomorrow? Will every form of enjoyable human labor be eventually ground by economic forces toward subsistence wages? This seems to be the case, but perhaps I’m over-fitting to sparse examples. Most of my argument does rely on personal anecdotes after all. Let me know what you think, and if you’ve seen anything similar :)</p>
+<ul>
+  <li>
+    <p>If you leave <code class="highlighter-rouge">path</code> as <code class="highlighter-rouge">None</code>, it defaults to <code class="highlighter-rouge">/home/USER/data/cifar10/</code> or the Windows equivalent, which I believe is <code class="highlighter-rouge">C:\Users\USER\data\cifar10\</code>.</p>
+  </li>
+  <li>
+    <p>If the CIFAR-10 tar file is missing from <code class="highlighter-rouge">path</code>, it will be downloaded to <code class="highlighter-rouge">path</code>, and you’ll be told that’s happening.</p>
+  </li>
+  <li>
+    <p>If you set <code class="highlighter-rouge">onehot</code> to <code class="highlighter-rouge">True</code> then <code class="highlighter-rouge">train_labels</code> and <code class="highlighter-rouge">test_labels</code> will each be a matrix whose rows are onehot labels.</p>
+  </li>
+</ul>
 
+<p><strong>Speed:</strong></p>
+
+<ul>
+  <li>Loads in 3.5 seconds. Downloads and loads in 9.5 seconds.</li>
+</ul>
+
+<p><br /></p>
+<h2 id="source-code">Source code</h2>
+
+<hr />
+
+<pre class="prettyprint">
+"""Load from /home/USER/data/cifar10 or elsewhere; download if missing."""
+
+import tarfile
+import os
+from urllib.request import urlretrieve
+
+import numpy as np
+
+
+def cifar10(path=None, onehot=False):
+    """Return train_images, train_labels, test_images, test_labels.
+
+    :type path: str
+    :param path: path to folder containing mnist, default value
+                 is /home/USER/data/mnist or Windows equivalent
+
+    :type onehot: bool
+    :param onehot: return labels as matrices with onehot rows
+
+    :returns: train_images, train_labels, test_images, test_labels
+
+    Note:
+        Downloads to path any mnist files missing from path
+    """
+    def _onehot(integers):
+        """Return matrix whose rows are onehot encodings of integers."""
+        n_rows = integers.size
+        n_cols = integers.max() + 1
+        onehot = np.zeros((n_rows, n_cols), dtype='uint8')
+        onehot[np.arange(n_rows), integers] = 1
+        return onehot
+
+    url = 'https://www.cs.toronto.edu/~kriz/'
+    tar = 'cifar-10-binary.tar.gz'
+    files = ['cifar-10-batches-bin/data_batch_1.bin',
+             'cifar-10-batches-bin/data_batch_2.bin',
+             'cifar-10-batches-bin/data_batch_3.bin',
+             'cifar-10-batches-bin/data_batch_4.bin',
+             'cifar-10-batches-bin/data_batch_5.bin',
+             'cifar-10-batches-bin/test_batch.bin']
+
+    if path is None:
+        # Set path to home/USER/data/cifar10 or Windows equivalent
+        path = os.path.join(os.path.expanduser('~'), 'data', 'cifar10')
+
+    # Create path if it doesn't exist
+    os.makedirs(path, exist_ok=True)
+
+    # Download tarfile if missing
+    if tar not in os.listdir(path):
+        urlretrieve(''.join((url, tar)), os.path.join(path, tar))
+        print("Downloaded %s to %s" % (tar, path))
+
+    # Load data from tarfile
+    with tarfile.open(os.path.join(path, tar)) as tar_object:
+        # Each file contains 10,000 color images and 10,000 labels
+        fsize = 10000 * (32 * 32 * 3) + 10000
+
+        # There are 6 files (5 train and 1 test)
+        buffr = np.zeros(fsize * 6, dtype='uint8')
+
+        # Get members of tar corresponding to data files
+        # -- The tar contains README's and other extraneous stuff
+        members = [file for file in tar_object if file.name in files]
+
+        # Sort those members by name
+        # -- Ensures we load train data in the proper order
+        # -- Ensures that test data is the last file in the list
+        members.sort(key=lambda member: member.name)
+
+        # Extract data from members
+        for i, member in enumerate(members):
+            # Get member as a file object
+            f = tar_object.extractfile(member)
+            # Read bytes from that file object into buffr
+            buffr[i * fsize:(i + 1) * fsize] = np.frombuffer(f.read(), 'B')
+
+    # Parse data from buffer
+    # -- Examples are in chunks of 3,073 bytes
+    # -- First byte is label
+    # -- Next 32 * 32 * 3 = 3,072 bytes are its corresponding image
+    labels = buffr[::3073]
+    # Pixels are everything remaining after we delete the labels
+    pixels = np.delete(buffr, np.arange(0, buffr.size, 3073))
+    images = pixels.reshape(-1, 3072).astype('float32') / 255
+
+    train_images, test_images = images[:50000], images[50000:]
+    train_labels, test_labels = labels[:50000], labels[50000:]
+
+    if onehot:
+        train_labels = _onehot(train_labels)
+        test_labels = _onehot(test_labels)
+
+    return train_images, train_labels, test_images, test_labels
+</pre>
+
+<hr />
+
+<p><br /></p>
 
 
 
@@ -160,7 +255,7 @@
         /* Change these variables */
         var disqus_config = function () {
             this.page.url = 'https://mattpetersen.github.io/';
-            this.page.identifier = "Why PhD's work for free";
+            this.page.identifier = "Another CIFAR-10 Loader";
         };
         /* Don't edit below this line */
         (function() {
