@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- meta.html -->
+    <!-- Set character encoding for the document -->
+    <meta charset="utf-8">
+    <!-- Something about IE -->
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Make the site fit to different screens -->
+    <meta name="viewport" content="widh=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- For web crawlers -->
+    <meta name="robots" content="index,follow,noodp">  <!-- follow me -->
+    <meta name="rating" content="General">  <!-- check my site age -->
+    <meta name="subject" content="Deep learning and neural networks">
+    <meta name=”description” content=”A blog about deep learning and neural networks”>
+    <title>Load MNIST in 26 lines</title> 
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!-- end meta.html -->
+
+
+    <!-- analytics.html -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-38506466-1', 'jmcglone.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- end analytics.html -->
+
+
+    <!-- favicons.html -->
+    <!-- For old, favicon.ico in root (16x16, 32x32, 48x48) -->
+    <!-- For IE 11, Chrome, Firefox, Safari, Opera -->  
+    <link rel="icon" href="/images/favicons/favicon-16.png" sizes="16x16" type="image/png">  
+    <link rel="icon" href="/images/favicons/favicon-32.png" sizes="32x32" type="image/png">
+    <!-- For phone home screen shortcuts -->
+    <link rel="icon" href="/images/favicons/favicon-48.png" sizes="48x48" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-57.png" sizes="57x57" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-62.png" sizes="62x62" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-76.png" sizes="76x76" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-96.png" sizes="96x96" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-120.png" sizes="120x120" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-128.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-144.png" sizes="144x144" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-152.png" sizes="152x152" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-180.png" sizes="180x180" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-195.png" sizes="195x195" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-196.png" sizes="196x196" type="image/png">
+    <link rel="icon" href="/images/favicons/favicon-228.png" sizes="228x228" type="image/png">
+    <!-- For windows live tiles -->
+    <link rel="icon" href="/images/favicons/smalltile.png" sizes="128x128" type="image/png">
+    <link rel="icon" href="/images/favicons/mediumtile.png" sizes="270x270" type="image/png">
+    <link rel="icon" href="/images/favicons/widetile.png" sizes="558x270" type="image/png">
+    <link rel="icon" href="/images/favicons/largetile.png" sizes="558x558" type="image/png">
+    <!--  end favicons.html -->
+
+
+    <!-- author.html -->
+    <link rel="author" href="humans.txt">
+    <link rel="me" href="https://twitter.com/mattpetersen_ai" type="text/html">
+    <link rel="me" href="mailto:peterm0273@gmail.com">
+    <!-- end author.html -->
+
+</head>
+
+<body>
+
+    <!-- header.html -->
+    <div class="header">
+        <header>
+            <nav>
+                <ul>
+            	   <li><a href="/">Home</a></li>
+            	   <li><a href="/about">About</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+    <!-- end header.html -->
+
+
+    <!-- post.html -->
+    <!-- Import KaTeX (local) -->
+    <link rel="stylesheet" type="text/css" href="katex/katex.min.css">
+    <script type="text/javascript" src="katex/katex.min.js"></script>
+    <!-- Import jQuery (local) -->
+    <script type="text/javascript" src="jquery-3.1.1.min.js"></script>
+    <!-- Import code-prettify (github) -->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+
+    <!-- Post header -->
+    <h1>Load MNIST in 26 lines</h1>
+    <p class="postdate">Posted on July 26, 2017</p>
+    <p class="posttags">python, mnist, urllib, gzip, numpy, frombuffer </p>
+    <hr>
+
+<!-- Post content -->
+<p>Load MNIST into Python directly from the web. This is slower than loading from a local file (2.5 seconds vs. 0.5 seconds), but it’s short and pretty.</p>
+
+<p><br /></p>
+<h3 id="just-the-code">Just the code</h3>
+<hr />
+
+<pre class="prettyprint">
+from urllib.request import urlopen
+import gzip
+import numpy as np
+
+train_images_url = 'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz'
+train_labels_url = 'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz'
+test_images_url = 'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz'
+test_labels_url = 'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz'
+
+# Train labels
+with gzip.open(urlopen(train_labels_url)) as f:
+    train_labels = np.frombuffer(f.read(), '&gt;B', offset=8)
+
+# Test labels
+with gzip.open(urlopen(test_labels_url)) as f:
+    test_labels = np.frombuffer(f.read(), '&gt;B', offset=8)
+
+# Train images
+with gzip.open(urlopen(train_images_url)) as f:
+    train_images = np.frombuffer(f.read(), '&gt;B', offset=16)
+    train_images = train_images.astype('float16').reshape(-1, 784) / 255
+
+# Test images
+with gzip.open(urlopen(train_images_url)) as f:
+    test_images = np.frombuffer(f.read(), '&gt;B', offset=16)
+    test_images = test_images.astype('float16').reshape(-1, 784) / 255
+</pre>
+
+<hr />
+
+<p><br /></p>
+<h3 id="packages">Packages</h3>
+
+<ul>
+  <li><code class="highlighter-rouge">urlopen</code> - Use an online file like it’s local</li>
+  <li><code class="highlighter-rouge">gzip</code> - Open that online file</li>
+  <li><code class="highlighter-rouge">numpy</code> - Read data from that online file</li>
+</ul>
+
+<hr />
+
+<pre class="prettyprint">
+from urllib.request import urlopen
+import gzip
+import numpy as np
+</pre>
+
+<hr />
+
+<p><br /></p>
+<h3 id="urls">URL’s</h3>
+
+<hr />
+
+<pre class="prettyprint">
+train_images_url = 'http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz'
+train_labels_url = 'http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz'
+test_images_url = 'http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz'
+test_labels_url = 'http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz'
+</pre>
+
+<hr />
+
+<p><br /></p>
+<h3 id="labels">Labels</h3>
+
+<p>Use <code class="highlighter-rouge">gzip.open()</code> to read the tar file fetched from online by <code class="highlighter-rouge">urlopen()</code>, and then use <code class="highlighter-rouge">np.frombuffer()</code> to store the bytes returned by <code class="highlighter-rouge">f.read()</code>. We use <code class="highlighter-rouge">offset=8</code> because the first eight bytes of the file are descriptive: the first four are the magic number, which specifies the file format (i.e. whether the first byte is the biggest or smallest power of two), and the next four tell us how many labels are in the file. We don’t need either, so we just start reading after eight bytes. The data type <code class="highlighter-rouge">&gt;B</code> means big-endian bytes, so each label is a chunk of 8 bits, where the first bit is the largest power of two and the last bit is the smallest.</p>
+
+<hr />
+
+<pre class="prettyprint">
+# Train labels
+with gzip.open(urlopen(train_labels_url)) as f:
+    train_labels = np.frombuffer(f.read(), '&gt;B', offset=8)
+
+# Test labels
+with gzip.open(urlopen(test_labels_url)) as f:
+    test_labels = np.frombuffer(f.read(), '&gt;B', offset=8)
+</pre>
+
+<hr />
+
+<p><br /></p>
+<h3 id="images">Images</h3>
+
+<p>Same as labels, but now we start reading after 16 bytes of descriptors (magic number, number of images, image width, image height). We cast to 16-bit floats for memory efficiency (neural nets don’t need precision). We then reshape the pixels into flattened image vectors of size 28 * 28 = 784, where -1 specifies that the number of images will be inferred. Lastly we scale the pixel values to be within zero and one by dividing by the maximum pixel value of 255.</p>
+
+<hr />
+
+<pre class="prettyprint">
+# Train images
+with gzip.open(urlopen(train_images_url)) as f:
+    train_images = np.frombuffer(f.read(), '&gt;B', offset=16)
+    train_images = train_images.astype('float16').reshape(-1, 784) / 255
+
+# Test images
+with gzip.open(urlopen(train_images_url)) as f:
+    test_images = np.frombuffer(f.read(), '&gt;B', offset=16)
+    test_images = test_images.astype('float16').reshape(-1, 784) / 255
+</pre>
+
+<hr />
+
+<p><br /></p>
+
+
+
+<!-- disqus.html -->
+<div id="disqus_thread">
+    <script>
+        /* Change these variables */
+        var disqus_config = function () {
+            this.page.url = 'https://mattpetersen.github.io/';
+            this.page.identifier = "Load MNIST in 26 lines";
+        };
+        /* Don't edit below this line */
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://mattpetersen-github-io.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+
+    <noscript>
+        Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+    </noscript>
+</div>
+<!-- end disqus.html -->
+
+
+
+<script>
+$("script[type='math/tex']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<span class=\"inline-equation\">" + 
+           katex.renderToString(tex) +
+           "</span>";
+});
+
+$("script[type='math/tex; mode=display']").replaceWith(
+  function(){
+    var tex = $(this).text();
+    return "<div class=\"equation\">" + 
+           katex.renderToString("\\displaystyle "+tex) +
+           "</div>";
+});
+</script>
+
+<script>
+    txlist = document.getElementsByTagName("dtex");
+    for (var i = 0; i < txlist.length; i++) {
+        var tx = txlist[i];
+        var txtext = "\\displaystyle " + tx.textContent;
+        var html = katex.renderToString(txtext, tx, { displayMode: true });
+        html = "<div class='equation'>" + html 
+                   + "<span style='float:right'>(" + (i+1) + ")</span></div>";
+        tx.innerHTML = html;
+    }
+</script>
+
+<!-- /post.html -->
+
+
+
+    <!-- footer.html -->
+    <div class="footer">
+        <footer>
+          <hr> <!-- Horizontal rule -->
+          <ul> <!-- Links to my other sites -->
+      	      <li><a href="mailto:peterm0273@gmail.com"
+                     title="peterm0273@gmail.com">email</a></li>
+      	      <li><a href="https://github.com/mattpetersen"
+                     title="github.com/mattpetersen">github</a></li>
+      	      <li><a href="https://twitter.com/mattpetersen_ai"
+                     title="twitter.com/mattpetersen_ai">twitter</a></li>
+          </ul>
+        </footer>
+    </div>
+    <!-- end footer.html -->
+
+
+</html>

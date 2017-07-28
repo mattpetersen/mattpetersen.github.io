@@ -1,0 +1,570 @@
+<p>A matrix-calculus approach to deriving the sensitivity of cross-entropy cost to the weighted input to a softmax output layer. <em>We use row vectors and row gradients</em>, since typical neural network formulations let columns correspond to features, and rows correspond to examples. This means that the input to our softmax layer is a row vector with a column for each class.</p>
+
+<p><br /></p>
+<h2 id="softmax">Softmax</h2>
+<hr />
+
+<p>Softmax is a vector-to-vector transformation that turns a row vector</p>
+
+<script type="math/tex; mode=display">
+\mathbf x = \begin{bmatrix}
+x_1 \ \, 
+x_2 \ \,
+... \ \,
+x_n \end{bmatrix}
+</script>
+
+<p>into a normalized row vector</p>
+
+<script type="math/tex; mode=display">
+\mathbf s(\mathbf x) = \begin{bmatrix}
+s(\mathbf x)_1 \ \,
+s(\mathbf x)_2 \ \,
+...            \ \,
+s(\mathbf x)_n \end{bmatrix}
+</script>
+
+<p>The transformation is easiest to describe element-wise. The <script type="math/tex">i</script>th output <script type="math/tex">s(\mathbf x)_i</script> is a function of the entire input <script type="math/tex">\mathbf x</script>, and is given by</p>
+
+<script type="math/tex; mode=display">
+s(\mathbf x)_i = \frac{e^{x_i}}{\sum e^{x_j}}
+</script>
+
+<p>Softmax is nice because it turns <script type="math/tex">\mathbf x</script> into a probability distribution.</p>
+
+<ul>
+  <li>Each element <script type="math/tex">s(\mathbf x)_i</script> is between <script type="math/tex">0</script> and <script type="math/tex">1</script>.</li>
+  <li>The elements <script type="math/tex">s(\mathbf x)_i</script> sum to <script type="math/tex">1</script>.</li>
+</ul>
+
+<p><br /></p>
+<h3 id="invariance-to-scaling">Invariance to scaling</h3>
+
+<p>Softmax is invariant to additively scaling <script type="math/tex">\mathbf x</script> by a constant <script type="math/tex">c</script>.</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+s(\mathbf x + c)_i &= \frac{e^{x_i + c}}{\sum e^{x_j + c}}       \\[1.6em]
+                   &= \frac{e^{x_i}e^c}{\sum e^{x_j}e^c}         \\[1.6em]
+                   &= \frac{e^{x_i}}{\sum e^{x_j}}
+\end{aligned} </script>
+
+<p>In other words, softmax only cares about the relative differences in the elements of <script type="math/tex">\mathbf x</script>. That means we can protect softmax from overflow by subtracting the maximum element of <script type="math/tex">\mathbf x</script> from every element of <script type="math/tex">\mathbf x</script>. This will also protect against underflow because the denominator will contain a sum of non-negative terms, one of which is <script type="math/tex">e^{x_\text{max} - x_\text{max}} = 1</script>.</p>
+
+<p><br /></p>
+<h3 id="softmax-in-python">Softmax in Python</h3>
+
+<pre class="prettyprint">
+def softmax(x):
+    """Return the softmax of a vector x.
+    
+    :type x: ndarray
+    :param x: vector input
+    
+    :returns: ndarray of same length as x
+    """
+    x = x - np.max(x)
+    row_sum = np.sum(np.exp(x))
+    return np.array([np.exp(x_i) / row_sum for x_i in x])
+</pre>
+
+<p><br /></p>
+<h2 id="jacobian-of-softmax">Jacobian of softmax</h2>
+<hr />
+
+<p>Since softmax is a vector-to-vector transformation, its derivative is a Jacobian matrix. The Jacobian has a row for each output element <script type="math/tex">s_i</script>, and a column for each input element <script type="math/tex">x_j</script>.</p>
+
+<center><img src="/images/softmax-cross-entropy/jacobian-softmax.png" style="width: 40%;object-fit: contain" /></center>
+
+<p>The entries of the Jacobian take two forms, one for the main diagonal entry, and one for every off-diagonal entry. We’ll show how to compute these entries for an arbitrary row <script type="math/tex">i</script> of the Jacobian.</p>
+
+<p><br /></p>
+<h3 id="diagonal-row-entry">Diagonal row entry</h3>
+
+<p>First compute the diagonal entry of row <script type="math/tex">i</script>. That is, compute the derivative of the <script type="math/tex">i</script>‘th output, <script type="math/tex">s_i</script>, with respect to its <script type="math/tex">i</script>‘th input, <script type="math/tex">x_i</script>. All we need is the division rule from calculus.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_i}
+&= \frac{\sum_j e^{x_j} e^{x_i} - e^{x_i} e^{x_i}}{(\sum_j e^{x_j})^2} \\[1.6em]
+&= s(\mathbf x)_i - s(\mathbf x)_i^2
+\end{aligned}
+</script>
+
+<p><br /></p>
+<h3 id="off-diagonal-row-entries">Off-diagonal row entries</h3>
+
+<p>Now compute every off-diagonal entry of row <script type="math/tex">i</script>. That is, compute the derivative of the <script type="math/tex">i</script>‘th output, <script type="math/tex">s_i</script>, with respect to its <script type="math/tex">j</script>‘th input, <script type="math/tex">x_j</script>, where <script type="math/tex">j \neq i</script>. Again we use the division rule, but in this case the derivative of the numerator, <script type="math/tex">e^{x_i}</script> with respect to <script type="math/tex">x_j</script> is zero, because <script type="math/tex">j \neq i</script> means the numerator is constant with respect to <script type="math/tex">x_j</script>.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial s(\mathbf x)_i}{\partial x_j}
+&= \frac{\sum_j e^{x_j} \cdot 0 - e^{x_i} e^{x_j}}{(\sum_j e^{x_j})^2} \\[1.6em]
+&= - s(\mathbf x)_i s(\mathbf x)_j
+\end{aligned}
+</script>
+
+<p>This is nice! The derivative of softmax is always phrased in terms of softmax.</p>
+
+<p>From now on, to keep things clear, we won’t write dependence on <script type="math/tex">\mathbf x</script>. Instead we’ll write <script type="math/tex">\mathbf s(\mathbf x)</script> as <script type="math/tex">\mathbf s</script> and <script type="math/tex">s(\mathbf x)_i</script> as <script type="math/tex">s_i</script>, understanding that <script type="math/tex">\mathbf s</script> and <script type="math/tex">s_i</script> are each a function of the entire vector <script type="math/tex">\mathbf x</script>.</p>
+
+<p><br /></p>
+<h3 id="full-jacobian">Full Jacobian</h3>
+
+<p>The form of the off-diagonals tells us that the Jacobian of softmax is a symmetric matrix. This is nice because symmetric matrices have great numeric and analytic properties. We expand it below. Each row is a gradient of one output element <script type="math/tex">s_i</script> with respect to each of its input elements <script type="math/tex">x_j</script>.</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf x}(\mathbf s) = \begin{bmatrix}
+s_0 - s_0^2 &  -s_0 s_1   &    ...   &  -s_0 s_n     \\[0.6em]
+ -s_1 s_0   & s_1 - s_1^2 &    ...   &  -s_1 s_n     \\[0.6em]
+   ...      &    ...      &    ...   &    ...        \\[0.6em]
+ -s_n s_0   &  -s_n s_1   &    ...   & s_n - s_n^2   \end{bmatrix}
+</script>
+
+<p>Notice that we can express this matrix as</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf x}(\mathbf s)
+= \text{diag}(\mathbf s) - \mathbf s^\top \mathbf s
+</script>
+
+<p>where the second term is the <script type="math/tex">n \times n</script> outer product, because we defined <script type="math/tex">\mathbf s</script> as a row vector.</p>
+
+<p><br /></p>
+<h3 id="jacobian-of-softmax-in-python">Jacobian of softmax in Python</h3>
+
+<pre class="prettyprint">
+def jacobian_softmax(s):
+    """Return the Jacobian matrix of softmax vector s.
+
+    :type s: ndarray
+    :param s: vector input
+
+    :returns: ndarray of shape (len(s), len(s))
+    """
+    return np.diag(s) - np.outer(s, s)
+</pre>
+
+<p><br /></p>
+<h2 id="cross-entropy">Cross-entropy</h2>
+<hr />
+
+<p>Cross-entropy measures the difference between two probability distributions. We saw that <script type="math/tex">\mathbf s</script> is a distribution. The correct class is also a distribution if we encode it as a one-hot vector:</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+\mathbf y &= \begin{bmatrix}
+        y_1  \ \,
+        y_2  \ \,
+        ...  \ \,
+        y_n  \end{bmatrix} \\[1.1em]
+&=  \begin{bmatrix}
+0   \ \ \,
+0   \ \ \,
+... \ \ \,
+1   \ \ \,
+... \ \ \,
+0   \end{bmatrix}
+\end{aligned} </script>
+
+<p>where the <script type="math/tex">1</script> appears at the index of the correct class of this single example.</p>
+
+<p>The cross-entropy between our predicted distribution over classes, <script type="math/tex">\mathbf s</script>, and the true distribution over classes, <script type="math/tex">\mathbf y</script>, is a scalar measure of their difference, which is perfect for a cost function. It’ll drive our softmax distribution toward the one-hot distribution. We can write this cost function as</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+H(\mathbf y, \mathbf s)
+&= -\sum_{i=1}^n y_i \log s_i \\[1.6em] 
+&= -\mathbf y \log \mathbf s^\top
+\end{aligned}
+</script>
+
+<p>which is the dot product since we’re using row vectors. This formula comes from information theory. It measures the information gained about our softmax distribution when we sample from our one-hot distribution.</p>
+
+<p><br /></p>
+<h3 id="cross-entropy-in-python">Cross-entropy in Python</h3>
+
+<pre class="prettyprint">
+def cross_entropy(y, s):
+    """Return the cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: scalar cost
+    """
+    # Naively computes log(s_i) even when y_i = 0
+    # return -y.dot(np.log(s))
+    
+    # Efficient, but assumes y is one-hot
+    return -np.log(s[np.where(y)])
+</pre>
+
+<p><br /></p>
+<h2 id="gradient-of-cross-entropy">Gradient of cross-entropy</h2>
+<hr />
+
+<p>Since our <script type="math/tex">\mathbf y</script> is given and fixed, cross-entropy is a vector-to-scalar function of only our softmax distribution. That means it will have a gradient with respect to our softmax distribution. This vector-to-scalar cost function is actually made up of two steps: (1) a vector-to-vector element-wise <script type="math/tex">\log</script> and (2) a vector-to-scalar dot product. The vector-to-vector logarithm will have a Jacobian, but since it’s applied element-wise, the Jacobian will be diagonal, holding each elementwise derivative. The gradient of a dot product, being a linear operation, is just the vector <script type="math/tex">\mathbf y</script>.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\nabla_{\mathbf s} H 
+&= -\nabla_{\mathbf s} \mathbf y \log \mathbf s^\top                \\[1.6em]
+&= -\mathbf y \nabla_{\mathbf s} \log \mathbf s                     \\[1.1em]
+&= -\mathbf y \ \text{diag}\left(\frac{\mathbf 1}{\mathbf s}\right) \\[1.6em]
+&= -\frac{\mathbf y}{\mathbf s}
+\end{aligned}
+</script>
+
+<p>where we used equation (69) of <a href="http://www2.imm.dtu.dk/pubdb/views/edoc_download.php/3274/pdf/imm3274.pdf">the matrix cookbook</a> for the derivative of the dot product.</p>
+
+<p><br /></p>
+<h3 id="gradient-of-cross-entropy-in-python">Gradient of cross-entropy in Python</h3>
+
+<pre class="prettyprint">
+def gradient_cross_entropy(y, s):
+    """Return the gradient of cross-entropy of vectors y and s.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    """
+    return -y / s
+</pre>
+
+<p><br /></p>
+<h2 id="error-at-input-to-softmax-layer">Error at input to softmax layer</h2>
+<hr />
+
+<p>By the chain rule, the sensitivity of cost <script type="math/tex">H</script> to the input to the softmax layer, <script type="math/tex">\mathbf x</script>, is given by a gradient-Jacobian product, each of which we’ve already computed:</p>
+
+<script type="math/tex; mode=display">
+\nabla_{\mathbf x} H = \nabla_{\mathbf s} H \ \mathbf J_{\mathbf x}(\mathbf s)
+</script>
+
+<p>The first term is the gradient of cross-entropy to softmax activation. The second term is the Jacobian of softmax activation to softmax input. Remember that we’re using row gradients - so this is a row vector times a matrix, resulting in a row vector. Expanding and simplifying, we get</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+\nabla_{\mathbf x} H
+&= -\frac{\mathbf y}{\mathbf s} 
+    \bigg[\text{diag}(\mathbf s)
+   -\mathbf s^\top \mathbf s \bigg]                         \\[1.6em]
+&= \frac{\mathbf y}{\mathbf s} \mathbf s^\top \mathbf s
+ - \frac{\mathbf y}{\mathbf s} \ \text{diag}(\mathbf s)     \\[1.6em]
+&= \mathbf y \ \mathbf S^{\text{repeated row}} - \mathbf y  \\[1.6em]
+&= \mathbf s - \mathbf y
+\end{aligned} </script>
+
+<p>The last line follows from the fact that <script type="math/tex">\mathbf y</script> was one-hot and applied to a matrix whose rows are identically our softmax distribution. But actually, any <script type="math/tex">\mathbf y</script> whose elements sum to <script type="math/tex">1</script> would satisfy the same property. To be more specific, the equation above would hold not just for one-hot <script type="math/tex">\mathbf y</script>, but for any <script type="math/tex">\mathbf y</script> specifying a distribution over classes.</p>
+
+<p><br /></p>
+<h3 id="error-at-input-to-softmax-layer-in-python">Error at input to softmax layer in Python</h3>
+
+<pre class="prettyprint">
+def error_softmax_input(y, s):
+    """Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: one-hot vector encoding correct class
+
+    :type s: ndarray
+    :param s: softmax vector
+
+    :returns: ndarray of size len(s)
+    """
+    return s - y
+</pre>
+
+<p><br /></p>
+<h1 id="now-with-a-batch-of-examples">Now with a batch of examples</h1>
+<hr />
+<p>Our work thus far considered a single example. Hence <script type="math/tex">\mathbf x</script>, our input to the softmax layer, was a row vector. Alternatively, if we feed forward a batch of <script type="math/tex">m</script> examples, then <script type="math/tex">\mathbf X</script> contains a row vector for each example in the minibatch.</p>
+
+<script type="math/tex; mode=display">
+\mathbf X =   \begin{bmatrix}
+\mathbf x_1   \\[0.6em]
+\mathbf x_2   \\[0.6em]
+        ...   \\[0.6em]
+\mathbf x_m   \end{bmatrix} \sim m \times n
+</script>
+
+<p><br /></p>
+<h2 id="batch-softmax">Batch softmax</h2>
+<hr />
+
+<p>Softmax is still a vector-to-vector transformation, but it’s applied independently to each row of <script type="math/tex">\mathbf X</script>.</p>
+
+<script type="math/tex; mode=display">
+\mathbf S =              \begin{bmatrix}
+\mathbf s(\mathbf x_1)   \\[0.6em]
+\mathbf s(\mathbf x_2)   \\[0.6em]
+        ...              \\[0.6em]
+\mathbf s(\mathbf x_m)   \end{bmatrix} \sim m \times n
+</script>
+
+<p><br /></p>
+<h3 id="batch-softmax-in-python">Batch softmax in Python</h3>
+<pre class="prettyprint">
+def batch_softmax(x):
+    """Return matrix of row-wise softmax of x.
+
+    :type x: ndarray
+    :param x: row per example and column per feature
+
+    :returns: ndarray of x.shape after row-wise softmax
+    """
+    # Stabilize by subtracting row max from each row
+    row_maxes = np.max(x, axis=1)
+    row_maxes = row_maxes[:, np.newaxis]  # for broadcasting
+    x = x - row_maxes
+
+    return np.array([softmax(row) for row in x])
+</pre>
+
+<p><br /></p>
+<h2 id="jacobian-of-batch-softmax">Jacobian of batch softmax</h2>
+<hr />
+
+<p>Because rows are independently mapped, the Jacobian of row <script type="math/tex">i</script> of <script type="math/tex">\mathbf S</script> with respect to row <script type="math/tex">j \neq i</script> of <script type="math/tex">\mathbf X</script> is a zero matrix.</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf x_{j \neq i}}(\mathbf s_i) = \mathbf 0
+</script>
+
+<p>and the Jacobian of row <script type="math/tex">i</script> of <script type="math/tex">\mathbf S</script> with respect to row <script type="math/tex">i</script> of <script type="math/tex">\mathbf X</script> is our familiar matrix from before</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf x_{i}}(\mathbf s_i) = \text{diag}(\mathbf s_i) - \mathbf s_i^\top \mathbf s_i
+</script>
+
+<p>That means our grand Jacobian of <script type="math/tex">\mathbf S</script> with respect to <script type="math/tex">\mathbf X</script> is a diagonal <script type="math/tex">m \times m</script> matrix of <script type="math/tex">n \times n</script> matrices, most of which are zero matrices:</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf X}(\mathbf S) = \begin{bmatrix}
+\mathbf J_{\mathbf x_1}(\mathbf s_1) & \mathbf 0 & ... & \mathbf 0 \\[1.1em]
+\mathbf 0 & \mathbf J_{\mathbf x_2}(\mathbf s_2) & ... & \mathbf 0 \\[1.1em]
+... & ... & ... & ...                                              \\[1.1em]
+\mathbf 0 & \mathbf 0 & ... & \mathbf J_{\mathbf x_m}(\mathbf s_m)
+\end{bmatrix} </script>
+
+<p><br /></p>
+<h3 id="jacobian-of-batch-softmax-in-python">Jacobian of batch softmax in Python</h3>
+
+<pre class="prettyprint">
+def jacobian_batch_softmax(s):
+    """Return array of row-wise Jacobians of s.
+
+    :type s: ndarray
+    :param s: matrix whose rows are softmaxed
+
+    :returns: ndarray of shape
+              (s.shape[0], s.shape[0], s.shape[1], s.shape[1])
+    """
+    # Array of nonzero Jacobians lying along tensor diagonal
+    return np.array([jacobian_softmax(row) for row in s])
+</pre>
+
+<p><br /></p>
+<h2 id="mean-cross-entropy-of-batch">Mean cross-entropy of batch</h2>
+<hr />
+
+<p>Let each row of <script type="math/tex">\mathbf Y</script> be a one-hot label for an example:</p>
+
+<script type="math/tex; mode=display">
+\mathbf Y =   \begin{bmatrix}
+\mathbf y_1   \\[0.6em]
+\mathbf y_2   \\[0.6em]
+        ...   \\[0.6em]
+\mathbf y_m   \end{bmatrix} \sim m \times n
+</script>
+
+<p>Then we compute the <em>mean cross-entropy</em> by averaging the cross-entropy of every matching pair of rows of <script type="math/tex">\mathbf Y</script> and <script type="math/tex">\mathbf S</script>. That is, we average over examples, the cross-entropy of each example:</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+H(\mathbf Y, \mathbf S)
+&= -\frac{1}{m} \sum_{i=1}^m \mathbf y_i \log \mathbf s_i^\top  \\[1.6em]
+&= -\frac{1}{m} \text{Tr}(\mathbf Y \log \mathbf S^\top)
+\end{aligned} </script>
+
+<p>The above simplification works because each row of <script type="math/tex">\mathbf S</script> is <script type="math/tex">\mathbf s_i</script>. So each column of <script type="math/tex">\mathbf S^\top</script> is <script type="math/tex">\mathbf s_i</script>. So the matrix product <script type="math/tex">\mathbf Y \log \mathbf S^\top</script> dots rows of <script type="math/tex">\mathbf Y</script> with columns of <script type="math/tex">(\log \mathbf S^\top)</script>, which is exactly what we want for cross-entropy. Now, we only care about entries where the row index equals the column index. That’s because cross-entropy sums the dot products of <em>matching</em> rows of <script type="math/tex">\mathbf Y</script> and <script type="math/tex">\mathbf S</script>. We can sum over matching dot products by using a trace.</p>
+
+<p><strong>Note:</strong> this formulation is computationally wasteful. We shouldn’t implement batch cross-entropy this way in a computer. We’re only using it for its analytic simplicity to work out the backpropogating error. However, the end analytic result is actually computationally efficient.</p>
+
+<p><br /></p>
+<h3 id="mean-cross-entropy-of-batch-in-python">Mean cross-entropy of batch in Python</h3>
+<pre class="prettyprint">
+def mean_cross_entropy(y, s):
+    """Return the mean row-wise cross-entropy of y and s.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: scalar, mean row-wise cross-entropy cost
+    """
+    return np.mean([cross_entropy(y_row, s_row)
+                    for y_row, s_row in zip(y, s)])
+</pre>
+
+<p><br /></p>
+<h2 id="jacobian-of-mean-cross-entropy-of-batch">Jacobian of mean cross-entropy of batch</h2>
+<hr />
+
+<p>Since mean cross-entropy maps a matrix to a scalar, its Jacobian with respect to <script type="math/tex">\mathbf S</script> will be a matrix.</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+\mathbf J_{\mathbf S}(H)
+&= -\mathbf J_{\mathbf S}
+    \bigg(\frac{1}{m} \text{Tr}(\mathbf Y \log \mathbf S^\top) \bigg)  \\[1.6em]
+&= -\frac{1}{m} \mathbf J_{\mathbf S}
+    \text{Tr}(\mathbf Y \log \mathbf S^\top)                           \\[1.6em]
+&= -\frac{1}{m} \mathbf Y
+    \mathbf J_{\mathbf S} \log \mathbf S                               \\[1.6em]
+&= -\frac{1}{m} \mathbf Y \odot \frac{1}{\mathbf S}                    \\[1.6em]
+&= -\frac{1}{m} \frac{\mathbf Y}{\mathbf S}
+\end{aligned} </script>
+
+<p>Since <script type="math/tex">\log \mathbf S</script> is an element-wise operation mapping a matrix to a matrix, its Jacobian is a matrix of element-wise derivatives which we chain rule by a Hadamard product, rather than by a dot product.</p>
+
+<p><br /></p>
+<h3 id="why-this-works">Why this works</h3>
+
+<p>This procedure is always true for any element-wise operations. We can see this by concatenating the rows of <script type="math/tex">\mathbf S</script>.</p>
+
+<script type="math/tex; mode=display">
+\mathbf s = \begin{bmatrix}
+\mathbf s_1   \ \,
+\mathbf s_2   \ \,
+        ...   \ \,
+\mathbf s_m   \end{bmatrix}
+</script>
+
+<p>such that <script type="math/tex">\mathbf s</script> is a row vector of length <script type="math/tex">m \cdot n</script>. Then <script type="math/tex">\log</script> is an element-wise vector-to-vector transformation again. So it has an <script type="math/tex">m \cdot n \times m \cdot n</script> diagonal Jacobian matrix.</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf s}(\log \mathbf s) =
+\text{diag}\left(\frac{\mathbf 1}{\mathbf s}\right)
+</script>
+
+<p>If we flatten <script type="math/tex">\mathbf Y</script> in the same way</p>
+
+<script type="math/tex; mode=display">
+\mathbf y = \begin{bmatrix}
+\mathbf y_1   \ \,
+\mathbf y_2   \ \,
+        ...   \ \,
+\mathbf y_m   \end{bmatrix}
+</script>
+
+<p>then we get</p>
+
+<script type="math/tex; mode=display">
+H(\mathbf y, \mathbf s) = - \frac{1}{m} \mathbf y \log \mathbf s^\top
+</script>
+
+<p>and so</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+\mathbf J_{\mathbf s}(H)
+&= -\frac{1}{m} \mathbf y
+   \frac{\partial}{\partial \mathbf s} \Big(\log \mathbf s \Big)      \\[1.6em]
+&= -\frac{1}{m} \mathbf y
+   \text{diag}\left(\frac{\mathbf 1}{\mathbf s}\right)                \\[1.6em]
+&= -\frac{1}{m} \frac{\mathbf y}{\mathbf s}
+\end{aligned} </script>
+
+<p>Now since <script type="math/tex">\mathbf y</script> and <script type="math/tex">\mathbf s</script> are each of length <script type="math/tex">m \cdot n</script>, we can reshape this formulation back into matrices, understanding that in both cases the division is element-wise:</p>
+
+<script type="math/tex; mode=display">
+\mathbf J_{\mathbf s}(H) = -\frac{1}{m} \frac{\mathbf Y}{\mathbf S}
+</script>
+
+<p>and we have our result. <script type="math/tex">\square</script></p>
+
+<p><br /></p>
+<h3 id="jacobian-of-mean-cross-entropy-of-batch-in-python">Jacobian of mean cross-entropy of batch in Python</h3>
+<pre class="prettyprint">
+def jacobian_mean_cross_entropy(y, s):
+    """Return the Jacobian matrix for mean cross-entropy.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape holding gradients as rows
+    """
+    return -(1 / y.shape[0]) * (y / s)
+</pre>
+
+<p><br /></p>
+<h2 id="error-at-input-to-softmax-layer-for-batch">Error at input to softmax layer for batch</h2>
+<hr />
+
+<p>We apply the chain rule just as before. The only difference is that our gradient-Jacobian product is now a matrix-tensor product. Multiplying a matrix against a tensor is difficult. One approach is to flatten everything, do a vector-matrix product as before, and then reshape everything, but this is not elegant or intuitive. Instead, we dot rows of <script type="math/tex">\mathbf J_{\mathbf S}(H)</script>, each a gradient of a row-wise cross-entropy, against diagonal elements of <script type="math/tex">\mathbf J_{\mathbf X}(\mathbf S)</script>, each a Jacobian matrix of a row-wise softmax.</p>
+
+<p>We are able to do this because of the fact that <script type="math/tex">\mathbf J_{\mathbf X}(\mathbf S)</script> is diagonal, which breaks the matrix-tensor product into an element-wise dot product of gradients and Jacobians. We owe this entirely to the fact that softmax is a row-to-row transformation, such that its Jacobian tensor is diagonal.</p>
+
+<script type="math/tex; mode=display"> \begin{aligned}
+\mathbf J_{\mathbf X}(H)
+&= \mathbf J_{\mathbf S}(H) \ \mathbf J_{\mathbf X}(\mathbf S)    \\[1.6em]
+&= \bigg(-\frac{1}{m} \frac{\mathbf Y}{\mathbf S}\bigg)
+   \mathbf J_{\mathbf X}(\mathbf S)                               \\[2.4em]
+&= \frac{1}{m}              \begin{bmatrix}
+-\mathbf y_1 / \mathbf s_1  \\[0.4em]
+-\mathbf y_2 / \mathbf s_2  \\[0.4em]
+...                         \\[0.4em]
+-\mathbf y_m / \mathbf s_m  \end{bmatrix}
+\mathbf J_{\mathbf X}(\mathbf S)  \\[2.4em]
+\\[0.6em]
+&= \frac{1}{m} \begin{bmatrix}
+-\frac{\mathbf y_1}{\mathbf s_1} \mathbf J_{\mathbf x_1}(\mathbf s_1)  \\[1.4em]
+-\frac{\mathbf y_2}{\mathbf s_2} \mathbf J_{\mathbf x_2}(\mathbf s_2)  \\[1.4em]
+...                                                                    \\[1.4em]
+-\frac{\mathbf y_m}{\mathbf s_m} \mathbf J_{\mathbf x_m}(\mathbf s_m)
+\end{bmatrix}                                                          \\[1.4em]
+\\[0.6em]
+&= \frac{1}{m}             \begin{bmatrix}
+\mathbf s_1 - \mathbf y_1  \\[0.4em]
+\mathbf s_2 - \mathbf y_2  \\[0.4em]
+...                        \\[0.4em]
+\mathbf s_m - \mathbf y_m  \end{bmatrix}                              \\[1.4em]
+\\[0.6em]
+&= \frac{1}{m} \Big(\mathbf S - \mathbf Y\Big)
+\end{aligned} </script>
+
+<p>Where the third step followed by the fact that <script type="math/tex">J_{\mathbf X}(\mathbf S)</script> is diagonal. So the sensitivity of cost to the weighted input to our softmax layer is just the difference of our softmax matrix and our matrix of one-hot labels, where every element is divided by the number of examples in the batch.</p>
+
+<p><br /></p>
+<h3 id="error-at-input-to-softmax-layer-for-batch-in-python">Error at input to softmax layer for batch in Python</h3>
+
+<pre class="prettyprint">
+def batch_error_softmax_input(y, s):
+    """Return the sensitivity of cross-entropy cost to input of softmax.
+
+    :type y: ndarray
+    :param y: matrix whose rows are one-hot vectors encoding
+              the correct class of each example.
+
+    :type s: ndarray
+    :param s: matrix whose every row is a softmax distribution over
+              class predictions for a given example.
+
+    :returns: ndarray of shape y.shape
+    """
+    return (1 / y.shape[0]) * (S - Y)
+</pre>
+
+<p><br /> <br /></p>

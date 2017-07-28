@@ -1,0 +1,127 @@
+<p>There are lots of MNIST loaders out there. This one…</p>
+
+<ul>
+  <li>Loads straight into Numpy (faster)</li>
+  <li>Downloads automatically if missing (easier)</li>
+</ul>
+
+<p><strong>Install:</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">pip install mnist_web</code></li>
+</ul>
+
+<p><strong>Usage:</strong></p>
+
+<ul>
+  <li><code class="highlighter-rouge">
+train_images, train_labels, test_images, test_labels = mnist(path=None, onehot=False)
+</code></li>
+</ul>
+
+<p><strong>Options:</strong></p>
+
+<ul>
+  <li>
+    <p>If you leave <code class="highlighter-rouge">path</code> as <code class="highlighter-rouge">None</code>, it defaults to <code class="highlighter-rouge">/home/USER/data/mnist/</code> or the Windows equivalent, which I believe is <code class="highlighter-rouge">C:\Users\USER\data\mnist\</code>.</p>
+  </li>
+  <li>
+    <p>Any of the four MNIST files missing from <code class="highlighter-rouge">path</code> will be downloaded to <code class="highlighter-rouge">path</code>, and it will tell you that’s happening.</p>
+  </li>
+  <li>
+    <p>If you set <code class="highlighter-rouge">onehot</code> to <code class="highlighter-rouge">True</code> then <code class="highlighter-rouge">train_labels</code> and <code class="highlighter-rouge">test_labels</code> will each be a matrix whose rows are onehot labels.</p>
+  </li>
+</ul>
+
+<p><strong>Speed:</strong></p>
+
+<ul>
+  <li>Loads in 0.5 seconds. Downloads and loads in 2.5 seconds.</li>
+</ul>
+
+<p><br /></p>
+<h2 id="source-code">Source code</h2>
+
+<hr />
+
+<pre class="prettyprint">
+"""Load from /home/USER/data/mnist or elsewhere; download if missing."""
+
+import gzip
+import os
+from urllib.request import urlretrieve
+
+import numpy as np
+
+
+def mnist(path=None, onehot=False):
+    """Return train_images, train_labels, test_images, test_labels.
+
+    :type path: str
+    :param path: path to folder containing mnist, default value
+                 is /home/USER/data/mnist or Windows equivalent
+
+    :type onehot: bool
+    :param onehot: return labels as matrices with onehot rows
+
+    :returns: train_images, train_labels, test_images, test_labels
+
+    Note:
+        Downloads to path any mnist files missing from path
+    """
+    url = 'http://yann.lecun.com/exdb/mnist/'
+    files = {'train_images': 'train-images-idx3-ubyte.gz',
+             'train_labels': 'train-labels-idx1-ubyte.gz',
+             'test_images': 't10k-images-idx3-ubyte.gz',
+             'test_labels': 't10k-labels-idx1-ubyte.gz'}
+
+    if path is None:
+        # Set path to /home/USER/data/mnist or Windows equivalent
+        path = os.path.join(os.path.expanduser('~'), 'data', 'mnist')
+
+    # Create path if it doesn't exist
+    os.makedirs(path, exist_ok=True)
+
+    # Download missing files
+    for file in files.values():
+        if file not in os.listdir(path):
+            urlretrieve(''.join((url, file)), os.path.join(path, file))
+            print("Downloaded %s to %s" % (file, path))
+
+    def _images(filepath):
+        """Return images loaded from path."""
+        with gzip.open(filepath) as f:
+            # First 16 bytes are magic_number, n_imgs, n_rows, n_cols
+            pixels = np.frombuffer(f.read(), 'B', offset=16)
+        return pixels.reshape(-1, 784).astype('float32') / 255
+
+    def _labels(filepath, onehot):
+        """Return labels loaded from path."""
+        def _onehot(integers):
+            """Return matrix whose rows are onehot encodings of integers."""
+            n_rows = integers.size
+            n_cols = integers.max() + 1
+            onehot = np.zeros((n_rows, n_cols), dtype='uint8')
+            onehot[np.arange(n_rows), integers] = 1
+            return onehot
+
+        with gzip.open(filepath) as f:
+            # First 8 bytes are magic_number, n_labels
+            integer_labels = np.frombuffer(f.read(), 'B', offset=8)
+
+        if onehot:
+            return _onehot(integer_labels)
+        else:
+            return integer_labels
+
+    train_images = _images(os.path.join(path, files['train_images']))
+    train_labels = _labels(os.path.join(path, files['train_labels']), onehot)
+    test_images = _images(os.path.join(path, files['test_images']))
+    test_labels = _labels(os.path.join(path, files['test_labels']), onehot)
+
+    return train_images, train_labels, test_images, test_labels
+</pre>
+
+<hr />
+
+<p><br /></p>

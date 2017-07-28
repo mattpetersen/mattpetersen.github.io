@@ -1,0 +1,174 @@
+<p>This is mostly for my own review. I’ll be updating it periodically. Eventually I’d like it to be a one-stop shop for brushing up on theoretical probability.</p>
+
+<p><br /></p>
+<h2 id="basics">Basics</h2>
+
+<p>A state space <script type="math/tex">\mathcal{S}</script> is a set of outcomes.</p>
+
+<script type="math/tex; mode=display">
+\mathcal{S} = \{\text{heads},\ \text{tails} \}
+</script>
+
+<p>A random variable <script type="math/tex">X</script> is a deterministic function from the state space to numbers.</p>
+
+<script type="math/tex; mode=display">
+X(\text{heads}) = 1, \quad X(\text{tails}) = 0
+</script>
+
+<p>A probability function assigns probabilities to those numbers</p>
+
+<script type="math/tex; mode=display">
+p(1) = 0.5, \quad p(0) = 0.5
+</script>
+
+<p><br /></p>
+<h2 id="expectation">Expectation</h2>
+
+<p>Expectation is a number, the center of mass of a probability function. It’s a convex sum over all possible values <script type="math/tex">x</script> of <script type="math/tex">X</script>, each weighted by its probability <script type="math/tex">p(x)</script>.</p>
+
+<script type="math/tex; mode=display">
+\mathbb{E}[X] = \sum_{x \in X} p(x) x
+</script>
+
+<p>The expectation of a constant is the same constant.</p>
+
+<script type="math/tex; mode=display">
+\mathbb{E}[c] = \sum_{x \in X} p(x) c = c \sum_{x \in X} p(x) = c
+</script>
+
+<p>Expectation is linear.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\mathbb{E}[aX + b]
+&= \sum_{x \in X} p(x) (aX + b) \\[2.6em]
+&= \sum_{x \in X} p(x) aX + \sum_{x \in X} p(x) b \\[2.6em]
+&= a \sum_{x \in X} p(x) X + b \sum_{x \in X} p(x) \\[2.6em]
+&= a \mathbb{E}[X] + b
+\end{aligned}
+</script>
+
+<p><br /></p>
+<h2 id="variance">Variance</h2>
+
+<p>Variance is a number, the weighted average distance of any <script type="math/tex">x \in X</script> from the mean <script type="math/tex">\mathbb{E}[X]</script>. The weights are <script type="math/tex">p(x)</script> and the distance metric is squared <script type="math/tex">L^2</script>, or rather, squared Euclidean distance.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Var}[X]
+&= \mathbb{E} \Big[ \big( X - \mathbb{E}[X] \big)^2 \Big] \\[2.6em]
+&= \mathbb{E} \Big[ X^2 - 2 \mathbb{E}[X] X + \mathbb{E}[X]^2 \Big] \\[2.6em]
+&= \mathbb{E}[X^2] - 2 \mathbb{E}[X] \mathbb{E}[X] + \mathbb{E}[X]^2 \\[2.6em]
+&= \mathbb{E}[X^2] - \mathbb{E}[X]^2
+\end{aligned}
+</script>
+
+<p>The variance of a constant is zero.</p>
+
+<script type="math/tex; mode=display">
+\text{Var}[c] = \mathbb{E}[c^2] - \mathbb{E}[c]^2 = c^2 - [c]^2
+</script>
+
+<p>Variance is <strong>not</strong> linear, but what follows is a useful property:</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Var}[aX + b]
+&= \mathbb{E}[(aX + b)^2] - \mathbb{E}[aX + b]^2 \\[2.6em]
+&= \mathbb{E}[a^2X^2 + 2abX + b^2] - [a\mathbb{E}[X] + b]^2 \\[2.6em]
+&= a^2\mathbb{E}[X^2] + 2ab\mathbb{E}[X] + b^2 - a^2\mathbb{E}[X]^2 - 2ab\mathbb{E}[X] - b^2 \\[2.6em]
+&= a^2\mathbb{E}[X^2] - a^2\mathbb{E}[X]^2 \\[2.6em]
+&= a^2 \text{Var}[X]
+\end{aligned}
+</script>
+
+<p>Sometimes we write <script type="math/tex">\sigma^2_x</script> for variance. The square root is called standard deviation
+<script type="math/tex; mode=display">
+\sigma_x = \sqrt{\text{Var}[X]}
+</script></p>
+
+<p><br /></p>
+<h2 id="covariance">Covariance</h2>
+
+<p>Covariance is similar to variance. It’s the weighted average product of the distance of <script type="math/tex">X</script> from its mean, with the distance of <script type="math/tex">Y</script> from its mean.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Cov}(X, Y)
+&= \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])] \\[2.6em]
+&= \mathbb{E}[(XY - \mathbb{E}[X]Y - X\mathbb{E}[Y] + \mathbb{E}[X]\mathbb{E}[Y])] \\[2.6em]
+&= \mathbb{E}[XY] - 2\mathbb{E}[X]\mathbb{E}[Y] + \mathbb{E}[X]\mathbb{E}[Y] \\[2.6em]
+&= \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]
+\end{aligned}
+</script>
+
+<p>Covariance is symmetric.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Cov}(X, Y)
+&= \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y] \\[2.6em]
+&= \mathbb{E}[YX] - \mathbb{E}[Y]\mathbb{E}[X] \\[2.6em]
+&= \text{Cov}(Y, X)
+\end{aligned}
+</script>
+
+<p>The covariance of <script type="math/tex">X</script> and a constant <script type="math/tex">c</script> is zero.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Cov}(X, c)
+&= \mathbb{E}[Xc] - \mathbb{E}[X]\mathbb{E}[c] \\[2.6em]
+&= c\mathbb{E}[X] - c\mathbb{E}[X] = 0
+\end{aligned}
+</script>
+
+<p>The covariance of <script type="math/tex">X</script> and a linear function of <script type="math/tex">X</script> is slope times variance.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\text{Cov}(X, aX + b)
+&= \mathbb{E}[X(aX + b)] - \mathbb{E}[X]\mathbb{E}[aX + b] \\[2.6em]
+&= \mathbb{E}[aX^2 + bX] - \mathbb{E}[X](a\mathbb{E}[X] + b) \\[2.6em]
+&= a\mathbb{E}[X^2] + b\mathbb{E}[X] - a\mathbb{E}[X]^2 - b\mathbb{E}[X] \\[2.6em]
+&= a\mathbb{E}[X^2] - a\mathbb{E}[X]^2 \\[2.6em]
+&= a \text{Var}(X)
+\end{aligned}
+</script>
+
+<p><br /></p>
+<h2 id="correlation">Correlation</h2>
+
+<p>Correlation is covariance normalized to lie between zero and one.</p>
+
+<script type="math/tex; mode=display">
+\rho = \frac{\text{Cov}(X, Y)}{\sigma_x \sigma_y}
+</script>
+
+<p>The correlation of <script type="math/tex">X</script> and a linear function of <script type="math/tex">X</script> is one.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\rho
+&= \frac{\text{Cov}(X, aX + b)}{\sigma_x \sigma_{aX + b}} \\[2.6em]
+&= \frac{a\sigma^2_x}{\sigma_x \sqrt{a^2\sigma^2_x}} \\[2.6em]
+&= \frac{a\sigma^2_x}{a \sigma^2_x} = 1
+\end{aligned}
+</script>
+
+<p>Correlation is a measure of <strong>linear</strong> relationship. It does not capture non-linear effects. As such, independence is a stricter condition than zero correlation. Independence implies zero covariance, but zero covariance does <strong>not</strong> imply independence. However, non-zero covariance implies dependence, specifically, at least some linear dependence.</p>
+
+<p><br /></p>
+<h2 id="estimation">Estimation</h2>
+
+<p>The sample mean is unbiased.</p>
+
+<script type="math/tex; mode=display">
+\begin{aligned}
+\mathbb{E} \left[ \frac{1}{n} \sum_{x \in X} x \right]
+&= \frac{1}{n} \sum_{x \in X} \mathbb{E}[x] \\[2.6em]
+&= \frac{1}{n} \cdot n \mathbb{E}[X] \\[2.6em]
+&= \mathbb{E}[X]
+\end{aligned}
+</script>
+
