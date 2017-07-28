@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Another CIFAR-10 Loader"
+title: "Load CIFAR-10 with Numpy"
 date: 2017-07-26
 header: true
 footer: true
 comments: true
-tags: python, cifar-10, urllib, tarfile
+tags: python, numpy, load cifar-10, frombuffer, urllib, urlretrieve, tarfile
 ---
 
 There are lots of CIFAR-10 loaders out there. This one...
@@ -21,7 +21,7 @@ There are lots of CIFAR-10 loaders out there. This one...
 **Usage:**
 
 * `
-train_images, train_labels, test_images, test_labels = cifar10(path=None, onehot=False)
+train_images, train_labels, test_images, test_labels = cifar10(path=None)
 `
 
 **Options:**
@@ -30,11 +30,13 @@ train_images, train_labels, test_images, test_labels = cifar10(path=None, onehot
 
 * If the CIFAR-10 tar file is missing from `path`, it will be downloaded to `path`, and you'll be told that's happening.
 
-* If you set `onehot` to `True` then `train_labels` and `test_labels` will each be a matrix whose rows are onehot labels.
+* Labels are onehot row vectors each of length 10
+
+* Images are flattened row vectors each of length 3072
 
 **Speed:**
 
-* Loads in 3.5 seconds. Downloads and loads in 9.5 seconds.
+* Loads in 3.5 seconds. Downloads and loads in 9.5 seconds if tar file not present in `path`.
 
 <br>
 ## Source code
@@ -47,33 +49,23 @@ train_images, train_labels, test_images, test_labels = cifar10(path=None, onehot
 import tarfile
 import os
 from urllib.request import urlretrieve
-
 import numpy as np
 
 
-def cifar10(path=None, onehot=False):
-    """Return train_images, train_labels, test_images, test_labels.
+def cifar10(path=None):
+    r"""Return (train_images, train_labels, test_images, test_labels).
 
-    :type path: str
-    :param path: path to folder containing mnist, default value
-                 is /home/USER/data/mnist or Windows equivalent
+    Args:
+        path (str): Directory containing CIFAR-10. Default is
+            /home/USER/data/cifar10 or C:\Users\USER\data\cifar10.
+            Create if nonexistant. Download CIFAR-10 if missing.
 
-    :type onehot: bool
-    :param onehot: return labels as matrices with onehot rows
-
-    :returns: train_images, train_labels, test_images, test_labels
-
-    Note:
-        Downloads to path any mnist files missing from path
+    Returns:
+        Tuple of (train_images, train_labels, test_images, test_labels), each
+            a matrix. Rows are examples. Columns of images are pixel values,
+            with the order (red -> blue -> green). Columns of labels are a
+            onehot encoding of the correct class.
     """
-    def _onehot(integers):
-        """Return matrix whose rows are onehot encodings of integers."""
-        n_rows = integers.size
-        n_cols = integers.max() + 1
-        onehot = np.zeros((n_rows, n_cols), dtype='uint8')
-        onehot[np.arange(n_rows), integers] = 1
-        return onehot
-
     url = 'https://www.cs.toronto.edu/~kriz/'
     tar = 'cifar-10-binary.tar.gz'
     files = ['cifar-10-batches-bin/data_batch_1.bin',
@@ -84,7 +76,7 @@ def cifar10(path=None, onehot=False):
              'cifar-10-batches-bin/test_batch.bin']
 
     if path is None:
-        # Set path to home/USER/data/cifar10 or Windows equivalent
+        # Set path to /home/USER/data/mnist or C:\Users\USER\data\mnist
         path = os.path.join(os.path.expanduser('~'), 'data', 'cifar10')
 
     # Create path if it doesn't exist
@@ -121,21 +113,30 @@ def cifar10(path=None, onehot=False):
 
     # Parse data from buffer
     # -- Examples are in chunks of 3,073 bytes
-    # -- First byte is label
+    # -- First byte of each chunk is the label
     # -- Next 32 * 32 * 3 = 3,072 bytes are its corresponding image
+
+    # Labels are the first byte of every chunk
     labels = buffr[::3073]
+
     # Pixels are everything remaining after we delete the labels
     pixels = np.delete(buffr, np.arange(0, buffr.size, 3073))
     images = pixels.reshape(-1, 3072).astype('float32') / 255
 
+    # Split into train and test
     train_images, test_images = images[:50000], images[50000:]
     train_labels, test_labels = labels[:50000], labels[50000:]
 
-    if onehot:
-        train_labels = _onehot(train_labels)
-        test_labels = _onehot(test_labels)
+    def _onehot(integer_labels):
+        """Return matrix whose rows are onehot encodings of integers."""
+        n_rows = len(integer_labels)
+        n_cols = integer_labels.max() + 1
+        onehot = np.zeros((n_rows, n_cols), dtype='uint8')
+        onehot[np.arange(n_rows), integer_labels] = 1
+        return onehot
 
-    return train_images, train_labels, test_images, test_labels
+    return train_images, _onehot(train_labels), \
+        test_images, _onehot(test_labels)
 </pre>
 
 ---
