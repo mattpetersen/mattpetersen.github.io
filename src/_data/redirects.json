@@ -1,0 +1,46 @@
+[
+  {
+    "from": "/unity-can-be-beautiful/index.html",
+    "to": "/unity-can-be-beautiful.html"
+  },
+  {
+    "from": "/tidal-music-player-for-linux/index.html",
+    "to": "/tidal-music-player-for-linux.html"
+  },
+  {
+    "from": "/softmax-with-cross-entropy/index.html",
+    "to": "/softmax-with-cross-entropy.html"
+  },
+  {
+    "from": "/deriving-newtons-method/index.html",
+    "to": "/deriving-newtons-method.html"
+  },
+  {
+    "from": "/load-cifar10-with-numpy/index.html",
+    "to": "/load-cifar10-with-numpy.html"
+  },
+  {
+    "from": "/load-mnist-with-numpy/index.html",
+    "to": "/load-mnist-with-numpy.html"
+  },
+  {
+    "from": "/probability-theory/index.html",
+    "to": "/probability-theory.html"
+  },
+  {
+    "from": "/another-cifar10-loader.html",
+    "to": "/load-cifar10-with-numpy.html"
+  },
+  {
+    "from": "/another-cifar10-loader/index.html",
+    "to": "/load-cifar10-with-numpy.html"
+  },
+  {
+    "from": "/another-mnist-loader.html",
+    "to": "/load-mnist-with-numpy.html"
+  },
+  {
+    "from": "/another-mnist-loader/index.html",
+    "to": "/load-mnist-with-numpy.html"
+  }
+]

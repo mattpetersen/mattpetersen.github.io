@@ -1,0 +1,13 @@
+<ol class="post-list" role="list">
+  {% for post in collections.posts | reverse %}
+  <li>
+    <a href="{{ post.url }}">
+      <div>
+        <h3>{{ post.data.title }}</h3>
+        <time datetime="{{ post.date | isoDate }}">{{ post.date | dateLabel }}</time>
+        <p>{{ post.data.description }}</p>
+      </div>
+    </a>
+  </li>
+  {% endfor %}
+</ol>

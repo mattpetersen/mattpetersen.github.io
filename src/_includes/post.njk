@@ -1,0 +1,13 @@
+---
+layout: base.njk
+isPost: true
+---
+<article>
+  <header class="page-header">
+    <h1>{{ title }}</h1>
+    <p class="eyebrow"><time datetime="{{ page.date | isoDate }}">{{ page.date | dateLabel }}</time></p>
+    {% if topics.length %}<p class="topics">{{ topics | join(' / ') }}</p>{% endif %}
+  </header>
+  <div class="prose">{{ content | safe }}</div>
+  <div class="post-end"><a href="/">← All blog posts</a></div>
+</article>
